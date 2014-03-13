@@ -1,0 +1,139 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package fuzzy.operations;
+
+import fuzzy.database.Connector;
+import fuzzy.ddl.Relation;
+import fuzzy.helpers.Logger;
+import fuzzy.translator.Translator;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ *
+ * @author bishma-stornelli
+ */
+public class CreateFuzzyDomainFromColumnOperation extends Operation {
+
+    protected String domainName;
+    protected String schemaName;
+    protected String tableName;
+    protected String columnName;
+
+    public CreateFuzzyDomainFromColumnOperation(Connector connector) {
+        super(connector);
+    }
+
+    @Override
+    public void execute() throws SQLException {
+        String countSql = "SELECT COUNT(*) FROM "
+                + (schemaName != null ? schemaName + "." : "")
+                + tableName + " WHERE " + columnName + " IS NOT NULL";
+        Logger.debug("Validating values with: " + countSql);
+        ResultSet count = connector.fastQuery(countSql);
+        if (count.next() && count.getInt(1) == 0) {
+            throw Translator.FR_EMPTY_VALUES_LIST(schemaName, tableName, columnName);
+        }
+        // TODO this should be refactored to some better place
+        String insertDomain = "INSERT INTO information_schema_fuzzy.domains "
+                + "VALUES (null, (select database()), '" + domainName + "')";
+        Logger.debug("Inserting domain with: " + insertDomain);
+        Integer domainId = null;
+        try {
+            domainId = connector.fastInsert(insertDomain);
+        } catch (SQLException ex) {
+            String message = ex.getMessage();
+            if (ex.getErrorCode() == 1062) { // duplicated key
+                if (message.contains("Duplicate entry") && message.contains("for key 'table_schema'")) {
+                    throw Translator.FR_DUPLICATE_DOMAIN_NAME(domainName);
+                }            
+            } else if (ex.getErrorCode() == 1048) {// not database selected
+                if (message.contains("Column 'table_schema' cannot be null")) {
+                    throw Translator.ER_NO_DB_ERROR;
+                }
+            }
+            throw ex;
+        }
+        
+        String insertLabels = "INSERT INTO information_schema_fuzzy.labels " +
+                "(domain_id, label_name) " +
+                "SELECT DISTINCT " + domainId + ", " + columnName +
+                " FROM " + (schemaName != null ? schemaName + "." : "") + tableName +
+                " WHERE " + columnName + " IS NOT NULL";
+        Logger.debug("Inserting labels with: " + insertLabels);
+        connector.fastUpdate(insertLabels);
+        
+        String insertSimilarities = "INSERT INTO information_schema_fuzzy.similarities "
+                + "SELECT label_id, label_id, 1.0, 1 "
+                + "FROM information_schema_fuzzy.labels "
+                + "WHERE domain_id = " + domainId;
+        Logger.debug("Inserting similarities with: " + insertSimilarities);
+        connector.fastUpdate(insertSimilarities);
+    }
+
+    public String getDomainName() {
+        return domainName;
+    }
+
+    public void setDomainName(String domainName) {
+        this.domainName = domainName;
+    }
+
+    /**
+     * Get the value of schemaName
+     *
+     * @return the value of schemaName
+     */
+    public String getSchemaName() {
+        return schemaName;
+    }
+
+    /**
+     * Set the value of schemaName
+     *
+     * @param schemaName new value of schemaName
+     */
+    public void setSchemaName(String schemaName) {
+        this.schemaName = schemaName;
+    }
+
+    /**
+     * Get the value of tableName
+     *
+     * @return the value of tableName
+     */
+    public String getTableName() {
+        return tableName;
+    }
+
+    /**
+     * Set the value of tableName
+     *
+     * @param tableName new value of tableName
+     */
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    /**
+     * Get the value of columnName
+     *
+     * @return the value of columnName
+     */
+    public String getColumnName() {
+        return columnName;
+    }
+
+    /**
+     * Set the value of columnName
+     *
+     * @param columnName new value of columnName
+     */
+    public void setColumnName(String columnName) {
+        this.columnName = columnName;
+    }
+}

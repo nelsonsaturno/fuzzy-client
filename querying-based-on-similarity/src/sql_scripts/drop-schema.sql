@@ -1,0 +1,1 @@
+DROP DATABASE IF EXISTS information_schema_fuzzy;
