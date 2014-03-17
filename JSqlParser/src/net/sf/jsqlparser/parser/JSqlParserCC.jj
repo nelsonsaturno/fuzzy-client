@@ -113,6 +113,8 @@ import net.sf.jsqlparser.statement.table.CreateTable;
 import net.sf.jsqlparser.statement.table.Index;
 import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyDomain;
 import net.sf.jsqlparser.statement.fuzzy.domain.AlterFuzzyDomain;
+import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyType2Domain;
+import net.sf.jsqlparser.statement.fuzzy.domain.OrderedDomain;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.insert.Insert;
@@ -231,6 +233,9 @@ TOKEN: /* SQL Keywords. prefixed with K_ to avoid name clashes */
 |   <K_CONSTRAINT:"CONSTRAINT">
 |   <K_REFERENCES:"REFERENCES">
 |   <K_SIMILARITY:"SIMILARITY">
+|   <K_POSSIBILITY:"POSSIBILITY">
+|   <K_DISTRIBUTION:"DISTRIBUTION">
+|   <K_RANGE_SEP:"..">
 }
 
 
@@ -278,8 +283,11 @@ Statement Statement() :
     |
     stm =  Replace()
     |
-    LOOKAHEAD(<K_CREATE> <K_FUZZY>)
+    LOOKAHEAD(6, CreateFuzzyDomain())
     stm = CreateFuzzyDomain()
+    |
+    LOOKAHEAD(6, CreateFuzzyType2Domain())
+    stm = CreateFuzzyType2Domain()
     |
     stm = CreateTable()
     |
@@ -1789,23 +1797,26 @@ CreateFuzzyDomain CreateFuzzyDomain():
     Column column;
 }
 {
-    <K_CREATE> <K_FUZZY> <K_DOMAIN> domain=<S_IDENTIFIER> <K_AS> <K_VALUES>
-    (
-        "("
-            expression=PrimaryExpression() {expressionList.add(expression);}
-                ("," expression=PrimaryExpression() {expressionList.add(expression);})*
-        ")"
+    <K_CREATE> <K_FUZZY> <K_DOMAIN> domain=<S_IDENTIFIER> <K_AS> 
+    
+        <K_VALUES>
+            (
+                "("
+                    expression=PrimaryExpression() {expressionList.add(expression);}
+                        ("," expression=PrimaryExpression() {expressionList.add(expression);})*
+                ")"
 
-        [<K_SIMILARITY> "{" similarity=Similarity() {similarityList.add(similarity); }
-                ("," similarity=Similarity() {similarityList.add(similarity);} )* "}" ]
+                [<K_SIMILARITY> "{" similarity=Similarity() {similarityList.add(similarity); }
+                        ("," similarity=Similarity() {similarityList.add(similarity);} )* "}" ]
 
-        {  return new CreateFuzzyDomain(domain.image,
-                                        new ExpressionList(expressionList),
-                                        new ExpressionList(similarityList));   }
-    |
-        <K_FROM> column=Column()
-        { return new CreateFuzzyDomain(domain.image, column); }
-    )
+                {  return new CreateFuzzyDomain(domain.image,
+                                                new ExpressionList(expressionList),
+                                                new ExpressionList(similarityList));   }
+            |
+                <K_FROM> column=Column()
+                { return new CreateFuzzyDomain(domain.image, column); }
+            )
+
 }
 Similarity Similarity():
 {
@@ -1817,6 +1828,51 @@ Similarity Similarity():
     "(" label1=PrimaryExpression() "," label2=PrimaryExpression() ")"
         "/" [ "+" | "-" { tmp = "-"; }] ( token=<S_DOUBLE> | token=<S_INTEGER> )
     { return new Similarity(label1, label2, new DoubleValue(tmp+token.image)); }
+}
+
+
+CreateFuzzyType2Domain CreateFuzzyType2Domain():
+{
+    Token domain;
+    OrderedDomain ordered_domain;
+}
+{
+    <K_CREATE> <K_FUZZY> <K_DOMAIN> domain=<S_IDENTIFIER> <K_AS> 
+        <K_POSSIBILITY> <K_DISTRIBUTION> <K_ON> ordered_domain=OrderedDomain()
+        { return new CreateFuzzyType2Domain(domain.image, ordered_domain); }
+}
+OrderedDomain OrderedDomain():
+{
+    Token lower_bound;
+    Token upper_bound;
+    Token type;
+}
+{
+    (
+        type=<S_IDENTIFIER>
+        { 
+            return new OrderedDomain();
+            //return new UnboundedOrderedDomain(type.image);
+        }
+    |
+        lower_bound=<S_INTEGER> <K_RANGE_SEP> upper_bound=<S_INTEGER>
+        { 
+            return new OrderedDomain();
+            //return new BoundedIntegerOrderedDomain(Long.parseLong(lower_bound.image), Long.parseLong(upper_bound.image));
+        }
+    |   
+        lower_bound=<S_DOUBLE> <K_RANGE_SEP> upper_bound=<S_DOUBLE>
+        {
+            return new OrderedDomain();
+            //return new BoundedDoubleOrderedDomain(Double.parseDouble(lower_bound.image), Double.parseDouble(upper_bound.image));
+        }
+    |
+        lower_bound=<S_CHAR_LITERAL> <K_RANGE_SEP> upper_bound=<S_CHAR_LITERAL>
+        {
+            return new OrderedDomain();
+            //return new BoundedCharOrderedDomain(lower_bound.image, upper_bound.image);
+        }
+    )
 }
 
 AlterFuzzyDomain AlterFuzzyDomain():

@@ -1,0 +1,26 @@
+package net.sf.jsqlparser.statement.fuzzy.domain;
+
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.StatementVisitor;
+
+/**
+ * 
+ */
+public class CreateFuzzyType2Domain implements Statement {
+    
+    private String name;
+    private OrderedDomain ordered_domain;
+
+    public CreateFuzzyType2Domain(String name, OrderedDomain ordered_domain) {
+        this.name = name;
+        this.ordered_domain = ordered_domain;
+    }
+
+    public void accept(StatementVisitor statementVisitor) throws Exception {
+        statementVisitor.visit(this);
+    }
+
+    public String toString() {
+        return "CREATE FUZZY DOMAIN " + name + " AS POSSIBILITY DISTRIBUTION ON " + ordered_domain;
+    }
+}
