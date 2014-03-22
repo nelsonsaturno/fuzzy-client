@@ -257,13 +257,13 @@ public class Helper {
         
         if (domainId == null){
             domainId = connector.fastInsert("INSERT INTO information_schema_fuzzy.domains "
-                 + "VALUES (null, '" + database + "', '" + domainName + "')");
+                 + "VALUES (DEFAULT, '" + database + "', '" + domainName + "')");
                 
         }
         
         for (int i = 0 ; i < labels.length ; ++i) {
             connector.fastInsert("INSERT INTO information_schema_fuzzy.labels "
-                    + "VALUES (null, " + domainId + ", '" + labels[i] + "')");
+                    + "VALUES (DEFAULT, " + domainId + ", '" + labels[i] + "')");
         }
         
         for (int i = 0 ; i < similarities.length ; ++i) {
@@ -287,7 +287,7 @@ public class Helper {
     }
     
     public static void createData(String database, String table, String[] columnNames, String[] columnTypes, String[] columnConstraints, String[][] rows) throws SQLException {
-        connector.fastUpdate("CREATE DATABASE IF NOT EXISTS " + database);
+        connector.fastUpdate("CREATE SCHEMA IF NOT EXISTS " + database);
         StringBuilder createTableSql = new StringBuilder("CREATE TABLE IF NOT EXISTS " + database + "." + table + " (");
         StringBuilder insertIntoSql = new StringBuilder("INSERT INTO " + database + "." + table + "(");
         boolean somethingInBuffer = false;
@@ -308,7 +308,7 @@ public class Helper {
             somethingInBuffer = true;
             boolean somethingInBuffer2 = false;
             for (int j = 0 ; j < rows[i].length ; ++j) {
-                insertIntoSql.append(somethingInBuffer2 ? ", " : "(").append(rows[i][j] != null ? "'" : "").append(rows[i][j]).append(rows[i][j] != null ? "'" : "");
+                insertIntoSql.append(somethingInBuffer2 ? ", " : "(").append(rows[i][j] != null && !rows[i][j].equals("DEFAULT") ? "'" : "").append(rows[i][j]).append(rows[i][j] != null && !rows[i][j].equals("DEFAULT") ? "'" : "");
                 somethingInBuffer2 = true;
             }
             insertIntoSql.append(")");

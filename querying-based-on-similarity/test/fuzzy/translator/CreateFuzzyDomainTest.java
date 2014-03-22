@@ -42,7 +42,7 @@ public class CreateFuzzyDomainTest {
     // Executed once before each test
     @Before
     public void setUp() throws SQLException {
-        connector.fastUpdate("CREATE DATABASE fuzzy_ddl_test");
+        connector.fastUpdate("CREATE SCHEMA fuzzy_ddl_test");
         connector.setCatalog("fuzzy_ddl_test");
         Helper.setConnector(connector);
     }
@@ -51,7 +51,7 @@ public class CreateFuzzyDomainTest {
     @After
     public void tearDown() throws SQLException {
         connector.setCatalog("information_schema");
-        connector.fastUpdate("DROP DATABASE fuzzy_ddl_test");
+        connector.fastUpdate("DROP SCHEMA fuzzy_ddl_test CASCADE");
         Helper.cleanSchemaMetaData("fuzzy_ddl_test");      
     }
     

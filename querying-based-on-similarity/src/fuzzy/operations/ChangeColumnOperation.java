@@ -29,6 +29,11 @@ public class ChangeColumnOperation extends Operation {
 
     @Override
     public void execute() throws SQLException {
+        if (this.connector.getCatalog().equals("")) {
+            throw new SQLException("No database selected");
+        }
+        this.schemaName = this.connector.getCatalog();
+
         /**
          * CHECK IF CURRENT DATA TYPE IS VARCHAR
          */        
@@ -37,6 +42,7 @@ public class ChangeColumnOperation extends Operation {
                 + "WHERE table_schema = " + ColumnOperation.getSchemaNameForSql(schemaName) + " "
                 + "AND table_name = '" + tableName + "' "
                 + "AND column_name = '" + oldColumnName + "'";
+
         ResultSet currentTypeRS = connector.fastQuery(currentTypeVarcharSQL);
         if (!currentTypeRS.next()) {
             // (a) no hay un esquema seleccionado, (b) no existe la tabla table_name, o (c) no existe la columna column_name

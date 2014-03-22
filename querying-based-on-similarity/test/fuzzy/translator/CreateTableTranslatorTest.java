@@ -57,7 +57,7 @@ public class CreateTableTranslatorTest {
     @Test
     public void testTranslateOneColumn() throws Exception {
         String sql = "CREATE TABLE test_repuestos.example_autoincrement ("
-                + "id INT NOT NULL AUTO_INCREMENT,"
+                + "id SERIAL NOT NULL,"
                 + "data ciudad NOT NULL, PRIMARY KEY (id));";
 
         CCJSqlParserManager p = new CCJSqlParserManager();
@@ -80,7 +80,7 @@ public class CreateTableTranslatorTest {
         String sqlTranslated = sb.toString();
         assertEquals("Traduccion del create table incorrecta",
                 ("CREATE TABLE test_repuestos.example_autoincrement ( "
-                + "id INT NOT NULL AUTO_INCREMENT,"
+                + "id SERIAL NOT NULL,"
                 + "data INTEGER NOT NULL,PRIMARY KEY (id) ) ").toLowerCase(), 
                 sqlTranslated.toLowerCase().replaceAll("\n", ""));
         
@@ -103,7 +103,7 @@ public class CreateTableTranslatorTest {
     @Test
     public void testTranslateTwoColumns() throws Exception {
         String sql = "CREATE TABLE test_repuestos.example_autoincrement ("
-                + "id INT NOT NULL AUTO_INCREMENT,"
+                + "id SERIAL NOT NULL,"
                 + "data ciudad NOT NULL,"
                 + "data2 ciudad, PRIMARY KEY (id));";
 
@@ -127,7 +127,7 @@ public class CreateTableTranslatorTest {
         String sqlTranslated = sb.toString();
         assertEquals("Traduccion del create table incorrecta",
                 ("CREATE TABLE test_repuestos.example_autoincrement ( "
-                + "id INT NOT NULL AUTO_INCREMENT,"
+                + "id SERIAL NOT NULL,"
                 + "data INTEGER NOT NULL,"
                 + "data2 INTEGER,PRIMARY KEY (id) ) ").toLowerCase(), 
                 sqlTranslated.toLowerCase().replaceAll("\n", ""));
@@ -155,7 +155,7 @@ public class CreateTableTranslatorTest {
     @Test
     public void testTranslateDefaultValue() throws Exception {
         String sql = "CREATE TABLE test_repuestos.example_autoincrement ("
-                + "id INT NOT NULL AUTO_INCREMENT,"
+                + "id SERIAL NOT NULL,"
                 + "data ciudad DEFAULT 'Maracay', PRIMARY KEY (id));";
 
         CCJSqlParserManager p = new CCJSqlParserManager();
@@ -178,7 +178,7 @@ public class CreateTableTranslatorTest {
         String sqlTranslated = sb.toString();
         assertEquals("Traduccion del create table incorrecta",
                 ("CREATE TABLE test_repuestos.example_autoincrement ( "
-                + "id INT NOT NULL AUTO_INCREMENT,"
+                + "id SERIAL NOT NULL,"
                 + "data INTEGER DEFAULT 2,PRIMARY KEY (id) ) ").toLowerCase(), 
                 sqlTranslated.toLowerCase().replaceAll("\n", ""));
         
@@ -198,7 +198,7 @@ public class CreateTableTranslatorTest {
     @Test
     public void testTranslateWithoutSchema() throws Exception {
         String sql = "CREATE TABLE example_autoincrement ("
-                + "id INT NOT NULL AUTO_INCREMENT,"
+                + "id SERIAL NOT NULL,"
                 + "data ciudad NOT NULL, PRIMARY KEY (id));";
 
         CCJSqlParserManager p = new CCJSqlParserManager();
@@ -223,7 +223,7 @@ public class CreateTableTranslatorTest {
         String sqlTranslated = sb.toString();
         assertEquals("Traduccion del create table incorrecta",
                 ("CREATE TABLE example_autoincrement ( "
-                + "id INT NOT NULL AUTO_INCREMENT,"
+                + "id SERIAL NOT NULL,"
                 + "data INTEGER NOT NULL,PRIMARY KEY (id) ) ").toLowerCase(), 
                 sqlTranslated.toLowerCase().replaceAll("\n", ""));
         

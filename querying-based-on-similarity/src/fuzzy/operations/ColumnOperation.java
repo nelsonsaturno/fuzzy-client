@@ -32,7 +32,7 @@ public abstract class ColumnOperation extends Operation {
     }
 
     protected String getSchemaNameForSql() {
-        return schemaName != null ? "'" + schemaName + "'" : "(select database())";
+        return schemaName != null ? "'" + schemaName + "'" : "''";
     }
     
     protected static String getSchemaTableForSQL(String schemaName, String tableName) {
@@ -44,7 +44,7 @@ public abstract class ColumnOperation extends Operation {
     }
 
     protected static String getSchemaNameForSql(String schemaName) {
-        return schemaName != null ? "'" + schemaName + "'" : "(select database())";
+        return schemaName != null ? "'" + schemaName + "'" : "''";
     }
     
     public String getColumnName() {

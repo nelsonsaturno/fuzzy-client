@@ -47,15 +47,15 @@ public class AlterTableChangeTest {
     @Before
     public void setUp() throws SQLException {
         Helper.setConnector(connector);
-        connection.createStatement().executeUpdate("CREATE DATABASE fuzzy_ddl_test");
+        connection.createStatement().executeUpdate("CREATE SCHEMA fuzzy_ddl_test");
         connector.setCatalog("fuzzy_ddl_test");
-        connection.createStatement().executeUpdate("CREATE TABLE people ("
-                + "id INTEGER AUTO_INCREMENT PRIMARY KEY, "
+        connection.createStatement().executeUpdate("CREATE TABLE fuzzy_ddl_test.people ("
+                + "id SERIAL PRIMARY KEY, "
                 + "name VARCHAR(64), "
-                + "height DECIMAL UNSIGNED ZEROFILL, "
+                + "height DECIMAL, "
                 + "birthdate DATE, "
                 + "comments TEXT)");
-        connection.createStatement().executeUpdate("INSERT INTO people(name, height, birthdate) "
+        connection.createStatement().executeUpdate("INSERT INTO fuzzy_ddl_test.people(name, height, birthdate) "
                 + "VALUES ('Michael Jordan', 1.98, '1963-02-17'),"
                 + "('Jennifer Aniston', 1.64, '1969-02-11'),"
                 + "('Milla Jovovich', 1.74, '1975-12-17'),"
@@ -66,7 +66,7 @@ public class AlterTableChangeTest {
     @After
     public void tearDown() throws SQLException {
         connector.setCatalog("information_schema");
-        connection.createStatement().executeUpdate("DROP DATABASE fuzzy_ddl_test");
+        connection.createStatement().executeUpdate("DROP SCHEMA fuzzy_ddl_test CASCADE");
         Helper.cleanSchemaMetaData("fuzzy_ddl_test");      
     }
     

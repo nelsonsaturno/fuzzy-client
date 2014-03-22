@@ -55,7 +55,7 @@ public class Memory {
             columns = new HashMap<String, LinkedHashSet<String>>();
         }
         if (!columns.containsKey(schemaName + "." + tableName)) {
-            Logger.info("Buscando columnas del esquema: " + schemaName);
+            Logger.debug("Buscando columnas del esquema: " + schemaName);
             String sql = "SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.COLUMNS "
                     + "WHERE TABLE_SCHEMA='" + schemaName + "'";
             ResultSet rs = c.fastQuery(sql);
@@ -71,7 +71,7 @@ public class Memory {
             }
         }
         LinkedHashSet<String> cols = columns.get(schemaName + "." + tableName);
-        Logger.info("Returning " + cols);
+        Logger.debug("Returning " + cols);
         if (null == cols) {
             throw new SQLException("Unknown table '" + tableName + "' in '" + schemaName + "'",
                        "42S02", 1109);

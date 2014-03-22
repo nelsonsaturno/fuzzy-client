@@ -31,6 +31,11 @@ public class CreateTableOperation extends Operation {
     
     @Override
     public void execute() throws SQLException {
+        if (this.connector.getCatalog().equals("")) {
+            throw new SQLException("No database selected");
+        }
+        this.schemaName = this.connector.getCatalog();
+        
         Savepoint sp = null;
         try {
             sp = this.beginTransaction();

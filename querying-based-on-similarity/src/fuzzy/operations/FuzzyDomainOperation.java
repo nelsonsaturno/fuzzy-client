@@ -48,10 +48,15 @@ abstract public class FuzzyDomainOperation extends Operation {
 
     @Override
     public void execute() throws SQLException {
+        if (this.connector.getCatalog().equals("")) {
+            throw new SQLException("No database selected");
+        }
+        String schemaName = this.connector.getCatalog();
+
         Domain domain = relation.getDomain();
         if (0 == domain.getId()) {
             String sql = "INSERT INTO information_schema_fuzzy.domains "
-                            + "VALUES (null, (SELECT database()), '"//TODO escape
+                            + "VALUES (DEFAULT, '"+schemaName+"', '"//TODO escape
                             + domain.getName() + "')";
             domain.setId(connector.fastInsert(sql));
         }
@@ -61,7 +66,7 @@ abstract public class FuzzyDomainOperation extends Operation {
             if (l.isToBeCreated()) {
                 labelsToCreate.add(l.getName());
                 String sql = "INSERT INTO information_schema_fuzzy.labels "
-                                + "VALUES (null, "
+                                + "VALUES (DEFAULT, "
                                 + l.getDomain().getId() +",'"
                                 + l.getName() + "')";//TODO escapar
                 l.setId(connector.fastInsert(sql));
@@ -78,7 +83,7 @@ abstract public class FuzzyDomainOperation extends Operation {
                     + "VALUES ";
             for (int i = 0 ; i < labelsToCreate.size() ; ++i) {
                 String label = labelsToCreate.get(i);
-                sql += "(null, " + domain.getId() + ", '" + label + "')";
+                sql += "(DEFAULT, " + domain.getId() + ", '" + label + "')";
                 if (i != labelsToCreate.size() - 1) {
                     sql += ",";
                 }
@@ -92,8 +97,8 @@ abstract public class FuzzyDomainOperation extends Operation {
                                 + "VALUES ("
                                 + s.getLabel1().getId() +","
                                 + s.getLabel2().getId() + ","
-                                + s.getValue() + ",b'"
-                                + s.getDerivated() + "')";
+                                + s.getValue() + ", "
+                                + (s.getDerivated() == 0 ? "FALSE" : "TRUE") + ")";
                 connector.fastUpdate(sql);
             } else if (s.isToBeAltered()) {
                 String sql = "UPDATE information_schema_fuzzy.similarities "

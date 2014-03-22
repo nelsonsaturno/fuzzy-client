@@ -19,6 +19,7 @@ import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.fuzzy.domain.AlterFuzzyDomain;
 import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyDomain;
+import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyType2Domain;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.replace.Replace;
 import net.sf.jsqlparser.statement.select.Select;
@@ -254,6 +255,12 @@ public class StatementTranslator extends Translator implements StatementVisitor 
 //        UpdateTranslator updateTranslator = new UpdateTranslator(expressionTranslator);
 //        selectTranslator.setExpressionVisitor(expressionTranslator);
 //        updateTranslator.translate(update);
+
+    }
+
+    @Override
+    public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception {
+
 
     }
 }

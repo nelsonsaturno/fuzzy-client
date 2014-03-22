@@ -30,6 +30,11 @@ public class CreateFuzzyDomainFromColumnOperation extends Operation {
 
     @Override
     public void execute() throws SQLException {
+        if (this.connector.getCatalog().equals("")) {
+            throw new SQLException("No database selected");
+        }
+        this.schemaName = this.connector.getCatalog();
+
         String countSql = "SELECT COUNT(*) FROM "
                 + (schemaName != null ? schemaName + "." : "")
                 + tableName + " WHERE " + columnName + " IS NOT NULL";
@@ -40,13 +45,17 @@ public class CreateFuzzyDomainFromColumnOperation extends Operation {
         }
         // TODO this should be refactored to some better place
         String insertDomain = "INSERT INTO information_schema_fuzzy.domains "
-                + "VALUES (null, (select database()), '" + domainName + "')";
+                + "VALUES (DEFAULT, '"+schemaName+"', '" + domainName + "')";
         Logger.debug("Inserting domain with: " + insertDomain);
         Integer domainId = null;
         try {
             domainId = connector.fastInsert(insertDomain);
         } catch (SQLException ex) {
-            String message = ex.getMessage();
+            throw Translator.FR_DUPLICATE_DOMAIN_NAME(domainName);
+            // FIXME: La migración a Postgres arruinó este catch. Por ahora solo lanzo un 'dominio duplicado'
+            // FIXME: (aunque no chequeo si esa fue la razón real para el error)
+
+            /*String message = ex.getMessage();
             if (ex.getErrorCode() == 1062) { // duplicated key
                 if (message.contains("Duplicate entry") && message.contains("for key 'table_schema'")) {
                     throw Translator.FR_DUPLICATE_DOMAIN_NAME(domainName);
@@ -56,7 +65,7 @@ public class CreateFuzzyDomainFromColumnOperation extends Operation {
                     throw Translator.ER_NO_DB_ERROR;
                 }
             }
-            throw ex;
+            throw ex;*/
         }
         
         String insertLabels = "INSERT INTO information_schema_fuzzy.labels " +
@@ -68,7 +77,7 @@ public class CreateFuzzyDomainFromColumnOperation extends Operation {
         connector.fastUpdate(insertLabels);
         
         String insertSimilarities = "INSERT INTO information_schema_fuzzy.similarities "
-                + "SELECT label_id, label_id, 1.0, 1 "
+                + "SELECT label_id, label_id, 1.0, TRUE "
                 + "FROM information_schema_fuzzy.labels "
                 + "WHERE domain_id = " + domainId;
         Logger.debug("Inserting similarities with: " + insertSimilarities);
