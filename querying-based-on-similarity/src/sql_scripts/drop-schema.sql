@@ -1,1 +1,1 @@
-DROP DATABASE IF EXISTS information_schema_fuzzy;
+DROP SCHEMA IF EXISTS information_schema_fuzzy CASCADE;

@@ -83,6 +83,17 @@ INSERT INTO information_schema_fuzzy.columns(
 	('test_repuestos','repuestos','origen', 1)
 ;
 
+INSERT INTO test_repuestos.concesionarios(
+	nombre
+	,origen
+	,dueno
+)	VALUES
+	('Mazda', 7, 'Andras'),
+	('Todos', 8, 'Vanessa'),
+	('Volkswagen', 9, 'Bishma'),
+	('Mazona', 1, 'Bishanva')
+;	
+
 INSERT INTO test_repuestos.repuestos(
 	nombre
 	,direccion
@@ -102,13 +113,4 @@ INSERT INTO test_repuestos.repuestos(
 	,('Annarys', 'Calle Sucre', '(0281)276.8892', 9, 'Todos')
 ;	
 
-INSERT INTO test_repuestos.concesionarios(
-	nombre
-	,origen
-	,dueno
-)	VALUES
-	('Mazda', 7, 'Andras'),
-	('Todos', 8, 'Vanessa'),
-	('Volkswagen', 9, 'Bishma'),
-	('Mazona', 1, 'Bishanva')
-;	
+

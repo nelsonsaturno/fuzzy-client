@@ -1,6 +1,6 @@
-#!/bin/bash
-mysql -u root < drop-schema.sql
-mysql -u root < test/drop-schema.sql
-mysql -u root < create-schema.sql
-mysql -u root < test/create-schema.sql
-mysql -u root < test/load-data.sql
+#!/usr/bin/env bash
+psql -h 127.0.0.1 -U fuzzy -f drop-schema.sql
+psql -h 127.0.0.1 -U fuzzy -f test/drop-schema.sql
+psql -h 127.0.0.1 -U fuzzy -f create-schema.sql
+psql -h 127.0.0.1 -U fuzzy -f test/create-schema.sql
+psql -h 127.0.0.1 -U fuzzy -f test/load-data.sql

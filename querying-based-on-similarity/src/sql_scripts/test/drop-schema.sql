@@ -1,1 +1,1 @@
-DROP DATABASE IF EXISTS test_repuestos;
+DROP SCHEMA IF EXISTS test_repuestos CASCADE;
