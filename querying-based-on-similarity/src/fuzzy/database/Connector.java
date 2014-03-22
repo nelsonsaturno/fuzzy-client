@@ -62,6 +62,8 @@ public class Connector {
     private enum TYPE {UPDATE, QUERY, ANY};
     private ResultSet resultSet;
     private Integer updateCount;
+
+    private String catalog; // Temp hack for migrating to PostgreSQL
     
 
     
@@ -97,6 +99,7 @@ public class Connector {
         String url  = driverProtocol + "://" + host + 
                        (databaseName == null ? "" : "/" + databaseName);
         connection = DriverManager.getConnection(url, username, password);
+        catalog = "";
     }
     
     /**
@@ -119,7 +122,8 @@ public class Connector {
     }
 
     public String getCatalog() throws SQLException {
-        return connection.getCatalog();
+        return this.catalog;
+        //return connection.getCatalog();
     }
 
 
@@ -129,7 +133,9 @@ public class Connector {
      * @param catalogName Newer catalog name
      */
     public void setCatalog(String catalogName) throws SQLException {
-        connection.setCatalog(catalogName);
+        this.catalog = catalogName;
+        //connection.setCatalog(catalogName);
+        // FIXME: Check whatever setCatalog used to do here in MySQL
     }
 
 
