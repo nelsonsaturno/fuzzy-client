@@ -68,18 +68,18 @@ public class Connector {
     /**
      * Driver module used by java.sql
      */
-    private static final String driver = "com.mysql.jdbc.Driver";
+    private static final String driver = "org.postgresql.Driver"; //"com.mysql.jdbc.Driver";
 
     
     /**
      * Driver protocol to open connection with database
      */
-    private static final String driverProtocol = "jdbc:mysql";
+    private static final String driverProtocol = "jdbc:postgresql"; //"jdbc:mysql";
 
 
     public Connector() 
         throws SQLException {
-        setup("localhost", "root", "", "");
+        setup("127.0.0.1", "fuzzy", "fuzzy", "");//"localhost", "root", "", "");
     }
 
     public Connector(String host, String username, String password, String databaseName) 

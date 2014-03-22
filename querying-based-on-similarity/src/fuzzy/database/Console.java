@@ -14,11 +14,11 @@ import java.util.List;
 public class Console {
 
     @Parameter(names = "-u")
-    private static String username = "root";
+    private static String username = "fuzzy";//"root";
     @Parameter(names = "-p", password = true, description = "Enter password")
-    private static String password = "";
+    private static String password = "fuzzy";//"";
     @Parameter(names = "-h")
-    private static String host = "localhost";
+    private static String host = "127.0.0.1";//"localhost";
     private static String databaseName = null;
 
     
