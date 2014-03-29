@@ -124,6 +124,7 @@ public class Connector {
     public String getCatalog() throws SQLException {
         return this.catalog;
         //return connection.getCatalog();
+
     }
 
 
@@ -134,14 +135,17 @@ public class Connector {
      */
     public void setCatalog(String catalogName) throws SQLException {
         this.catalog = catalogName;
+        /*this.fast("SET search_path TO "+catalogName);
+        this.fast("SELECT current_schema()");
+        Logger.info("schema: "+this.resultSet.getNString("current_schema"));*/
         //connection.setCatalog(catalogName);
         // FIXME: Check whatever setCatalog used to do here in MySQL
     }
 
 
     public void fast(String sql) throws SQLException {
-        Logger.debug("fast: " + sql);
-        java.sql.Statement s = this.connection.createStatement();
+        Logger.info("fast: " + sql);
+        java.sql.Statement s = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         s.execute(sql);
         this.resultSet = s.getResultSet();
         this.updateCount = s.getUpdateCount();
@@ -155,7 +159,7 @@ public class Connector {
      */
     public ResultSet fastQuery(String sql) throws SQLException {
         Logger.debug("fastQuery: " + sql);
-        this.resultSet = connection.createStatement().executeQuery(sql);
+        this.resultSet = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY).executeQuery(sql);
         this.updateCount = -1;
         return this.resultSet;
     }
@@ -170,7 +174,7 @@ public class Connector {
      */
     public Integer fastUpdate(String sql) throws SQLException {
         Logger.debug("fastUpdate: " + sql);
-        this.updateCount = connection.createStatement().executeUpdate(sql);
+        this.updateCount = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY).executeUpdate(sql);
         this.resultSet = null;
         return this.updateCount;
     }
