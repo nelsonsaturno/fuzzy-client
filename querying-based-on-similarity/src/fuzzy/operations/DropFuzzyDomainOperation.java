@@ -31,7 +31,7 @@ public class DropFuzzyDomainOperation extends Operation {
 
         Logger.debug("Starting DROP FUZZY DOMAIN " + domain + " operation");
         String sql = "DELETE FROM information_schema_fuzzy.domains " +
-            "WHERE table_schema = '"+schemaName+"'" + 
+            "WHERE table_schema = (select current_schema())" + 
             "AND domain_name = '" + domain + "'";
         
         int rows = connector.fastUpdate(sql);

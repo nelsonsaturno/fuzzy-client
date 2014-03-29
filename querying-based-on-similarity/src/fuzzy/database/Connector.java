@@ -134,17 +134,25 @@ public class Connector {
      * @param catalogName Newer catalog name
      */
     public void setCatalog(String catalogName) throws SQLException {
-        this.catalog = catalogName;
-        /*this.fast("SET search_path TO "+catalogName);
+        this.fast("SET search_path TO "+catalogName);
         this.fast("SELECT current_schema()");
-        Logger.info("schema: "+this.resultSet.getNString("current_schema"));*/
+        this.resultSet.next();
+        if (this.resultSet.getObject(1) == null) {
+            if (!this.catalog.equals("")) {
+                // Revert to old catalog
+                this.fast("SET search_path TO " + this.catalog);
+            }
+            throw new SQLException("Invalid schema");
+        } else {
+            this.catalog = catalogName;
+        }
         //connection.setCatalog(catalogName);
         // FIXME: Check whatever setCatalog used to do here in MySQL
     }
 
 
     public void fast(String sql) throws SQLException {
-        Logger.info("fast: " + sql);
+        Logger.debug("fast: " + sql);
         java.sql.Statement s = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         s.execute(sql);
         this.resultSet = s.getResultSet();

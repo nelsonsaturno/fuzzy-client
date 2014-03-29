@@ -56,7 +56,7 @@ abstract public class FuzzyDomainOperation extends Operation {
         Domain domain = relation.getDomain();
         if (0 == domain.getId()) {
             String sql = "INSERT INTO information_schema_fuzzy.domains "
-                            + "VALUES (DEFAULT, '"+schemaName+"', '"//TODO escape
+                            + "VALUES (DEFAULT, (select current_schema()), '"//TODO escape
                             + domain.getName() + "')";
             domain.setId(connector.fastInsert(sql));
         }

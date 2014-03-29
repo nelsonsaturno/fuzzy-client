@@ -45,7 +45,7 @@ public class CreateFuzzyDomainFromColumnOperation extends Operation {
         }
         // TODO this should be refactored to some better place
         String insertDomain = "INSERT INTO information_schema_fuzzy.domains "
-                + "VALUES (DEFAULT, '"+schemaName+"', '" + domainName + "')";
+                + "VALUES (DEFAULT, (select current_schema()), '" + domainName + "')";
         Logger.debug("Inserting domain with: " + insertDomain);
         Integer domainId = null;
         try {
