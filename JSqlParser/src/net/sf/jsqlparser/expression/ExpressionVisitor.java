@@ -22,6 +22,8 @@
  
  package net.sf.jsqlparser.expression;
 
+import net.sf.jsqlparser.expression.fuzzy.FuzzyTrapezoid;
+import net.sf.jsqlparser.expression.fuzzy.FuzzyByExtension;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
@@ -90,6 +92,10 @@ public interface ExpressionVisitor {
 	public void visit(SimilarColumn similarColumn) throws Exception;
 	public void visit(Similarity similarity) throws Exception;
 	public void visit(Relation relation) throws Exception;
+
+	// Fuzzy Type 2 custom expressions
+	public void visit(FuzzyTrapezoid fuzzyTrapezoid) throws Exception;
+	public void visit(FuzzyByExtension fuzzyByExtension) throws Exception;
 
 
 }
