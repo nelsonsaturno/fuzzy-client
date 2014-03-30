@@ -5,6 +5,7 @@ import java.util.Iterator;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.fuzzy.domain.AlterFuzzyDomain;
 import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyDomain;
+import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyType2Domain;
 import net.sf.jsqlparser.statement.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
@@ -37,6 +38,10 @@ public class StatementDeParser implements StatementVisitor {
     public void visit(CreateFuzzyDomain createFuzzyDomain) {
         CreateFuzzyDomainDeParser createFuzzyDomainDeParser = new CreateFuzzyDomainDeParser(buffer);
         createFuzzyDomainDeParser.deParse(createFuzzyDomain);
+    }
+
+    public void visit(CreateFuzzyType2Domain createFuzzyType2Domain) {
+        throw new UnsupportedOperationException("Deparse Create Fuzzy Type 2 not implemented yet");
     }
 
     public void visit(AlterFuzzyDomain alterFuzzyDomain) {
