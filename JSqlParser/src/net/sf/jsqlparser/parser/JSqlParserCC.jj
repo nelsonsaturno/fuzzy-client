@@ -77,6 +77,8 @@ import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.SimilarColumn;
 import net.sf.jsqlparser.expression.Similarity;
 import net.sf.jsqlparser.expression.Relation;
+import net.sf.jsqlparser.expression.fuzzy.FuzzyByExtension;
+import net.sf.jsqlparser.expression.fuzzy.FuzzyTrapezoid;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
@@ -1275,8 +1277,10 @@ Expression SimpleExpression():
   (
 		LOOKAHEAD(BitwiseAndOr())
 		retval=BitwiseAndOr() 
-		|
+	|
 		"(" retval=BitwiseAndOr() ")" {retval = new Parenthesis(retval); }
+    |
+        retval=FuzzyType2Expression()
   
   )
 
@@ -1458,8 +1462,7 @@ Expression PrimaryExpression():
 	| 	"{t" token=<S_CHAR_LITERAL> "}" { retval = new TimeValue(token.image); }
 
 	| 	"{ts" token=<S_CHAR_LITERAL> "}" { retval = new TimestampValue(token.image); }
-	
-	
+
 )
 
     { 
@@ -1468,6 +1471,41 @@ Expression PrimaryExpression():
 		}
     	return retval; 
     }
+}
+
+Expression FuzzyType2Expression():
+{
+    Expression retval;
+    Token token;
+    Expression ext_exp;
+
+    Expression trap_exp11;
+    Expression trap_exp2;
+    Expression trap_exp3;
+    Expression trap_exp4;
+}
+{
+    "f{"
+    (
+
+        LOOKAHEAD(2)
+        token=<S_DOUBLE> "/" ext_exp=PrimaryExpression()
+        { retval = new FuzzyByExtension(Double.parseDouble(token), ext_exp); }
+
+        (
+            "," token=<S_DOUBLE> "/" ext_exp=PrimaryExpression()
+            { retval.addPossibility(Double.parsedouble(token), ext_exp); }
+        )*
+
+        |
+
+        trap_val1=PrimaryExpression() ","
+        trap_val2=PrimaryExpression() ","
+        trap_val3=PrimaryExpression() ","
+        trap_val4=PrimaryExpression()
+        { retval = new FuzzyTrapezoid(trap_exp1, trap_exp2, trap_exp3, trap_exp4); }
+    )
+    "}"
 }
 
 

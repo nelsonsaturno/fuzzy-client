@@ -24,6 +24,8 @@ import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.TimeValue;
 import net.sf.jsqlparser.expression.TimestampValue;
 import net.sf.jsqlparser.expression.WhenClause;
+import net.sf.jsqlparser.expression.fuzzy.FuzzyTrapezoid;
+import net.sf.jsqlparser.expression.fuzzy.FuzzyByExtension;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
@@ -484,5 +486,13 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
         try{
             similarity.getValue().accept(this);
         }catch(Exception e) {}
+    }
+
+    public void visit(FuzzyTrapezoid fuzzyTrapezoid) {
+        throw new UnsupportedOperationException("Deparse Fuzzy Trapezoid expression not implemented yet");
+    }
+
+    public void visit(FuzzyByExtension fuzzyByExtension) {
+        throw new UnsupportedOperationException("Deparse Fuzzy By Extension expression not implemented yet");
     }
 }
