@@ -97,5 +97,8 @@ public interface ExpressionVisitor {
 	public void visit(FuzzyTrapezoid fuzzyTrapezoid) throws Exception;
 	public void visit(FuzzyByExtension fuzzyByExtension) throws Exception;
 
+	// Array expression
+	public void visit(ArrayExpression arrayExpression) throws Exception;
+
 
 }
