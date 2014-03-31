@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
+import net.sf.jsqlparser.expression.ArrayExpression;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.CaseExpression;
 import net.sf.jsqlparser.expression.DateValue;
@@ -494,5 +495,9 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
 
     public void visit(FuzzyByExtension fuzzyByExtension) {
         throw new UnsupportedOperationException("Deparse Fuzzy By Extension expression not implemented yet");
+    }
+
+    public void visit(ArrayExpression arrayExpression) {
+        throw new UnsupportedOperationException("Deparse array not implemented yet");
     }
 }
