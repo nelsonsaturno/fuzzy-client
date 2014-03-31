@@ -56,7 +56,6 @@ package net.sf.jsqlparser.parser;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
@@ -116,7 +115,9 @@ import net.sf.jsqlparser.statement.table.Index;
 import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyDomain;
 import net.sf.jsqlparser.statement.fuzzy.domain.AlterFuzzyDomain;
 import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyType2Domain;
+import net.sf.jsqlparser.statement.fuzzy.domain.BoundedOrderedDomain;
 import net.sf.jsqlparser.statement.fuzzy.domain.OrderedDomain;
+import net.sf.jsqlparser.statement.fuzzy.domain.UnboundedOrderedDomain;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.insert.Insert;
@@ -1479,7 +1480,7 @@ Expression FuzzyType2Expression():
     Token token;
     Expression ext_exp;
 
-    Expression trap_exp11;
+    Expression trap_exp1;
     Expression trap_exp2;
     Expression trap_exp3;
     Expression trap_exp4;
@@ -1490,22 +1491,25 @@ Expression FuzzyType2Expression():
 
         LOOKAHEAD(2)
         token=<S_DOUBLE> "/" ext_exp=PrimaryExpression()
-        { retval = new FuzzyByExtension(Double.parseDouble(token), ext_exp); }
+        { retval = new FuzzyByExtension(Double.parseDouble(token.image), ext_exp); }
 
         (
             "," token=<S_DOUBLE> "/" ext_exp=PrimaryExpression()
-            { retval.addPossibility(Double.parsedouble(token), ext_exp); }
+            { ((FuzzyByExtension) retval).addPossibility(Double.parseDouble(token.image), ext_exp); }
         )*
 
         |
 
-        trap_val1=PrimaryExpression() ","
-        trap_val2=PrimaryExpression() ","
-        trap_val3=PrimaryExpression() ","
-        trap_val4=PrimaryExpression()
+        trap_exp1=PrimaryExpression() ","
+        trap_exp2=PrimaryExpression() ","
+        trap_exp3=PrimaryExpression() ","
+        trap_exp4=PrimaryExpression()
         { retval = new FuzzyTrapezoid(trap_exp1, trap_exp2, trap_exp3, trap_exp4); }
     )
-    "}"
+    "}f"
+    {
+        return retval;
+    }
 }
 
 
@@ -1879,6 +1883,8 @@ CreateFuzzyType2Domain CreateFuzzyType2Domain():
         <K_POSSIBILITY> <K_DISTRIBUTION> <K_ON> ordered_domain=OrderedDomain()
         { return new CreateFuzzyType2Domain(domain.image, ordered_domain); }
 }
+
+
 OrderedDomain OrderedDomain():
 {
     Token lower_bound;
@@ -1888,27 +1894,24 @@ OrderedDomain OrderedDomain():
 {
     (
         type=<S_IDENTIFIER>
-        { 
-            return new OrderedDomain();
-            //return new UnboundedOrderedDomain(type.image);
+        {
+            return new UnboundedOrderedDomain(type.image);
         }
     |
         lower_bound=<S_INTEGER> <K_RANGE_SEP> upper_bound=<S_INTEGER>
         { 
-            return new OrderedDomain();
-            //return new BoundedIntegerOrderedDomain(Long.parseLong(lower_bound.image), Long.parseLong(upper_bound.image));
+            return new BoundedOrderedDomain(BoundedOrderedDomain.Type.INTEGER, lower_bound.image, upper_bound.image);
         }
     |   
         lower_bound=<S_DOUBLE> <K_RANGE_SEP> upper_bound=<S_DOUBLE>
         {
-            return new OrderedDomain();
-            //return new BoundedDoubleOrderedDomain(Double.parseDouble(lower_bound.image), Double.parseDouble(upper_bound.image));
+            return new BoundedOrderedDomain(BoundedOrderedDomain.Type.REAL, lower_bound.image, upper_bound.image);
+
         }
     |
         lower_bound=<S_CHAR_LITERAL> <K_RANGE_SEP> upper_bound=<S_CHAR_LITERAL>
         {
-            return new OrderedDomain();
-            //return new BoundedCharOrderedDomain(lower_bound.image, upper_bound.image);
+            return new BoundedOrderedDomain(BoundedOrderedDomain.Type.CHAR, lower_bound.image, upper_bound.image);
         }
     )
 }
