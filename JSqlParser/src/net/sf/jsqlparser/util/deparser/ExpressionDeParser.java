@@ -490,14 +490,43 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
     }
 
     public void visit(FuzzyTrapezoid fuzzyTrapezoid) {
-        throw new UnsupportedOperationException("Deparse Fuzzy Trapezoid expression not implemented yet");
+        buffer.append("{");
+        try {
+            fuzzyTrapezoid.getExp1().accept(this);
+            buffer.append(", ");
+            fuzzyTrapezoid.getExp2().accept(this);
+            buffer.append(", ");
+            fuzzyTrapezoid.getExp3().accept(this);
+            buffer.append(", ");
+            fuzzyTrapezoid.getExp4().accept(this);
+        } catch (Exception e) {
+        }
+        buffer.append("}");
     }
 
     public void visit(FuzzyByExtension fuzzyByExtension) {
-        throw new UnsupportedOperationException("Deparse Fuzzy By Extension expression not implemented yet");
+        buffer.append("{");
+        try {
+            int i = 0;
+            for (FuzzyByExtension.Element element : fuzzyByExtension.getPossibilities()) {
+                buffer.append(i == 0 ? "" : ", ");
+                buffer.append(element.getPossibility())
+                      .append(" / ");                      
+                element.getExpression().accept(this);
+
+                 i++;
+            }
+        } catch (Exception e) {
+        }
+        buffer.append("}");
     }
 
     public void visit(ArrayExpression arrayExpression) {
-        throw new UnsupportedOperationException("Deparse array not implemented yet");
+        buffer.append("ARRAY[");
+        try {
+            arrayExpression.getExpressions().accept(this);
+        } catch (Exception e) {
+        }
+        buffer.append("]");
     }
 }

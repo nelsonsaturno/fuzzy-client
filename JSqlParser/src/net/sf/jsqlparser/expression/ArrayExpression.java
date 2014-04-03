@@ -1,17 +1,19 @@
 package net.sf.jsqlparser.expression;
 
-import java.util.ArrayList;
+import java.util.List;
+
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 
 public class ArrayExpression implements Expression {
 
-    private ArrayList<Expression> elements;
+    private ExpressionList expressions;
 
-    public ArrayExpression() {
-        this.elements = new ArrayList();
+    public ArrayExpression(List<Expression> expressions) {
+        this.expressions = new ExpressionList(expressions);
     }
 
-    public void addExpression(Expression expression) {
-        this.elements.add(expression);
+    public ExpressionList getExpressions() {
+        return this.expressions;
     }
 
     public void accept(ExpressionVisitor expressionVisitor) throws Exception {

@@ -8,4 +8,10 @@ public class UnboundedOrderedDomain extends OrderedDomain {
         this.type = type;
     }
 
+    // No tiene sentido ponerse con la locura de los visitor para algo tan
+    // pequeño y sencillo como el subdominio del fuzzy tipo 2.
+    public String toString() {
+        return this.type;
+    }
+
 }

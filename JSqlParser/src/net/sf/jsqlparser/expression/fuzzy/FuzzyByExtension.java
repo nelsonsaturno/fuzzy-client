@@ -1,19 +1,28 @@
 package net.sf.jsqlparser.expression.fuzzy;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 
 public class FuzzyByExtension implements Expression {
 
-    private class Element {
+    public class Element {
         public Double possibility;
         public Expression expression;
 
         public Element(Double possibility, Expression expression) {
             this.possibility = possibility;
             this.expression = expression;
+        }
+
+        public Double getPossibility() {
+            return this.possibility;
+        }
+
+        public Expression getExpression() {
+            return this.expression;
         }
     }
 
@@ -26,6 +35,10 @@ public class FuzzyByExtension implements Expression {
 
     public void addPossibility(Double possibility, Expression expression) {
         this.elements.add(new Element(possibility, expression));
+    }
+
+    public List<Element> getPossibilities() {
+        return this.elements;
     }
 
     public void accept(ExpressionVisitor expressionVisitor) throws Exception {

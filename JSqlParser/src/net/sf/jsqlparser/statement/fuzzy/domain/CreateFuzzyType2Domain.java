@@ -20,6 +20,14 @@ public class CreateFuzzyType2Domain implements Statement {
         statementVisitor.visit(this);
     }
 
+    public String getName() {
+        return this.name;
+    }
+
+    public OrderedDomain getOrderedDomain() {
+        return this.ordered_domain;
+    }
+
     public String toString() {
         return "CREATE FUZZY DOMAIN " + name + " AS POSSIBILITY DISTRIBUTION ON " + ordered_domain;
     }

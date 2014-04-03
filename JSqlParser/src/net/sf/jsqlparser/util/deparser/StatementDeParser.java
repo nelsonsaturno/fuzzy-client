@@ -41,7 +41,10 @@ public class StatementDeParser implements StatementVisitor {
     }
 
     public void visit(CreateFuzzyType2Domain createFuzzyType2Domain) {
-        throw new UnsupportedOperationException("Deparse Create Fuzzy Type 2 not implemented yet");
+        // Un nombre más largo y me muero. Thanks Obama.
+        CreateFuzzyType2DomainDeParser deparser = new CreateFuzzyType2DomainDeParser(buffer);
+        deparser.deParse(createFuzzyType2Domain);
+        //throw new UnsupportedOperationException("Deparse Create Fuzzy Type 2 not implemented yet");
     }
 
     public void visit(AlterFuzzyDomain alterFuzzyDomain) {
