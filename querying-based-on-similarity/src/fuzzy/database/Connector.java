@@ -8,6 +8,7 @@ import fuzzy.helpers.Logger;
 import fuzzy.helpers.Printer;
 import fuzzy.operations.Operation;
 import fuzzy.translator.StatementTranslator;
+import fuzzy.translator.StatementType2Translator;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -55,6 +56,7 @@ public class Connector {
      * @return true if it's a native data type of the dbms
      */
     public static boolean isNativeDataType(String dataType) {
+        System.out.println("FIXME: Cableo de tipos 'nativos' de la BD");
         return Arrays.asList(DATA_TYPES).contains(dataType.toLowerCase());
     }
 
@@ -264,6 +266,16 @@ public class Connector {
         } catch (Exception e) {
             throw new SQLException("Translator exception: " + e.getMessage(),
                                                               "42000", 3018, e);
+        }
+
+        // Fuzzy Type 2 extensions translator
+        StatementType2Translator st2 = new StatementType2Translator(this, operations);
+        try {
+            s.accept(st2);
+        } catch (SQLException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SQLException("Type 2 Translator exception: " + e.getMessage(), "42000", 3119, e);
         }
 
         String res = null;
