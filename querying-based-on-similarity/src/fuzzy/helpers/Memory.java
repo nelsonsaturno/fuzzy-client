@@ -30,6 +30,7 @@ public class Memory {
      * vez.
      */
     private static HashMap<String, LinkedHashSet<String>> fuzzyColumns = null;
+    private static HashMap<String, LinkedHashSet<String>> fuzzyType2Columns = null;
     
     public static HashSet<String> getColumns(Connector c, Table table) 
         throws SQLException{
@@ -115,6 +116,46 @@ public class Memory {
         }
         // if it's in the list, is a fuzzy column
         HashSet<String> cols = fuzzyColumns.get(schemaName + "." + tableName);
+        return null != cols && cols.contains(columnName);
+    }
+
+
+    public static boolean isFuzzyType2Column(Connector c, Table table, String columnName)
+        throws SQLException {
+        return isFuzzyType2Column(c, Helper.getSchemaName(c), table.getName(), columnName);
+    }
+
+    /*
+    Copia brutal de isFuzzyColumn, cambiando el Hash por otro.
+    Eventualmente deberíá hacerse una estructura única para todo, pero bueno,
+    esto es lo que hay por ahora y funciona.
+    Viva la deuda técnica.
+    */
+    public static boolean isFuzzyType2Column(Connector c, String schemaName, String tableName, String columnName)
+        throws SQLException {
+
+        if (null == fuzzyType2Columns) {
+            fuzzyType2Columns = new HashMap<String, LinkedHashSet<String>>();
+        }
+        
+        // FIXME: cambiar SQL deisFuzzyType2Column al que es.
+        if (!fuzzyType2Columns.containsKey(schemaName + "." + tableName)) {
+            ResultSet rs = c.fastQuery("SELECT table_name, column_name "
+                                             + "FROM information_schema_fuzzy.columns "
+                                             + "WHERE table_schema = '" + schemaName + "'");
+            // register columns read from database
+            while (rs.next()) {
+                String tab = rs.getString("table_name");
+                LinkedHashSet<String> cols = fuzzyType2Columns.get(schemaName + "." + tab);
+                if (null == cols) {
+                    cols = new LinkedHashSet<String>();
+                }
+                cols.add(rs.getString("column_name"));
+                fuzzyType2Columns.put(schemaName + "." + tab, cols);
+            }
+        }
+        // if it's in the list, is a fuzzy column
+        HashSet<String> cols = fuzzyType2Columns.get(schemaName + "." + tableName);
         return null != cols && cols.contains(columnName);
     }
     

@@ -38,26 +38,43 @@ public class StatementType2Translator extends Translator implements StatementVis
 
     @Override
     public void visit(CreateTable createTable) throws Exception {
+        CreateTableType2Translator translator = new CreateTableType2Translator(connector, operations);
+        translator.translate(createTable);
     }
     
 
     @Override
     public void visit(AlterTable alterTable) throws Exception {
+        throw new UnsupportedOperationException("Alter table is not supported yet.");
     }
 
 
     @Override
     public void visit(Select select) throws Exception {
+        SelectType2Translator translator = new SelectType2Translator(connector);
+        SelectBody selectBody = select.getSelectBody();
+        selectBody.accept(translator);
     }
 
 
     @Override
     public void visit(CreateFuzzyDomain createFuzzyDomain) throws Exception {
+        // Nada, el otro translator es encargado de traducir esto.
     }
 
 
     @Override
     public void visit(AlterFuzzyDomain alterFuzzyDomain) throws Exception {
+        // Nada, el otro translator es encargado de traducir esto.
+    }
+
+
+    @Override
+    public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception {
+        /*
+        TODO AQUI
+        Agregar el dominio y potencialmente hacer CREATE TYPE
+        */
     }
 
 
@@ -68,12 +85,20 @@ public class StatementType2Translator extends Translator implements StatementVis
 
     @Override
     public void visit(Drop drop) throws Exception {
+        /*
+        Si es un fuzzy domain, ver si es fuzzy tipo 2 y borrarlo.
+        Y dropear las tablas en cascade?
+        */
     }
 
 
     @Override
     public void visit(Insert insert) throws Exception {
-
+        InsertType2Translator translator = new InsertType2Translator(connector);
+        translator.translate(insert);
+        /*
+        Traducir FuzzyExps
+        */
     }
 
 
@@ -91,8 +116,4 @@ public class StatementType2Translator extends Translator implements StatementVis
     public void visit(Update update) throws Exception {
     }
 
-
-    @Override
-    public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception {
-    }
 }

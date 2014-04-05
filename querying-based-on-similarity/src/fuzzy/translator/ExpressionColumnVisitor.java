@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
+import net.sf.jsqlparser.expression.ArrayExpression;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.CaseExpression;
 import net.sf.jsqlparser.expression.DateValue;
@@ -12,6 +13,8 @@ import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.fuzzy.FuzzyByExtension;
+import net.sf.jsqlparser.expression.fuzzy.FuzzyTrapezoid;
 import net.sf.jsqlparser.expression.InverseExpression;
 import net.sf.jsqlparser.expression.JdbcParameter;
 import net.sf.jsqlparser.expression.LongValue;
@@ -311,6 +314,21 @@ public abstract class ExpressionColumnVisitor implements ExpressionVisitor, Item
 
     @Override
     public void visit(Relation relation) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void visit(ArrayExpression array) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void visit(FuzzyByExtension fuzzy) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void visit(FuzzyTrapezoid fuzzy) throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }
