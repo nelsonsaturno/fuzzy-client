@@ -8,6 +8,7 @@ import fuzzy.operations.CreateFuzzyDomainFromColumnOperation;
 import fuzzy.operations.CreateFuzzyDomainOperation;
 import fuzzy.operations.Operation;
 import fuzzy.operations.RemoveFuzzyColumnsOperation;
+import fuzzy.operations.CreateFuzzyType2DomainOperation;
 import java.util.List;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
@@ -53,7 +54,7 @@ public class StatementType2Translator extends Translator implements StatementVis
     public void visit(Select select) throws Exception {
         SelectType2Translator translator = new SelectType2Translator(connector);
         SelectBody selectBody = select.getSelectBody();
-        selectBody.accept(translator);
+        //selectBody.accept(translator);
     }
 
 
@@ -71,10 +72,13 @@ public class StatementType2Translator extends Translator implements StatementVis
 
     @Override
     public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception {
-        /*
-        TODO AQUI
-        Agregar el dominio y potencialmente hacer CREATE TYPE
-        */
+        String name = fuzzyDomain.getName();
+        String type = fuzzyDomain.getType();
+        CreateFuzzyType2DomainOperation op = new CreateFuzzyType2DomainOperation(connector, name, type);
+        String lower_bound = fuzzyDomain.getLowerBound();
+        String upper_bound = fuzzyDomain.getUpperBound();
+        op.setBounds(lower_bound, upper_bound);
+        operations.add(op);
     }
 
 
@@ -94,11 +98,8 @@ public class StatementType2Translator extends Translator implements StatementVis
 
     @Override
     public void visit(Insert insert) throws Exception {
-        InsertType2Translator translator = new InsertType2Translator(connector);
-        translator.translate(insert);
-        /*
-        Traducir FuzzyExps
-        */
+        FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(connector);
+        insert.getItemsList().accept(translator);
     }
 
 

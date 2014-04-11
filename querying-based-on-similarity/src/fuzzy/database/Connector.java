@@ -27,6 +27,7 @@ import net.sf.jsqlparser.parser.TokenMgrError;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.fuzzy.domain.AlterFuzzyDomain;
 import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyDomain;
+import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyType2Domain;
 import net.sf.jsqlparser.statement.table.AlterTable;
 import net.sf.jsqlparser.util.deparser.StatementDeParser;
 
@@ -125,7 +126,6 @@ public class Connector {
 
     public String getCatalog() throws SQLException {
         return this.catalog;
-        //return connection.getCatalog();
 
     }
 
@@ -148,8 +148,6 @@ public class Connector {
         } else {
             this.catalog = catalogName;
         }
-        //connection.setCatalog(catalogName);
-        // FIXME: Check whatever setCatalog used to do here in MySQL
     }
 
 
@@ -284,7 +282,8 @@ public class Connector {
             // TODO drop fuzzy domain can be translated into DELETE FROM domain WHERE ...
          || s instanceof Drop && ((Drop)s).getType()
                                           .equalsIgnoreCase("FUZZY DOMAIN")
-         || s instanceof AlterTable) {
+         || s instanceof AlterTable
+         || s instanceof CreateFuzzyType2Domain) {
             // FUZZY DDL are just operations, no query
         } else {
             //DEPARSER

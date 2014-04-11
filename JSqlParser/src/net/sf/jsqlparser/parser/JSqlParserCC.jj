@@ -1900,18 +1900,18 @@ OrderedDomain OrderedDomain():
     |
         lower_bound=<S_INTEGER> <K_RANGE_SEP> upper_bound=<S_INTEGER>
         { 
-            return new BoundedOrderedDomain(BoundedOrderedDomain.Type.INTEGER, lower_bound.image, upper_bound.image);
+            return new BoundedOrderedDomain("INTEGER", lower_bound.image, upper_bound.image);
         }
     |   
         lower_bound=<S_DOUBLE> <K_RANGE_SEP> upper_bound=<S_DOUBLE>
         {
-            return new BoundedOrderedDomain(BoundedOrderedDomain.Type.REAL, lower_bound.image, upper_bound.image);
+            return new BoundedOrderedDomain("REAL", lower_bound.image, upper_bound.image);
 
         }
     |
         lower_bound=<S_CHAR_LITERAL> <K_RANGE_SEP> upper_bound=<S_CHAR_LITERAL>
         {
-            return new BoundedOrderedDomain(BoundedOrderedDomain.Type.CHAR, lower_bound.image, upper_bound.image);
+            return new BoundedOrderedDomain("TEXT", lower_bound.image, upper_bound.image);
         }
     )
 }

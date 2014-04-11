@@ -24,6 +24,18 @@ public class CreateFuzzyType2Domain implements Statement {
         return this.name;
     }
 
+    public String getType() {
+        return this.ordered_domain.getType();
+    }
+
+    public String getLowerBound() {
+        return this.ordered_domain.getLowerBound();
+    }
+
+    public String getUpperBound() {
+        return this.ordered_domain.getUpperBound();
+    }
+
     public OrderedDomain getOrderedDomain() {
         return this.ordered_domain;
     }
