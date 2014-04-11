@@ -138,10 +138,9 @@ public class Memory {
             fuzzyType2Columns = new HashMap<String, LinkedHashSet<String>>();
         }
         
-        // FIXME: cambiar SQL deisFuzzyType2Column al que es.
         if (!fuzzyType2Columns.containsKey(schemaName + "." + tableName)) {
-            ResultSet rs = c.fastQuery("SELECT table_name, column_name "
-                                             + "FROM information_schema_fuzzy.columns "
+            ResultSet rs = c.fastQuery("SELECT table_name, name "
+                                             + "FROM information_schema_fuzzy.columns2 "
                                              + "WHERE table_schema = '" + schemaName + "'");
             // register columns read from database
             while (rs.next()) {
