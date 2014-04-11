@@ -96,7 +96,6 @@ public class Translator {
         return null;
     }
 
-
     protected Integer getFuzzyLabelId(String schemaName, String domainName, String labelName)
         throws SQLException {
         String sql = "SELECT label_id "
@@ -106,6 +105,23 @@ public class Translator {
                 + domainName + "' "
                 + " AND L.label_name = '"
                 + labelName + "' "
+                + "LIMIT 1";
+        ResultSet resultSet = connector.fastQuery(sql);
+        if (resultSet != null && resultSet.next()) {
+            return resultSet.getInt(1);
+        }
+        return null;
+    }
+
+    protected Integer getFuzzyType2DomainId(String schemaName, String domainName)
+        throws SQLException {
+        if (Connector.isNativeDataType(domainName)) {
+            return null;
+        }
+        String sql = "SELECT id "
+                + "FROM information_schema_fuzzy.domains2 "
+                + "WHERE table_schema = '" + schemaName + "' AND domain_name = '"
+                + domainName + "' "
                 + "LIMIT 1";
         ResultSet resultSet = connector.fastQuery(sql);
         if (resultSet != null && resultSet.next()) {
