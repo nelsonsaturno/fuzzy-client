@@ -421,20 +421,100 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
 
     @Override
     public void visit(ArrayExpression array) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void visit(RowExpression row) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void visit(FuzzyByExtension fuzzy) throws Exception {
-        // FIXME: Implementar de verdad.
+        /*
+        * Dado f{1.0/100, 0.75/60, 0.75/120}f, generar:
+        * ROW(ARRAY[1.0, 0.75, 0.75], ARRAY[100, 60, 120], '0')
+        *
+        * Los valores (100, 60, etc) realmente son expresiones arbitrarias.
+        * Si hay problemas de tipos, Postgres es el que los va a encontrar.
+        * No se visitan esta expresiones, así que no se traducen. Si alguna
+        * llega a ser un literal difuso, no será traducido y luego Postgres
+        * lanzará un error.
+        * Una posible mejora sería visitar estas expresiones y asegurarse
+        * de que no usen valores difusos.
+        */
+
+        List<Expression> possibility_arrayexps = new ArrayList<Expression>();
+        List<Expression> value_arrayexps = new ArrayList<Expression>();
+
+        for (FuzzyByExtension.Element element : fuzzy.getPossibilities()) {
+            /*
+            * Cuando hice FuzzyByExtension, puse la posiblidad como un Double.
+            * En aquel momento no sabía que el AST de JSqlParser igual guardaba
+            * los números como strings. Así que tengo que convertirlo a string
+            * de nuevo.
+            */
+            String elem_possiblity = element.getPossibility().toString();
+            possibility_arrayexps.add(new DoubleValue(elem_possiblity));
+            value_arrayexps.add(element.getExpression());
+        }
+      
+        ArrayExpression possibilities = new ArrayExpression(possibility_arrayexps);
+        ArrayExpression values = new ArrayExpression(value_arrayexps);
+
+        // Postgres permite usar los literales '1' y '0' como booleanos.
+        // Hubiera querido usar los literales TRUE y FALSE, pero JSqlParser no
+        // los soporta.
+        Expression fuzzy_type = new StringValue("0");
+
+        List<Expression> row_exps = new ArrayList<Expression>();
+        row_exps.add(possibilities);
+        row_exps.add(values);
+        row_exps.add(fuzzy_type);
+
+        this.replacement = new RowExpression(row_exps);
+        // FIXME: Detectar si se debe stringificar.
     }
 
     @Override
-    public void visit(FuzzyTrapezoid fuzzy) throws Exception {
-        // FIXME: Implementar de verdad/
+    public void visit(FuzzyTrapezoid fuzzy) throws Exception {     
+        /*
+        * Dado f{x1, x2, x3, x4}f, generar
+        * ROW(ARRAY[0,1,1,0], ARRAY[x1, x2, x3, x4], '1')
+        *
+        * Si las expresiones x1 a x4 tienen errores, serán capturados por
+        * Postgres.
+        * Si llegaran ser a su vez literales difusos, no serán traducidos
+        * y por lo tanto dará error de Postgres.
+        * Una posible mejora sería visitar estas expresiones y asegurarse
+        * de que no usen valores difusos de ningún tipo.
+        */
+        List<Expression> possibility_arrayexps = new ArrayList<Expression>();
+        possibility_arrayexps.add(new DoubleValue("0.0"));
+        possibility_arrayexps.add(new DoubleValue("1.0"));
+        possibility_arrayexps.add(new DoubleValue("1.0"));
+        possibility_arrayexps.add(new DoubleValue("0.0"));
+        ArrayExpression possibilities = new ArrayExpression(possibility_arrayexps);
+
+        List<Expression> value_arrayexps = new ArrayList<Expression>();
+        value_arrayexps.add(fuzzy.getExp1());
+        value_arrayexps.add(fuzzy.getExp2());
+        value_arrayexps.add(fuzzy.getExp3());
+        value_arrayexps.add(fuzzy.getExp4());
+        ArrayExpression values = new ArrayExpression(value_arrayexps);
+
+        // Postgres permite usar los literales '1' y '0' como booleanos.
+        // Hubiera querido usar los literales TRUE y FALSE, pero JSqlParser no
+        // los soporta.
+        Expression fuzzy_type = new StringValue("1");
+
+        List<Expression> row_exps = new ArrayList<Expression>();
+        row_exps.add(possibilities);
+        row_exps.add(values);
+        row_exps.add(fuzzy_type);
+
+        this.replacement = new RowExpression(row_exps);
+        // FIXME: Detectar si se debe stringificar.
     }
 
 }
