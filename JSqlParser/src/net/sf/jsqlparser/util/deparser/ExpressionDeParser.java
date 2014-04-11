@@ -19,6 +19,7 @@ import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.NullValue;
 import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.Relation;
+import net.sf.jsqlparser.expression.RowExpression;
 import net.sf.jsqlparser.expression.SimilarColumn;
 import net.sf.jsqlparser.expression.Similarity;
 import net.sf.jsqlparser.expression.StringValue;
@@ -528,5 +529,14 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
         } catch (Exception e) {
         }
         buffer.append("]");
+    }
+
+    public void visit(RowExpression rowExpression) {
+        buffer.append("ROW(");
+        try {
+            rowExpression.getExpressions().accept(this);
+        } catch (Exception e) {
+        }
+        buffer.append(")");
     }
 }

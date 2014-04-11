@@ -21,6 +21,7 @@ import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.NullValue;
 import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.Relation;
+import net.sf.jsqlparser.expression.RowExpression;
 import net.sf.jsqlparser.expression.SimilarColumn;
 import net.sf.jsqlparser.expression.Similarity;
 import net.sf.jsqlparser.expression.StringValue;
@@ -319,6 +320,11 @@ public abstract class ExpressionColumnVisitor implements ExpressionVisitor, Item
 
     @Override
     public void visit(ArrayExpression array) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void visit(RowExpression row) throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

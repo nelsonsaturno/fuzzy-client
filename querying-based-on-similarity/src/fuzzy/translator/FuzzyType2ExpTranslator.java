@@ -40,6 +40,7 @@ import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.NullValue;
 import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.Relation;
+import net.sf.jsqlparser.expression.RowExpression;
 import net.sf.jsqlparser.expression.SimilarColumn;
 import net.sf.jsqlparser.expression.Similarity;
 import net.sf.jsqlparser.expression.StringValue;
@@ -422,8 +423,9 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
     public void visit(ArrayExpression array) throws Exception {
     }
 
-
-
+    @Override
+    public void visit(RowExpression row) throws Exception {
+    }
 
     @Override
     public void visit(FuzzyByExtension fuzzy) throws Exception {

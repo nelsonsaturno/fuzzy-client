@@ -99,6 +99,7 @@ public interface ExpressionVisitor {
 
 	// Array expression
 	public void visit(ArrayExpression arrayExpression) throws Exception;
+	public void visit(RowExpression rowExpression) throws Exception;
 
 
 }
