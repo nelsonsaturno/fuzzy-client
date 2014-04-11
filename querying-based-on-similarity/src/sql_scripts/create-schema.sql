@@ -37,3 +37,23 @@ CREATE TABLE IF NOT EXISTS information_schema_fuzzy.columns (
   FOREIGN KEY (domain_id)  REFERENCES information_schema_fuzzy.domains (domain_id) 
     ON UPDATE CASCADE ON DELETE RESTRICT
 );
+
+CREATE TABLE IF NOT EXISTS information_schema_fuzzy.domains2 (
+  id SERIAL PRIMARY KEY,
+  table_schema VARCHAR(64) NOT NULL,
+  domain_name VARCHAR(64) NOT NULL,
+  type VARCHAR(64) NOT NULL,
+  start VARCHAR(64) NULL,
+  finish VARCHAR(64) NULL,
+  UNIQUE (table_schema, domain_name)
+);
+
+CREATE TABLE IF NOT EXISTS information_schema_fuzzy.columns2 (
+  table_schema VARCHAR(64) NOT NULL,
+  table_name VARCHAR(64) NOT NULL,
+  name VARCHAR(64) NOT NULL,
+  domain_id INTEGER NOT NULL,
+  PRIMARY KEY (table_schema, table_name, name),
+  FOREIGN KEY (domain_id)  REFERENCES information_schema_fuzzy.domains2 (id) 
+    ON UPDATE CASCADE ON DELETE RESTRICT
+);
