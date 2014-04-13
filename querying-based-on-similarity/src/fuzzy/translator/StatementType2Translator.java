@@ -10,6 +10,7 @@ import fuzzy.operations.Operation;
 import fuzzy.operations.RemoveFuzzyColumnsOperation;
 import fuzzy.operations.CreateFuzzyType2DomainOperation;
 import java.util.List;
+import java.util.ArrayList;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Relation;
@@ -115,6 +116,23 @@ public class StatementType2Translator extends Translator implements StatementVis
 
     @Override
     public void visit(Update update) throws Exception {
+        FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(connector);
+
+        List<Expression> new_exps = new ArrayList<Expression>();
+        for (Expression exp : (List<Expression>) update.getExpressions()) {
+            translator.setReplacement(null);
+            exp.accept(translator);
+            Expression replacement = translator.getReplacement();
+            new_exps.add(null != replacement ? replacement : exp);
+        }
+        update.setExpressions(new_exps);
+        if (null != update.getWhere()) {
+            translator.setReplacement(null);
+            update.getWhere().accept(translator);
+            if (null != translator.getReplacement()) {
+                update.setWhere(translator.getReplacement());
+            }
+        }
     }
 
 }
