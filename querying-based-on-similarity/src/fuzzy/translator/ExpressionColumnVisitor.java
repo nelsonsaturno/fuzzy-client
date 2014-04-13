@@ -330,11 +330,9 @@ public abstract class ExpressionColumnVisitor implements ExpressionVisitor, Item
 
     @Override
     public void visit(FuzzyByExtension fuzzy) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void visit(FuzzyTrapezoid fuzzy) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -81,7 +81,7 @@ public class SelectTranslator implements SelectVisitor, OrderByVisitor, SelectIt
         this.tableRefSet = new TableRefList(connector, plainSelect);
 
         // create column set references using the SELECT
-        this.fuzzyColumnSet = new FuzzyColumnSet(connector, tableRefSet, plainSelect);
+        this.fuzzyColumnSet = new FuzzyColumnSet(connector, tableRefSet, plainSelect, 3);
 
 
         ExpressionTranslator eT = new ExpressionTranslator(connector, tableRefSet, fuzzyColumnSet, selectItems, aliasGenerator);

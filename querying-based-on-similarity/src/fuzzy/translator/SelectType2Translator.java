@@ -23,10 +23,7 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
 
-/*
-        Traducir FuzzyExps en todos lados.
-        Stringificar las columnas difusas y las fuzzy exps en el Select. 
- */
+
 public class SelectType2Translator implements SelectVisitor {
 
     protected Connector connector;
@@ -45,15 +42,22 @@ public class SelectType2Translator implements SelectVisitor {
 
     @Override
     public void visit(PlainSelect plainSelect) throws Exception {
+        TableRefList tableRefSet = new TableRefList(connector, plainSelect);
+        FuzzyColumnSet fuzzyColumnSet = new FuzzyColumnSet(connector, tableRefSet, plainSelect, 2);
+        tableRefSet.debugDump();
+        fuzzyColumnSet.debugDump();
 
-        FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(this.connector, this.mainselect);
+        FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(this.connector, this.mainselect, fuzzyColumnSet);
 
         for (SelectItem item : (List<SelectItem>) plainSelect.getSelectItems()) {
             item.accept(translator);
         }
 
         translator.setMainselect(false);
-        plainSelect.getWhere().accept(translator);
+        Expression where = plainSelect.getWhere();
+        if (null != where) {
+            where.accept(translator);
+        }
     }
 
     @Override

@@ -52,9 +52,9 @@ public class StatementType2Translator extends Translator implements StatementVis
 
     @Override
     public void visit(Select select) throws Exception {
-        SelectType2Translator translator = new SelectType2Translator(connector);
+        SelectType2Translator translator = new SelectType2Translator(connector, true);
         SelectBody selectBody = select.getSelectBody();
-        //selectBody.accept(translator);
+        selectBody.accept(translator);
     }
 
 

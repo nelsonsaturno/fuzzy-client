@@ -41,8 +41,11 @@ class FuzzyColumnSet implements Iterable<FuzzyColumn> {
     protected HashMap<String, FuzzyColumn> dict;
     protected Set<String> keys;
     protected TableRefList tableRefSet;
+    protected int fuzzyType;
 
-    FuzzyColumnSet(Connector connector, TableRefList tableRefSet, PlainSelect plainSelect) throws Exception {
+
+    FuzzyColumnSet(Connector connector, TableRefList tableRefSet, PlainSelect plainSelect, int fuzzyType) throws Exception {
+        this.fuzzyType = fuzzyType;
         this.connector = connector;
         this.tableRefSet = tableRefSet;
         dict = new HashMap();
@@ -253,7 +256,10 @@ class FuzzyColumnSet implements Iterable<FuzzyColumn> {
         // it is safe to assume we found a fuzzy column in a Table. SubSelects are ignored.
         String schemaName = Helper.getSchemaName(connector, tableRef.getTable());
         String tableName = tableRef.getTable().getName();
-        if (!Memory.isFuzzyColumn(connector, schemaName, tableName, column.getColumnName())) {
+        if (this.fuzzyType == 3 && !Memory.isFuzzyColumn(connector, schemaName, tableName, column.getColumnName())) {
+            return;
+        }
+        if (this.fuzzyType == 2 && !Memory.isFuzzyType2Column(connector, schemaName, tableName, column.getColumnName())) {
             return;
         }
         String qualifiedName = FuzzyColumn.getQualifiedName(column);

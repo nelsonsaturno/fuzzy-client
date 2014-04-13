@@ -122,7 +122,8 @@ public class Memory {
 
     public static boolean isFuzzyType2Column(Connector c, Table table, String columnName)
         throws SQLException {
-        return isFuzzyType2Column(c, Helper.getSchemaName(c), table.getName(), columnName);
+        String schemaName = null != table.getSchemaName() ? Helper.getSchemaName(c) : table.getSchemaName();
+        return isFuzzyType2Column(c, schemaName, table.getName(), columnName);
     }
 
     /*
@@ -149,7 +150,7 @@ public class Memory {
                 if (null == cols) {
                     cols = new LinkedHashSet<String>();
                 }
-                cols.add(rs.getString("column_name"));
+                cols.add(rs.getString("name"));
                 fuzzyType2Columns.put(schemaName + "." + tab, cols);
             }
         }

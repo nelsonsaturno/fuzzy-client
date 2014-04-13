@@ -491,7 +491,7 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
     }
 
     public void visit(FuzzyTrapezoid fuzzyTrapezoid) {
-        buffer.append("{");
+        buffer.append("f{");
         try {
             fuzzyTrapezoid.getExp1().accept(this);
             buffer.append(", ");
@@ -502,11 +502,11 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
             fuzzyTrapezoid.getExp4().accept(this);
         } catch (Exception e) {
         }
-        buffer.append("}");
+        buffer.append("}f");
     }
 
     public void visit(FuzzyByExtension fuzzyByExtension) {
-        buffer.append("{");
+        buffer.append("f{");
         try {
             int i = 0;
             for (FuzzyByExtension.Element element : fuzzyByExtension.getPossibilities()) {
@@ -519,24 +519,43 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
             }
         } catch (Exception e) {
         }
-        buffer.append("}");
+        buffer.append("}f");
     }
 
     public void visit(ArrayExpression arrayExpression) {
         buffer.append("ARRAY[");
         try {
-            arrayExpression.getExpressions().accept(this);
+            /*
+            * Originalmente estaba usando el deparser de ExpressionList.
+            * Sin embargo, luego me di cuenta que ese deparser forzaba a que
+            * la lista de expresiones estuviera encerrada en paréntesis, lo
+            * que causaba algo así:
+            * ARRAY[ (1,2,3,4) ]
+            * Para evitar dañar otra cosa en el parser, me copié el código
+            * del deparser de ExpressionList aquí, quitando los paréntesis.
+            */
+
+            ExpressionList expressionList = arrayExpression.getExpressions();
+            for (Iterator iter = expressionList.getExpressions().iterator(); iter.hasNext();) {
+                Expression expression = (Expression) iter.next();
+                try {
+                    expression.accept(this);
+                } catch (Exception e) {
+                }
+                if (iter.hasNext()) {
+                    buffer.append(", ");
+                }
+            }
         } catch (Exception e) {
         }
         buffer.append("]");
     }
 
     public void visit(RowExpression rowExpression) {
-        buffer.append("ROW(");
+        buffer.append("ROW");
         try {
             rowExpression.getExpressions().accept(this);
         } catch (Exception e) {
         }
-        buffer.append(")");
     }
 }

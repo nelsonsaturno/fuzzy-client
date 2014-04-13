@@ -88,7 +88,7 @@ public class AddFuzzyType2ColumnOperation extends Operation {
         String check_normalization = "ALTER TABLE " + this.schemaName + "." + this.tableName + " "
                                    + "ADD CONSTRAINT " + this.columnName + "_normalization "
                                    + "CHECK ( " 
-                                   + "1.0 = ALL ((" + this.columnName + ").odd) )";
+                                   + "1.0 = ANY ((" + this.columnName + ").odd) )";
 
 
         // Buscar el dominio a ver si fue definido sobre un rango

@@ -274,6 +274,7 @@ public class Connector {
         } catch (SQLException e) {
             throw e;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new SQLException("Type 2 Translator exception: " + e.getMessage(), "42000", 3119, e);
         }
 

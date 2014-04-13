@@ -84,16 +84,19 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
 
     protected Connector connector;
     protected Expression replacement = null;
+    protected FuzzyColumnSet fuzzyColumnSet;
     private boolean mainselect;
 
     FuzzyType2ExpTranslator(Connector connector) {
         this.connector = connector;
         this.mainselect = false;
+        this.fuzzyColumnSet = null;
     }
 
-    FuzzyType2ExpTranslator(Connector connector, boolean mainselect) {
+    FuzzyType2ExpTranslator(Connector connector, boolean mainselect, FuzzyColumnSet fuzzyColumnSet) {
         this.connector = connector;
         this.mainselect = mainselect;
+        this.fuzzyColumnSet = fuzzyColumnSet;
     }
 
     public Expression getReplacement() {
@@ -123,7 +126,10 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
     public void visit(SelectExpressionItem sei) throws Exception {
         this.setReplacement(null);
         sei.getExpression().accept(this);
-        sei.setExpression(this.getReplacement());
+        Expression replacement = this.getReplacement();
+        if (null != replacement) {
+            sei.setExpression(replacement);            
+        }
         this.replacement = null;
     }
 
@@ -158,7 +164,16 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
             this.replacement = null;
             return;
         }
-        // TODO: Hacer el Function y ponerlo en replacement.
+
+        if (null != this.fuzzyColumnSet && null != this.fuzzyColumnSet.get(column)) {
+            Function f = new Function();
+            f.setName("fuzzy2_tostring");
+            List<Expression> args = new ArrayList<Expression>();
+            args.add(column);
+            f.setParameters(new ExpressionList(args));
+            this.replacement = f;
+
+        }
     }
 
 
@@ -465,7 +480,7 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
         // Postgres permite usar los literales '1' y '0' como booleanos.
         // Hubiera querido usar los literales TRUE y FALSE, pero JSqlParser no
         // los soporta.
-        Expression fuzzy_type = new StringValue("0");
+        Expression fuzzy_type = new StringValue("'0'");
 
         List<Expression> row_exps = new ArrayList<Expression>();
         row_exps.add(possibilities);
@@ -473,7 +488,15 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
         row_exps.add(fuzzy_type);
 
         this.replacement = new RowExpression(row_exps);
-        // FIXME: Detectar si se debe stringificar.
+
+        if (this.mainselect) {
+            Function f = new Function();
+            f.setName("fuzzy2_tostring");
+            List<Expression> args = new ArrayList<Expression>();
+            args.add(this.replacement);
+            f.setParameters(new ExpressionList(args));
+            this.replacement = f;
+        }
     }
 
     @Override
@@ -506,7 +529,7 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
         // Postgres permite usar los literales '1' y '0' como booleanos.
         // Hubiera querido usar los literales TRUE y FALSE, pero JSqlParser no
         // los soporta.
-        Expression fuzzy_type = new StringValue("1");
+        Expression fuzzy_type = new StringValue("'1'");
 
         List<Expression> row_exps = new ArrayList<Expression>();
         row_exps.add(possibilities);
@@ -514,7 +537,15 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
         row_exps.add(fuzzy_type);
 
         this.replacement = new RowExpression(row_exps);
-        // FIXME: Detectar si se debe stringificar.
+
+        if (this.mainselect) {
+            Function f = new Function();
+            f.setName("fuzzy2_tostring");
+            List<Expression> args = new ArrayList<Expression>();
+            args.add(this.replacement);
+            f.setParameters(new ExpressionList(args));
+            this.replacement = f;
+        }
     }
 
 }
