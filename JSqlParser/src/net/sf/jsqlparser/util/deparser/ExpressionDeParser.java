@@ -7,6 +7,7 @@ import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
 import net.sf.jsqlparser.expression.ArrayExpression;
 import net.sf.jsqlparser.expression.BinaryExpression;
+import net.sf.jsqlparser.expression.CastAsExpression;
 import net.sf.jsqlparser.expression.CaseExpression;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
@@ -555,6 +556,15 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
         buffer.append("ROW");
         try {
             rowExpression.getExpressions().accept(this);
+        } catch (Exception e) {
+        }
+    }
+
+    public void visit(CastAsExpression castExpression) {
+        buffer.append("CAST ");
+        try {
+            castExpression.getExpression().accept(this);
+            buffer.append(" AS "+castExpression.getType().toString());
         } catch (Exception e) {
         }
     }

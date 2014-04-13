@@ -7,6 +7,7 @@ import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
 import net.sf.jsqlparser.expression.ArrayExpression;
 import net.sf.jsqlparser.expression.BinaryExpression;
+import net.sf.jsqlparser.expression.CastAsExpression;
 import net.sf.jsqlparser.expression.CaseExpression;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
@@ -334,5 +335,10 @@ public abstract class ExpressionColumnVisitor implements ExpressionVisitor, Item
 
     @Override
     public void visit(FuzzyTrapezoid fuzzy) throws Exception {
+    }
+
+    @Override
+    public void visit(CastAsExpression castExpression) throws Exception {
+        castExpression.getExpression().accept(this);
     }
 }

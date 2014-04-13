@@ -44,8 +44,6 @@ public class SelectType2Translator implements SelectVisitor {
     public void visit(PlainSelect plainSelect) throws Exception {
         TableRefList tableRefSet = new TableRefList(connector, plainSelect);
         FuzzyColumnSet fuzzyColumnSet = new FuzzyColumnSet(connector, tableRefSet, plainSelect, 2);
-        tableRefSet.debugDump();
-        fuzzyColumnSet.debugDump();
 
         FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(this.connector, this.mainselect, fuzzyColumnSet);
 

@@ -26,6 +26,7 @@ import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
 import net.sf.jsqlparser.expression.ArrayExpression;
 import net.sf.jsqlparser.expression.BinaryExpression;
+import net.sf.jsqlparser.expression.CastAsExpression;
 import net.sf.jsqlparser.expression.CaseExpression;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
@@ -546,6 +547,15 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
             f.setParameters(new ExpressionList(args));
             this.replacement = f;
         }
+    }
+
+    @Override
+    public void visit(CastAsExpression cast) throws Exception {
+        cast.getExpression().accept(this);
+        if (null != this.replacement) {
+            cast.setExpression(this.replacement);
+        }
+        this.replacement = null;
     }
 
 }

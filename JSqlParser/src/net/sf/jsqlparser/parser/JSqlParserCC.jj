@@ -57,6 +57,7 @@ package net.sf.jsqlparser.parser;
 import java.util.ArrayList;
 import java.util.List;
 import net.sf.jsqlparser.expression.BinaryExpression;
+import net.sf.jsqlparser.expression.CastAsExpression;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
@@ -180,6 +181,7 @@ TOKEN: /* SQL Keywords. prefixed with K_ to avoid name clashes */
 |   <K_TOP:"TOP">
 |   <K_END:"END">
 |   <K_ADD:"ADD">
+|   <K_CAST:"CAST">
 |   <K_DESC:"DESC">
 |   <K_INTO:"INTO">
 |   <K_NULL:"NULL">
@@ -1282,12 +1284,28 @@ Expression SimpleExpression():
 		"(" retval=BitwiseAndOr() ")" {retval = new Parenthesis(retval); }
     |
         retval=FuzzyType2Expression()
-  
+    |   
+        retval=CastAsExpression()  
   )
 
    {
       return retval;
    }
+}
+
+Expression CastAsExpression():
+{
+    Expression exp = null;
+    ColDataType type = null;
+}
+{
+    <K_CAST>
+    exp=SimpleExpression()
+    <K_AS>
+    type=ColDataType()
+    {
+        return new CastAsExpression(exp, type);
+    }
 }
 
 Expression ConcatExpression():

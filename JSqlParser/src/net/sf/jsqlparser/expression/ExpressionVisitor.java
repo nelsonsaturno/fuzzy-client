@@ -101,5 +101,7 @@ public interface ExpressionVisitor {
 	public void visit(ArrayExpression arrayExpression) throws Exception;
 	public void visit(RowExpression rowExpression) throws Exception;
 
+	public void visit(CastAsExpression castExpression) throws Exception;
+
 
 }
