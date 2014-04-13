@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Savepoint;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -317,23 +318,40 @@ public class Connector {
         Logger.debug("Executing: " + sql);
 
         TranslateResult translateResult = translate(sql);
-        
-        boolean queryOk = true;
-        if (null != translateResult.sql) {
-            Logger.notice(translateResult.sql);
 
-            // EXECUTE TRANSLATED INPUT
-            fast(translateResult.sql);
-            queryOk = -1 != updateCount || null != resultSet;
-        }
-        if (queryOk) {
-            for (Operation o : translateResult.operations) {
-                try {
-                    o.execute();
-                } catch (SQLException ex) {
-                    Printer.printSQLErrors(ex);
+        // FIXME: Envolví el código en una transacción y un bloque try{}
+        // FIXME: para que todas las sentencias de la traducción se ejecuten
+        // FIXME: juntas. Lo hice rápido, así que hay que ver como refactorizar esto.
+
+        // El código del equipo anterior ejecutaba individualmente 
+        // la consulta traducida y cada Operation generado.
+        // Sin embargo, cada consulta se ejecutaba en Auto Commit, así que si
+        // una reventaba, las anteriores no se podían echar para atrás.
+        this.getConnection().setAutoCommit(false);
+        Savepoint sp = this.getConnection().setSavepoint();
+
+        try {
+            boolean queryOk = true;
+            if (null != translateResult.sql) {
+                Logger.notice(translateResult.sql);
+
+                // EXECUTE TRANSLATED INPUT
+                fast(translateResult.sql);
+                queryOk = -1 != updateCount || null != resultSet;
+            }
+            if (queryOk) {
+                for (Operation o : translateResult.operations) {
+                    try {
+                        o.execute();
+                    } catch (SQLException ex) {
+                        Printer.printSQLErrors(ex);
+                        throw ex;
+                    }
                 }
             }
+            this.getConnection().commit();
+        } catch (SQLException ex) {
+            this.getConnection().rollback(sp);
         }
     }
 

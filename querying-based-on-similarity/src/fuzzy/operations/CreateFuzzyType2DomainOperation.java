@@ -77,7 +77,7 @@ public class CreateFuzzyType2DomainOperation extends Operation {
         Savepoint sp = this.beginTransaction();
         try {
             this.connector.fast(create_type);
-            this.connector.fast(create_op_gt);
+            //this.connector.fast(create_op_gt);
             this.connector.fast(insert_domain_catalog);
             this.commitTransaction();
         } catch (SQLException e) {
