@@ -51,6 +51,14 @@ public class Client {
 
             userInput = keybrd.nextLine("FuzzyDB [" + catalogName + "]> ");
 
+            // Parche para que no explote si cierro el input con EOF, tipo
+            // cuando haces Ctrl+D
+            if (null == userInput) {
+                Printer.println("");
+                Printer.printlnInWhite("Bye");
+                System.exit(0);
+            }
+
             // José Alberto: Odio cuando alguien clava una regex así y no explica que diablos hace
             Pattern p = Pattern.compile("(?s)\\s*((?:'(?:\\\\.|[^\\\\']|''|)*'|/\\*.*?\\*/|(?:--|#)[^\r\n]*|[^\\\\'])*?)(?:;|$)");
             Matcher m = p.matcher(userInput);
