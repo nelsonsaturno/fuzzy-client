@@ -353,6 +353,7 @@ public class Connector {
             this.getConnection().commit();
         } catch (SQLException ex) {
             this.getConnection().rollback(sp);
+            throw ex;
         }
     }
 

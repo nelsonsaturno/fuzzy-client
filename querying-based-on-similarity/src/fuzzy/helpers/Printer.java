@@ -129,10 +129,12 @@ public class Printer {
      */
     public static void printSQLErrors(SQLException ex) {
         do {
+            println("");
             println("ERROR "
                     + ex.getErrorCode()
                     + " (" + ex.getSQLState() + "): "
                     + ex.getMessage());
+            println("");
 //            Throwable t = ex;
 //            printStackToDebug(t);
 //            while (t.getCause() != null) {

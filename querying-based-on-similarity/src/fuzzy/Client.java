@@ -49,7 +49,7 @@ public class Client {
                 catalogName = "(none)";
             }
 
-            userInput = keybrd.nextLine("FMariaDB [" + catalogName + "]> ");
+            userInput = keybrd.nextLine("FuzzyDB [" + catalogName + "]> ");
 
             // José Alberto: Odio cuando alguien clava una regex así y no explica que diablos hace
             Pattern p = Pattern.compile("(?s)\\s*((?:'(?:\\\\.|[^\\\\']|''|)*'|/\\*.*?\\*/|(?:--|#)[^\r\n]*|[^\\\\'])*?)(?:;|$)");
