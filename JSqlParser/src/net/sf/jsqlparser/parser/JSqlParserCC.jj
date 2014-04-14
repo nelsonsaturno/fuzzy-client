@@ -1300,9 +1300,11 @@ Expression CastAsExpression():
 }
 {
     <K_CAST>
+    "("
     exp=SimpleExpression()
     <K_AS>
     type=ColDataType()
+    ")"
     {
         return new CastAsExpression(exp, type);
     }

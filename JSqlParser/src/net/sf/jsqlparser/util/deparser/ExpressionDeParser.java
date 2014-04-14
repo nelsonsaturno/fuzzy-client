@@ -561,10 +561,10 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
     }
 
     public void visit(CastAsExpression castExpression) {
-        buffer.append("CAST ");
+        buffer.append("CAST (");
         try {
             castExpression.getExpression().accept(this);
-            buffer.append(" AS "+castExpression.getType().toString());
+            buffer.append(" AS "+castExpression.getType().toString()+")");
         } catch (Exception e) {
         }
     }
