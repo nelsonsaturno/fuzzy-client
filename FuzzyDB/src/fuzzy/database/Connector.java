@@ -1,14 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package fuzzy.database;
 
-import fuzzy.helpers.Logger;
-import fuzzy.helpers.Printer;
-import fuzzy.operations.Operation;
-import fuzzy.translator.StatementTranslator;
-import fuzzy.translator.StatementType2Translator;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -18,9 +9,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Savepoint;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.parser.ParseException;
@@ -32,16 +25,22 @@ import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyType2Domain;
 import net.sf.jsqlparser.statement.table.AlterTable;
 import net.sf.jsqlparser.util.deparser.StatementDeParser;
 
-/**
- *
- * @author andras
- */
-public class Connector {
+import fuzzy.helpers.Logger;
+import fuzzy.helpers.Printer;
+import fuzzy.operations.Operation;
+import fuzzy.translator.StatementTranslator;
+import fuzzy.translator.StatementType2Translator;
 
+
+public class Connector {
 
     /**
      * MySQL primitive data types, used to avoid querying for a type on
-     * suspicion that could be fuzzy
+     * suspicion that could be fuzzy.
+     *
+     * TODO: This was inherited from the previous developer. It has to be
+     * updated with Postgres' types, or better yet, query the database and
+     * populate this list at setup time.
      */
     private static final String [] DATA_TYPES = {"TINYINT​", "BOOLEAN​", "SMALLINT​",
         "MEDIUMINT​", "INT​", "INTEGER​", "BIGINT​", "DECIMAL​", "DEC, NUMERIC, FIXED​",
@@ -52,120 +51,133 @@ public class Connector {
         "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON", "GEOMETRYCOLLECTION", "GEOMETRY"};
     
     /**
-     * Check if @dataType is a native data type of the dbms
+     * Check if @dataType is a native data type of the RDBMS.
      * 
-     * @param dataType the dataType to be tested
-     * @return true if it's a native data type of the dbms
+     * @param dataType the data type to be tested.
+     * @return true if it's a native data type of the RDBMS.
      */
     public static boolean isNativeDataType(String dataType) {
         return Arrays.asList(DATA_TYPES).contains(dataType.toLowerCase());
     }
-
+    
+    // Driver module used by java.sql
+    private static final String driver = "org.postgresql.Driver";
+    
+    // Driver protocol used to connect to the database
+    private static final String driverProtocol = "jdbc:postgresql";
+    
     private Connection connection;
-    private enum TYPE {UPDATE, QUERY, ANY};
     private ResultSet resultSet;
     private Integer updateCount;
+    private String schema = "";
 
-    private String catalog; // Temp hack for migrating to PostgreSQL
-    
-
-    
     /**
-     * Driver module used by java.sql
+     * Creates a Connector with default parameters, namely:
+     * <ul>
+     *  <li>host: 127.0.0.1 </li>
+     *  <li>username: fuzzy</li>
+     *  <li>password: fuzzy</li>
+     *  <li>databaseName: fuzzy</li>
+     * </ul>
+     * 
+     * DEPRECATED:
+     * Its only purpose is to avoid breaking existing unittests.
+     * Once the tests are updated to specify explicitly the Connector parameters,
+     * this constructor can be removed.
+     * 
+     * @throws SQLException
      */
-    private static final String driver = "org.postgresql.Driver"; //"com.mysql.jdbc.Driver";
-
-    
-    /**
-     * Driver protocol to open connection with database
-     */
-    private static final String driverProtocol = "jdbc:postgresql"; //"jdbc:mysql";
-
-
-    public Connector() 
-        throws SQLException {
-        setup("127.0.0.1", "fuzzy", "fuzzy", "");//"localhost", "root", "", "");
+    public Connector() throws SQLException {
+        this("127.0.0.1", "fuzzy", "fuzzy", "fuzzy");
+        // TODO: Log a deprecation warning.
     }
 
+    /**
+     * Creates a Connector with the parameters that will be used to connect
+     * to the RDBMS.
+     * 
+     * <p>The initial schema will be internally set as "" (the empty string),
+     * and the RDBMS will use whatever default it uses. Use setSchema() to
+     * override this.</p>
+     * 
+     * @param host the hostname, of the form name[:port]. The name might
+     * be an IP address.
+     * @param username the username as registere din the RDBMS.
+     * @param password the password of the user.
+     * @param databaseName the name of the database.
+     * @throws SQLException
+     */
     public Connector(String host, String username, String password, String databaseName) 
         throws SQLException {
-        setup(host, username, password, databaseName);
-    }
-
-    private void setup(String host, String username, String password,
-                                      String databaseName) throws SQLException {
         try {
             Class.forName(driver);
         } catch (ClassNotFoundException e) {
             Logger.severe(null, e);
         }
-        String url  = driverProtocol + "://" + host + 
-                       (databaseName == null ? "" : "/" + databaseName);
+        String url  = driverProtocol + "://" + host + "/" + databaseName;
         connection = DriverManager.getConnection(url, username, password);
-        catalog = "";
     }
     
     /**
-     * Static method that returns the instance for the singleton
-     * 
-     * @return {Connection} connection
-     **/    
-    public Connection getConnection() {
-        return connection;
-    }
-    
-    /**
-     * Static method that close the connection to the database
-     * 
-     * @return void
-     **/
-    
-    public void closeConnection() throws SQLException {
-        connection.close();
-    }
-
-    public String getCatalog() throws SQLException {
-        return this.catalog;
-
-    }
-
-
-    /**
-     * Try to change the catalog of the database
-     * 
-     * @param catalogName Newer catalog name
+     * Return the current default schema.
+     * @return the current selected schema.
+     * @throws SQLException
      */
-    public void setCatalog(String catalogName) throws SQLException {
-        this.fast("SET search_path TO "+catalogName);
-        this.fast("SELECT current_schema()");
+    public String getSchema() throws SQLException {
+        return this.schema;
+    }
+
+    /**
+     * Attempt to change the default schema.
+     * 
+     * @param schemaName Newer schema name
+     * @throws java.sql.SQLException
+     */
+    public void setSchema(String schemaName) throws SQLException {
+        // Set the schema, and test if it was really set
+        // If not, revert the schema and throw an exception.
+        this.executeRaw("SET search_path TO "+schemaName);
+        this.executeRaw("SELECT current_schema()");
         this.resultSet.next();
         if (this.resultSet.getObject(1) == null) {
-            if (!this.catalog.equals("")) {
-                // Revert to old catalog
-                this.fast("SET search_path TO " + this.catalog);
+            if (!this.schema.equals("")) {
+                // Revert to old schema
+                this.executeRaw("SET search_path TO " + this.schema);
             }
             throw new SQLException("Invalid schema");
         } else {
-            this.catalog = catalogName;
+            this.schema = schemaName;
         }
     }
+    
+    // Methods to execute raw queries, that is, without translation
+    // These are essentially wrappers for the corresponding Connection methods.
 
-
-    public void fast(String sql) throws SQLException {
+    /**
+     * Executes the given query directly in the RDBMS, without translation.
+     * The results can be later retrieved with getResultSet() and
+     * getUpdatecount().
+     * 
+     * @param sql the query to execute.
+     * @throws SQLException
+     */
+    public void executeRaw(String sql) throws SQLException {
         Logger.debug("fast: " + sql);
-        java.sql.Statement s = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        Statement s = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         s.execute(sql);
         this.resultSet = s.getResultSet();
         this.updateCount = s.getUpdateCount();
     }
 
     /**
-     * Executes a SELECT query and returns the corresponding ResultSet
+     * Shortcut method equivalent to executeRaw(), but directly returns
+     * the ResultSet.
      * 
-     * @param query a SELECT query
-     * @return ResultSet result or exception in case it fails
+     * @param sql the query to execute.
+     * @return ResultSet query result.
+     * @throws SQLException
      */
-    public ResultSet fastQuery(String sql) throws SQLException {
+    public ResultSet executeRawQuery(String sql) throws SQLException {
         Logger.debug("fastQuery: " + sql);
         this.resultSet = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY).executeQuery(sql);
         this.updateCount = -1;
@@ -173,25 +185,36 @@ public class Connector {
     }
     
     /**
-     * Executes an INSERT, UPDATE, etc. query and returns the number of columns
-     * updated.
+     * Shortcut method equivalent to executeRaw(), but directly returns 
+     * the number of affected rows.
      * 
-     * @param query an INSERT, UPDATE, DELETE, etc. query
-     * @return The number of updated rows or null if there was a problem during
+     * @param sql the query to execute.
+     * @return the number of updated rows or null if there was a problem during
      * the execution of the query.
+     * @throws SQLException
      */
-    public Integer fastUpdate(String sql) throws SQLException {
+    public Integer executeRawUpdate(String sql) throws SQLException {
         Logger.debug("fastUpdate: " + sql);
         this.updateCount = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY).executeUpdate(sql);
         this.resultSet = null;
         return this.updateCount;
     }
     
-
-    public Integer fastInsert(String sql) throws SQLException {
+    /**
+     * Executes an INSERT statement directly in the RDBMS, without translation.
+     * Then it returns the generated primary key of the first row added.
+     * 
+     * <p>Note: I inherited this from the previous developer. I don't know why
+     * this method would be defined like this. It didn't even have a javadoc
+     * when I found it.<p/>
+     * 
+     * @param sql the query to execute.
+     * @return the generated key of the first row inserted.
+     * @throws SQLException
+     */
+    public Integer executeRawInsert(String sql) throws SQLException {
         Logger.debug(sql);
-        PreparedStatement statement = connection
-                        .prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         statement.executeUpdate();
         ResultSet generatedKeys = statement.getGeneratedKeys();
         if (generatedKeys.next()) {
@@ -201,20 +224,44 @@ public class Connector {
         }
     }
 
+    /**
+     * Represents the result of a successful fuzzy SQL translation.
+     * 
+     * <p>A translation consists of the translated SQL statement
+     * and a list of additional operations that
+     * must be executed together with the translated query.</p>
+     * 
+     * <p>An Operation is an object that executes one or more additional
+     * SQL statements.
+     * It is important that the final executer of the query and operations
+     * wrap it all within a transaction to avoid any Operation failing and
+     * leaving the fuzzy representation in an incosistent state.</p>
+     * 
+     */
+    public class TranslationResult {
 
-    public ResultSet executeQuery(String sql) throws SQLException {
-        execute(sql);
-        return resultSet;
+        public String sql;
+        public List<Operation> operations;
+
+        TranslationResult(String sql, List<Operation> operations) {
+            this.sql = sql;
+            this.operations = operations;
+        }
     }
-
-
-    public Integer executeUpdate(String sql) throws SQLException {
-        execute(sql);
-        return updateCount;
-    }
-
     
-    public TranslateResult translate(String sql) throws SQLException {
+    /**
+     * Translates the given SQL statement. 
+     * 
+     * <p>The process might involve querying the fuzzy representation in
+     * the RDBMS. It also requires the database to have been preloaded with
+     * the fuzzy representation schemas and functions.</p>
+     * 
+     * @param sql the statement to translate.
+     * @return a TranslationResult object, which contains everything necessary
+     * to execute que translation query and any changes to the fuzzy schemas.
+     * @throws SQLException
+     */
+    public TranslationResult translate(String sql) throws SQLException {
         
         // PARSER
         CCJSqlParserManager pa = new CCJSqlParserManager();
@@ -300,24 +347,20 @@ public class Connector {
             res = sb.toString();
         }
 
-        return new TranslateResult(res, operations);
+        return new TranslationResult(res, operations);
     }
 
-    public class TranslateResult {
-        public String sql;
-        public List<Operation> operations;
-
-        TranslateResult(String sql, List<Operation> operations) {
-            this.sql = sql;
-            this.operations = operations;
-        }
-    }
-
-
+    /**
+     * Translates the fuzzy SQL statement and then executes it. The results
+     * can be retrieved with getResultSet() and getUpdateCount().
+     * 
+     * @param sql the fuzzy SQL to be translated and executed.
+     * @throws SQLException
+     */
     public void execute(String sql) throws SQLException {
         Logger.debug("Executing: " + sql);
 
-        TranslateResult translateResult = translate(sql);
+        TranslationResult translateResult = translate(sql);
 
         // FIXME: Envolví el código en una transacción y un bloque try{}
         // FIXME: para que todas las sentencias de la traducción se ejecuten
@@ -327,8 +370,8 @@ public class Connector {
         // la consulta traducida y cada Operation generado.
         // Sin embargo, cada consulta se ejecutaba en Auto Commit, así que si
         // una reventaba, las anteriores no se podían echar para atrás.
-        this.getConnection().setAutoCommit(false);
-        Savepoint sp = this.getConnection().setSavepoint();
+        this.connection.setAutoCommit(false);
+        Savepoint sp = this.connection.setSavepoint();
 
         try {
             boolean queryOk = true;
@@ -336,7 +379,7 @@ public class Connector {
                 Logger.notice(translateResult.sql);
 
                 // EXECUTE TRANSLATED INPUT
-                fast(translateResult.sql);
+                executeRaw(translateResult.sql);
                 queryOk = -1 != updateCount || null != resultSet;
             }
             if (queryOk) {
@@ -349,19 +392,27 @@ public class Connector {
                     }
                 }
             }
-            this.getConnection().commit();
+            this.connection.commit();
         } catch (SQLException ex) {
-            this.getConnection().rollback(sp);
+            this.connection.rollback(sp);
             throw ex;
         }
     }
 
-
+    /**
+     * Returns the result of the last query executed by the Connector.
+     * @return ResultSet the result of the last query executed by this
+     * Connector. It might be null.
+     */
     public ResultSet getResultSet() {
         return resultSet;
     }
 
-
+    /**
+     * Returns the number of affected rows during the last query executed by
+     * the Connector.
+     * @return Integer number of affected rows.
+     */
     public Integer getUpdateCount() {
         return updateCount;
     }

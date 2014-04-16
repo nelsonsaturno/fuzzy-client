@@ -208,7 +208,7 @@ public class CreateTableTranslatorTest {
             e.getCause().printStackTrace();
         }
         
-        connector.setCatalog("test_repuestos");
+        connector.setSchema("test_repuestos");
 
         List<Operation> operations = new ArrayList<Operation>();
         CreateTableTranslator st = new CreateTableTranslator(connector, operations);

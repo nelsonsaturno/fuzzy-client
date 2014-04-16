@@ -91,7 +91,7 @@ public class RemoveFuzzyColumnsOperation extends Operation {
 
     @Override
     public void execute() throws SQLException {
-        connector.fastUpdate(getQuery());
+        connector.executeRawUpdate(getQuery());
     }
     
     protected String getQuery() {

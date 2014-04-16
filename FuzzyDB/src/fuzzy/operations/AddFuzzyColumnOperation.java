@@ -32,7 +32,7 @@ public class AddFuzzyColumnOperation extends Operation {
     
     @Override
     public void execute() throws SQLException {
-        connector.fastUpdate(getQuery());
+        connector.executeRawUpdate(getQuery());
     }
 
     public String getQuery() {

@@ -60,16 +60,16 @@ public class Helper {
     
     public static void cleanDomainMetaData(String domainName)
         throws SQLException {
-        connector.fastUpdate("DELETE FROM information_schema_fuzzy.domains "
+        connector.executeRawUpdate("DELETE FROM information_schema_fuzzy.domains "
                 + "WHERE domain_name = '" + domainName + "'");
         
     }
     
     public static void cleanSchemaMetaData(String schemaName)
         throws SQLException {
-        connector.fastUpdate("DELETE FROM information_schema_fuzzy.columns "
+        connector.executeRawUpdate("DELETE FROM information_schema_fuzzy.columns "
                 + "WHERE table_schema = '" + schemaName + "'");
-        connector.fastUpdate("DELETE FROM information_schema_fuzzy.domains "
+        connector.executeRawUpdate("DELETE FROM information_schema_fuzzy.domains "
                 + "WHERE table_schema = '" + schemaName + "'");
     }   
         
@@ -208,7 +208,7 @@ public class Helper {
     public static void validateMetaData(String schemaName, String domainName, 
             String[] labels, String[][] similarities) {
         try {
-            ResultSet rs = connector.fastQuery("SELECT domain_id FROM information_schema_fuzzy.domains "
+            ResultSet rs = connector.executeRawQuery("SELECT domain_id FROM information_schema_fuzzy.domains "
                                              + "WHERE table_schema = '" + schemaName
                                              + "' AND domain_name = '" + domainName
                                              + "'");
@@ -217,7 +217,7 @@ public class Helper {
             Integer domainId = rs.getInt("domain_id");
             HashMap<String, Integer> labelIds = new HashMap<String, Integer>(labels.length);
             for (int i = 0 ; i < labels.length ; ++i) {
-                rs = connector.fastQuery("SELECT label_id "
+                rs = connector.executeRawQuery("SELECT label_id "
                         + "FROM information_schema_fuzzy.labels "
                         + "WHERE domain_id = " + domainId + " "
                         + "AND label_name = '" + labels[i] + "'");
@@ -226,7 +226,7 @@ public class Helper {
             }
             
             for (int i = 0 ; i < similarities.length ; ++i) {
-                rs = connector.fastQuery("SELECT value "
+                rs = connector.executeRawQuery("SELECT value "
                         + "FROM information_schema_fuzzy.similarities "
                         + "WHERE label1_id = " + labelIds.get(similarities[i][0]) + " "
                         + "AND label2_id = " + labelIds.get(similarities[i][1]) + " "
@@ -245,7 +245,7 @@ public class Helper {
     }
     
     public static void createMetaData(String database, String domainName, String[] labels, String[][] similarities) throws SQLException {
-        ResultSet rs = connector.fastQuery("SELECT domain_id FROM information_schema_fuzzy.domains "
+        ResultSet rs = connector.executeRawQuery("SELECT domain_id FROM information_schema_fuzzy.domains "
                 + "WHERE table_schema = '" + database + "' "
                 + "AND domain_name = '" + domainName + "'");
         Integer domainId = null;
@@ -256,21 +256,21 @@ public class Helper {
         } catch (SQLException ex) {}
         
         if (domainId == null){
-            domainId = connector.fastInsert("INSERT INTO information_schema_fuzzy.domains "
+            domainId = connector.executeRawInsert("INSERT INTO information_schema_fuzzy.domains "
                  + "VALUES (DEFAULT, '" + database + "', '" + domainName + "')");
                 
         }
         
         for (int i = 0 ; i < labels.length ; ++i) {
-            connector.fastInsert("INSERT INTO information_schema_fuzzy.labels "
+            connector.executeRawInsert("INSERT INTO information_schema_fuzzy.labels "
                     + "VALUES (DEFAULT, " + domainId + ", '" + labels[i] + "')");
         }
         
         for (int i = 0 ; i < similarities.length ; ++i) {
             Integer label1Id = null;
             Integer label2Id = null;
-            ResultSet rs1 = connector.fastQuery("SELECT label_id FROM information_schema_fuzzy.labels WHERE domain_id = " + domainId + " AND label_name = '" + similarities[i][0] + "'");
-            ResultSet rs2 = connector.fastQuery("SELECT label_id FROM information_schema_fuzzy.labels WHERE domain_id = " + domainId + " AND label_name = '" + similarities[i][1] + "'");
+            ResultSet rs1 = connector.executeRawQuery("SELECT label_id FROM information_schema_fuzzy.labels WHERE domain_id = " + domainId + " AND label_name = '" + similarities[i][0] + "'");
+            ResultSet rs2 = connector.executeRawQuery("SELECT label_id FROM information_schema_fuzzy.labels WHERE domain_id = " + domainId + " AND label_name = '" + similarities[i][1] + "'");
             
             rs1.next();
             rs2.next();
@@ -282,12 +282,12 @@ public class Helper {
                     + label2Id + ", "
                     + similarities[i][2] + ", '"
                     + similarities[i][3] + "')";
-            connector.fastUpdate(sql);
+            connector.executeRawUpdate(sql);
         }        
     }
     
     public static void createData(String database, String table, String[] columnNames, String[] columnTypes, String[] columnConstraints, String[][] rows) throws SQLException {
-        connector.fastUpdate("CREATE SCHEMA IF NOT EXISTS " + database);
+        connector.executeRawUpdate("CREATE SCHEMA IF NOT EXISTS " + database);
         StringBuilder createTableSql = new StringBuilder("CREATE TABLE IF NOT EXISTS " + database + "." + table + " (");
         StringBuilder insertIntoSql = new StringBuilder("INSERT INTO " + database + "." + table + "(");
         boolean somethingInBuffer = false;
@@ -299,7 +299,7 @@ public class Helper {
             somethingInBuffer = true;
         }
         createTableSql.append(")");
-        connector.fastUpdate(createTableSql.toString());
+        connector.executeRawUpdate(createTableSql.toString());
         
         insertIntoSql.append(") VALUES ");
         somethingInBuffer = false;
@@ -314,7 +314,7 @@ public class Helper {
             insertIntoSql.append(")");
         }
         
-        connector.fastUpdate(insertIntoSql.toString());
+        connector.executeRawUpdate(insertIntoSql.toString());
     }
     
     public static void validateData(String schemaName, String tableName, String[] columnNames, String[][] rows) {
@@ -326,7 +326,7 @@ public class Helper {
                 somethingInBuffer = true;
             }
             selectStatement.append(" FROM ").append(schemaName).append(".").append(tableName);
-            ResultSet rs = connector.fastQuery(selectStatement.toString());
+            ResultSet rs = connector.executeRawQuery(selectStatement.toString());
             
             Set<List<String>> actual = new HashSet(rows.length);
             Set<List<String>> expected = new HashSet(rows.length);

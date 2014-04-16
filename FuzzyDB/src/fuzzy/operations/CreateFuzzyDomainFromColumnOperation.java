@@ -30,16 +30,16 @@ public class CreateFuzzyDomainFromColumnOperation extends Operation {
 
     @Override
     public void execute() throws SQLException {
-        if (this.connector.getCatalog().equals("")) {
+        if (this.connector.getSchema().equals("")) {
             throw new SQLException("No database selected");
         }
-        this.schemaName = this.connector.getCatalog();
+        this.schemaName = this.connector.getSchema();
 
         String countSql = "SELECT COUNT(*) FROM "
                 + (schemaName != null ? schemaName + "." : "")
                 + tableName + " WHERE " + columnName + " IS NOT NULL";
         Logger.debug("Validating values with: " + countSql);
-        ResultSet count = connector.fastQuery(countSql);
+        ResultSet count = connector.executeRawQuery(countSql);
         if (count.next() && count.getInt(1) == 0) {
             throw Translator.FR_EMPTY_VALUES_LIST(schemaName, tableName, columnName);
         }
@@ -49,7 +49,7 @@ public class CreateFuzzyDomainFromColumnOperation extends Operation {
         Logger.debug("Inserting domain with: " + insertDomain);
         Integer domainId = null;
         try {
-            domainId = connector.fastInsert(insertDomain);
+            domainId = connector.executeRawInsert(insertDomain);
         } catch (SQLException ex) {
             throw Translator.FR_DUPLICATE_DOMAIN_NAME(domainName);
             // FIXME: La migración a Postgres arruinó este catch. Por ahora solo lanzo un 'dominio duplicado'
@@ -74,14 +74,14 @@ public class CreateFuzzyDomainFromColumnOperation extends Operation {
                 " FROM " + (schemaName != null ? schemaName + "." : "") + tableName +
                 " WHERE " + columnName + " IS NOT NULL";
         Logger.debug("Inserting labels with: " + insertLabels);
-        connector.fastUpdate(insertLabels);
+        connector.executeRawUpdate(insertLabels);
         
         String insertSimilarities = "INSERT INTO information_schema_fuzzy.similarities "
                 + "SELECT label_id, label_id, 1.0, TRUE "
                 + "FROM information_schema_fuzzy.labels "
                 + "WHERE domain_id = " + domainId;
         Logger.debug("Inserting similarities with: " + insertSimilarities);
-        connector.fastUpdate(insertSimilarities);
+        connector.executeRawUpdate(insertSimilarities);
     }
 
     public String getDomainName() {

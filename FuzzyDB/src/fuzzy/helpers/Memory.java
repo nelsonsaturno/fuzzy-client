@@ -59,7 +59,7 @@ public class Memory {
             Logger.debug("Buscando columnas del esquema: " + schemaName);
             String sql = "SELECT TABLE_NAME, COLUMN_NAME FROM information_schema.COLUMNS "
                     + "WHERE TABLE_SCHEMA='" + schemaName + "'";
-            ResultSet rs = c.fastQuery(sql);
+            ResultSet rs = c.executeRawQuery(sql);
             // register columns read from database
             while (rs.next()) {
                 String tab = rs.getString("TABLE_NAME");
@@ -100,7 +100,7 @@ public class Memory {
         }
         //TODO design unique data structure to store all columns and whether they're fuzzy or not
         if (!fuzzyColumns.containsKey(schemaName + "." + tableName)) {
-            ResultSet rs = c.fastQuery("SELECT table_name, column_name "
+            ResultSet rs = c.executeRawQuery("SELECT table_name, column_name "
                                              + "FROM information_schema_fuzzy.columns "
                                              + "WHERE table_schema = '" + schemaName + "'");
             // register columns read from database
@@ -140,7 +140,7 @@ public class Memory {
         }
         
         if (!fuzzyType2Columns.containsKey(schemaName + "." + tableName)) {
-            ResultSet rs = c.fastQuery("SELECT table_name, name "
+            ResultSet rs = c.executeRawQuery("SELECT table_name, name "
                                              + "FROM information_schema_fuzzy.columns2 "
                                              + "WHERE table_schema = '" + schemaName + "'");
             // register columns read from database

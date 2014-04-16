@@ -29,10 +29,10 @@ public class ChangeColumnOperation extends Operation {
 
     @Override
     public void execute() throws SQLException {
-        if (this.connector.getCatalog().equals("")) {
+        if (this.connector.getSchema().equals("")) {
             throw new SQLException("No database selected");
         }
-        this.schemaName = this.connector.getCatalog();
+        this.schemaName = this.connector.getSchema();
 
         /**
          * CHECK IF CURRENT DATA TYPE IS VARCHAR
@@ -43,11 +43,11 @@ public class ChangeColumnOperation extends Operation {
                 + "AND table_name = '" + tableName + "' "
                 + "AND column_name = '" + oldColumnName + "'";
 
-        ResultSet currentTypeRS = connector.fastQuery(currentTypeVarcharSQL);
+        ResultSet currentTypeRS = connector.executeRawQuery(currentTypeVarcharSQL);
         if (!currentTypeRS.next()) {
             // (a) no hay un esquema seleccionado, (b) no existe la tabla table_name, o (c) no existe la columna column_name
             // Next query will rise that error
-            connector.fastUpdate("ALTER TABLE " + ColumnOperation.getSchemaTableForSQL(schemaName, tableName) + " "
+            connector.executeRawUpdate("ALTER TABLE " + ColumnOperation.getSchemaTableForSQL(schemaName, tableName) + " "
                 + "CHANGE " + oldColumnName + " " + newColumnName + " INTEGER " + (options != null ? options : ""));
         } else {
             String currentType = currentTypeRS.getString(1);
@@ -55,7 +55,7 @@ public class ChangeColumnOperation extends Operation {
                 // TODO throw unsupported type error
             }
         }
-        ResultSet domainIdRS = connector.fastQuery(ColumnOperation.getDomainIdForSql(schemaName, dataType, null));
+        ResultSet domainIdRS = connector.executeRawQuery(ColumnOperation.getDomainIdForSql(schemaName, dataType, null));
         if (!domainIdRS.next()) {
             // No existe el dominio
             throw Translator.FR_UNKNOWN_DOMAIN(dataType);
@@ -77,7 +77,7 @@ public class ChangeColumnOperation extends Operation {
                 + "FOR UPDATE";
         ResultSet subsetOfDomainRS = null;
         try {
-            subsetOfDomainRS = connector.fastQuery(subsetOfDomainSQL);
+            subsetOfDomainRS = connector.executeRawQuery(subsetOfDomainSQL);
         } catch (SQLException ex) {
             if (ex.getMessage().startsWith("Unknown column '" + tableName + "." + oldColumnName +"'")) {
                 throw new SQLException("Unknown column '" + tableName + "." + oldColumnName +"' in '" + tableName + "'", ex.getSQLState(), ex.getErrorCode());
@@ -102,14 +102,14 @@ public class ChangeColumnOperation extends Operation {
                 + "FROM information_schema_fuzzy.domains "
                 + "WHERE domain_name = '" + dataType + "' "
                 + "AND table_schema = " + ColumnOperation.getSchemaNameForSql(schemaName) + "))";
-        connector.fastUpdate(updateValuesToLabelIdSQL);        
+        connector.executeRawUpdate(updateValuesToLabelIdSQL);        
         
         /**
          * CHANGE COLUMN TYPE TO INTEGER (which is safe since we already updated values to label ids)
          */
         String changeColumnType = "ALTER TABLE " + ColumnOperation.getSchemaTableForSQL(schemaName, tableName) + " "
                 + "CHANGE " + oldColumnName + " " + newColumnName + " INTEGER " + (options != null ? options : "");
-        connector.fastUpdate(changeColumnType);
+        connector.executeRawUpdate(changeColumnType);
         // If this fails, we need to revert the update
 
         /**

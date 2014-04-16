@@ -48,17 +48,17 @@ abstract public class FuzzyDomainOperation extends Operation {
 
     @Override
     public void execute() throws SQLException {
-        if (this.connector.getCatalog().equals("")) {
+        if (this.connector.getSchema().equals("")) {
             throw new SQLException("No database selected");
         }
-        String schemaName = this.connector.getCatalog();
+        String schemaName = this.connector.getSchema();
 
         Domain domain = relation.getDomain();
         if (0 == domain.getId()) {
             String sql = "INSERT INTO information_schema_fuzzy.domains "
                             + "VALUES (DEFAULT, (select current_schema()), '"//TODO escape
                             + domain.getName() + "')";
-            domain.setId(connector.fastInsert(sql));
+            domain.setId(connector.executeRawInsert(sql));
         }
         List<String> labelsToCreate = new ArrayList<String>();
         List<String> labelsToDelete = new ArrayList<String>();
@@ -69,13 +69,13 @@ abstract public class FuzzyDomainOperation extends Operation {
                                 + "VALUES (DEFAULT, "
                                 + l.getDomain().getId() +",'"
                                 + l.getName() + "')";//TODO escapar
-                l.setId(connector.fastInsert(sql));
+                l.setId(connector.executeRawInsert(sql));
             } else if (l.isToBeDropped()) {
                 labelsToDelete.add(l.getName());
                 String sql = "DELETE FROM information_schema_fuzzy.labels "
                                 + "WHERE label_id = " + l.getId();
                 Logger.debug(sql);
-                connector.fastUpdate(sql);
+                connector.executeRawUpdate(sql);
             }
         }
         if (labelsToCreate.size() > 0){
@@ -99,18 +99,18 @@ abstract public class FuzzyDomainOperation extends Operation {
                                 + s.getLabel2().getId() + ","
                                 + s.getValue() + ", "
                                 + (s.getDerivated() == 0 ? "FALSE" : "TRUE") + ")";
-                connector.fastUpdate(sql);
+                connector.executeRawUpdate(sql);
             } else if (s.isToBeAltered()) {
                 String sql = "UPDATE information_schema_fuzzy.similarities "
                                 + "SET derivated=" + s.getDerivated()
                                 + " WHERE label1_id = " + s.getLabel1().getId()
                                 + " AND label2_id = " + s.getLabel2().getId();
-                connector.fastUpdate(sql);
+                connector.executeRawUpdate(sql);
             } else if (s.isToBeDropped()) {
                 String sql = "DELETE FROM information_schema_fuzzy.similarities "
                                 + "WHERE label1_id = " + s.getLabel1().getId()
                                 + " AND label2_id = " + s.getLabel2().getId();
-                connector.fastUpdate(sql);
+                connector.executeRawUpdate(sql);
             }
         }
     }

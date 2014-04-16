@@ -34,7 +34,7 @@ public class Domain {
     public void load() throws SQLException {
         String sql = "SELECT domain_id, table_schema FROM information_schema_fuzzy.domains "
                 + "WHERE domain_name='" + name + "'";
-        ResultSet rs = connector.fastQuery(sql);
+        ResultSet rs = connector.executeRawQuery(sql);
         // register columns read from database
         if (rs.next()) {
             id = rs.getInt("domain_id");

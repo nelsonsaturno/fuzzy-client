@@ -58,7 +58,7 @@ public class ChangeColumnOperationTest {
         connector = new Connector();
         Helper.setConnector(connector);
         Helper.createData(schemaName, tableName, columnNames, columnTypes, columnConstraints, rows);
-        connector.setCatalog("fuzzy_ddl_test");
+        connector.setSchema("fuzzy_ddl_test");
         String domainName = "names";
         String labels[] = {"Michael Jordan", "Jennifer Aniston", "Milla Jovovich", "Buddah"};
         String similarities[][] = {
@@ -71,10 +71,9 @@ public class ChangeColumnOperationTest {
 
     @After
     public void tearDown() throws SQLException {
-        connector.setCatalog("information_schema");
-        connector.fastUpdate("DROP SCHEMA fuzzy_ddl_test CASCADE");
+        connector.setSchema("information_schema");
+        connector.executeRawUpdate("DROP SCHEMA fuzzy_ddl_test CASCADE");
         Helper.cleanSchemaMetaData("fuzzy_ddl_test");
-        connector.closeConnection();
     }
 
     /**
@@ -161,7 +160,7 @@ public class ChangeColumnOperationTest {
         exception.expectMessage("Label 'Han Solo' doesn't exist in domain");
         assertEquals("Error preparing test. Try again",
                 new Integer(1),
-                connector.fastUpdate("INSERT INTO people (name) VALUES ('Han Solo')"));
+                connector.executeRawUpdate("INSERT INTO people (name) VALUES ('Han Solo')"));
         ChangeColumnOperation instance = new ChangeColumnOperation(connector);
         instance.setTableName(tableName);
         instance.setOldColumnName("name");
@@ -203,7 +202,7 @@ public class ChangeColumnOperationTest {
         instance.setDataType("names");
         instance.execute();
         
-        ResultSet rs = connector.fastQuery("SELECT label_id, label_name FROM information_schema_fuzzy.labels"
+        ResultSet rs = connector.executeRawQuery("SELECT label_id, label_name FROM information_schema_fuzzy.labels"
                 + " WHERE domain_id = ("
                 + "SELECT domain_id "
                 + "FROM information_schema_fuzzy.domains "
@@ -224,7 +223,7 @@ public class ChangeColumnOperationTest {
         
         Helper.validateData(schemaName, tableName, expectedColumnNames, expectedRows);
         
-        rs = connector.fastQuery("SELECT COUNT(*) FROM information_schema_fuzzy.columns"
+        rs = connector.executeRawQuery("SELECT COUNT(*) FROM information_schema_fuzzy.columns"
                 + " WHERE table_schema = '" + schemaName + "' "
                 + "AND table_name = '" + tableName + "' "
                 + "AND column_name = 'full_name' "

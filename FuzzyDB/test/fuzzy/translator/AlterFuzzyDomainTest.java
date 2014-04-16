@@ -62,8 +62,8 @@ public class AlterFuzzyDomainTest {
     // Executed once before each test
     @Before
     public void setUp() throws SQLException {
-        connector.fastUpdate("CREATE SCHEMA " + database);
-        connector.setCatalog(database);
+        connector.executeRawUpdate("CREATE SCHEMA " + database);
+        connector.setSchema(database);
         Helper.setConnector(connector);
         Helper.createMetaData(database, domainName, existingLabels, existingSimilarities);
     }
@@ -71,8 +71,8 @@ public class AlterFuzzyDomainTest {
     // Executed once after each test
     @After
     public void tearDown() throws SQLException {
-        connector.setCatalog("information_schema");
-        connector.fastUpdate("DROP SCHEMA " + database + " CASCADE");
+        connector.setSchema("information_schema");
+        connector.executeRawUpdate("DROP SCHEMA " + database + " CASCADE");
         Helper.cleanSchemaMetaData(database);      
     }
     

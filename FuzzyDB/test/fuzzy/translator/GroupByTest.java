@@ -41,7 +41,7 @@ public class GroupByTest {
 
     @Before
     public void setUp() throws SQLException { 
-        connector.setCatalog("test_repuestos");
+        connector.setSchema("test_repuestos");
         Helper.setConnector(connector);
     }
 
@@ -224,7 +224,7 @@ public class GroupByTest {
                 //Getting the resultSet
                 connector.execute(Input[i]);
                 ResultSet actual = connector.getResultSet();
-                ResultSet expected = connector.fastQuery(expectedOutput[i]);
+                ResultSet expected = connector.executeRawQuery(expectedOutput[i]);
                 testHelper.compareResults(actual,expected);
             } catch (SQLException e) {
                 Printer.printSQLErrors(e);

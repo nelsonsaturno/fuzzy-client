@@ -34,18 +34,29 @@ public abstract class Operation {
      * @return a Savepoint to rollback the transaction if needed.
      */
     protected Savepoint beginTransaction() throws SQLException {
-        this.connector.getConnection().setAutoCommit(false);
-        return this.connector.getConnection().setSavepoint();
+        /*
+        * The entire transaction API of Operation can be dropped.
+        * It doesn't make any sense for a single Operation to be encapsulated
+        * in a transaction, because what matters is for the entire set to
+        * be in one.
+        * Connector didn't wrap the executing of a translation in a transaction,
+        * so I suppose that's why this API was created.
+        * Connector now wraps the entire translation in a transaction, so
+        * this isn't needed anymore.
+        */
+        /*this.connector.getConnection().setAutoCommit(false);
+        return this.connector.getConnection().setSavepoint();*/
+        return null;
     }
 
     /**
      * Commit the current transaction.
      */
     protected void commitTransaction() throws SQLException {
-        this.connector.getConnection().commit();
+        //this.connector.getConnection().commit();
     }
     
     protected void rollback(Savepoint sp) throws SQLException {
-        this.connector.getConnection().rollback(sp);
+        //this.connector.getConnection().rollback(sp);
     }
 }

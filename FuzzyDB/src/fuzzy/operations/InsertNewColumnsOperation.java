@@ -26,7 +26,7 @@ public class InsertNewColumnsOperation extends ColumnOperation {
                 + "'" + columnName + "', "
                 + getDomainIdForSql() + ")";
         
-        connector.fastUpdate(insertIntoColumns);
+        connector.executeRawUpdate(insertIntoColumns);
     }
     
 }

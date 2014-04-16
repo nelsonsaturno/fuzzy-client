@@ -97,7 +97,7 @@ public class Client {
                     parameters.password,
                     parameters.databaseName
             );
-            connector.setCatalog(parameters.schemaName);
+            connector.setSchema(parameters.schemaName);
         } catch (SQLException e) {
             Printer.printSQLErrors(e);
             System.exit(20);
@@ -112,7 +112,7 @@ public class Client {
             // Detect current selected schema and show it on the prompt.
             String catalogName = null;
             try {
-                catalogName = connector.getCatalog();
+                catalogName = connector.getSchema();
             } catch (SQLException e) {
                 Printer.printSQLErrors(e);
             }
@@ -193,7 +193,7 @@ public class Client {
             } else {
                 String catalogName = words[1].replaceAll(";$", "");
                 try {
-                    connector.setCatalog(catalogName);
+                    connector.setSchema(catalogName);
                 } catch (SQLException e) {
                     Printer.printSQLErrors(e);
                 }

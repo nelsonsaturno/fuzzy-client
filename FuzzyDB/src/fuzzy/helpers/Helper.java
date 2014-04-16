@@ -17,7 +17,7 @@ public class Helper  {
     }
     
     public static String getSchemaName(Connector c) throws SQLException {
-        return c.getCatalog();
+        return c.getSchema();
     }
 
     public static String getDomainNameForColumn(Connector c,
@@ -33,7 +33,7 @@ public class Helper  {
         
         Logger.debug("Looking for domain name with query:\n" + sql);
         
-        ResultSet rs = c.fastQuery(sql);
+        ResultSet rs = c.executeRawQuery(sql);
         SQLException e = null;
         try {
             if (rs.first()) {

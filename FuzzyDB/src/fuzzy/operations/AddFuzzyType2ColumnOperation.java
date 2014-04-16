@@ -24,10 +24,10 @@ public class AddFuzzyType2ColumnOperation extends Operation {
 
     @Override
     public void execute() throws SQLException {
-        if (this.connector.getCatalog().equals("")) {
+        if (this.connector.getSchema().equals("")) {
             throw new SQLException("No database selected");
         }
-        String catalog = this.connector.getCatalog();
+        String catalog = this.connector.getSchema();
 
         /*
         * Suponiendo que se agregó la siguiente columna:
@@ -97,7 +97,7 @@ public class AddFuzzyType2ColumnOperation extends Operation {
                                  + "FROM information_schema_fuzzy.domains2 "
                                  + "WHERE id = " + this.domainId + " "
                                  + "LIMIT 1";
-        ResultSet rs = this.connector.fastQuery(find_domain_range);
+        ResultSet rs = this.connector.executeRawQuery(find_domain_range);
         rs.next();
         String lower_bound = rs.getString("start");
         String upper_bound = rs.getString("finish");
@@ -119,12 +119,12 @@ public class AddFuzzyType2ColumnOperation extends Operation {
 
         Savepoint sp = this.beginTransaction();
         try {
-            this.connector.fast(insert_column);
-            this.connector.fast(check_possibility);
-            this.connector.fast(check_matching_lengths);
-            this.connector.fast(check_normalization);
+            this.connector.executeRaw(insert_column);
+            this.connector.executeRaw(check_possibility);
+            this.connector.executeRaw(check_matching_lengths);
+            this.connector.executeRaw(check_normalization);
             if (null != lower_bound && null != upper_bound) {
-                this.connector.fast(check_value);
+                this.connector.executeRaw(check_value);
             }
             this.commitTransaction();
         } catch (SQLException e) {

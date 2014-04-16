@@ -76,7 +76,7 @@ public class StatementTranslatorTest {
             e.getCause().printStackTrace();
         }
         
-        connector.setCatalog("test_repuestos");
+        connector.setSchema("test_repuestos");
         
         List<Operation> operations = new ArrayList<Operation>();
         StatementTranslator st = new StatementTranslator(connector, operations);
@@ -124,7 +124,7 @@ public class StatementTranslatorTest {
             e.getCause().printStackTrace();
         }
         
-        connector.setCatalog("test_repuestos");
+        connector.setSchema("test_repuestos");
         
         List<Operation> operations = new ArrayList<Operation>();
         StatementTranslator st = new StatementTranslator(connector, operations);

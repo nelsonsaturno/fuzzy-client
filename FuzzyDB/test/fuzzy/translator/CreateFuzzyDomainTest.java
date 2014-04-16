@@ -42,16 +42,16 @@ public class CreateFuzzyDomainTest {
     // Executed once before each test
     @Before
     public void setUp() throws SQLException {
-        connector.fastUpdate("CREATE SCHEMA fuzzy_ddl_test");
-        connector.setCatalog("fuzzy_ddl_test");
+        connector.executeRawUpdate("CREATE SCHEMA fuzzy_ddl_test");
+        connector.setSchema("fuzzy_ddl_test");
         Helper.setConnector(connector);
     }
     
     // Executed once after each test
     @After
     public void tearDown() throws SQLException {
-        connector.setCatalog("information_schema");
-        connector.fastUpdate("DROP SCHEMA fuzzy_ddl_test CASCADE");
+        connector.setSchema("information_schema");
+        connector.executeRawUpdate("DROP SCHEMA fuzzy_ddl_test CASCADE");
         Helper.cleanSchemaMetaData("fuzzy_ddl_test");      
     }
     

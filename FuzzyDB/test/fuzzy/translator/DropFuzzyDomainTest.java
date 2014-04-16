@@ -62,8 +62,8 @@ public class DropFuzzyDomainTest {
     // Executed once before each test
     @Before
     public void setUp() throws SQLException {
-        connector.fastUpdate("CREATE SCHEMA " + database);
-        connector.setCatalog(database);
+        connector.executeRawUpdate("CREATE SCHEMA " + database);
+        connector.setSchema(database);
         Helper.setConnector(connector);
         Helper.createMetaData(database, domainName, existingLabels, existingSimilarities);
     }
@@ -71,8 +71,8 @@ public class DropFuzzyDomainTest {
     // Executed once after each test
     @After
     public void tearDown() throws SQLException {
-        connector.setCatalog("information_schema");
-        connector.fastUpdate("DROP SCHEMA " + database + " CASCADE");
+        connector.setSchema("information_schema");
+        connector.executeRawUpdate("DROP SCHEMA " + database + " CASCADE");
         Helper.cleanSchemaMetaData(database);      
     }
     
@@ -87,17 +87,17 @@ public class DropFuzzyDomainTest {
     public void dropExistingDomain() throws Exception {
         String sql = "SELECT domain_id FROM information_schema_fuzzy.domains "
                 + "WHERE table_schema = '" + database + "' AND domain_name = '" + domainName + "'";
-        ResultSet rs = connector.fastQuery(sql);
+        ResultSet rs = connector.executeRawQuery(sql);
         assertTrue("Error executing test. Data is not being pre-loading", rs.next());
         Integer domainId = rs.getInt("domain_id");
         
         Helper.executeDDLAndFailOnErrors("DROP FUZZY DOMAIN " + domainName);
         
         assertFalse("It's not dropping the domain",
-                connector.fastQuery(sql).next());
+                connector.executeRawQuery(sql).next());
         
         assertFalse("It's not dropping labels",
-                connector.fastQuery("SELECT * FROM information_schema_fuzzy.labels WHERE domain_id = " + domainId).next());
+                connector.executeRawQuery("SELECT * FROM information_schema_fuzzy.labels WHERE domain_id = " + domainId).next());
         
         // TODO check it's dropping similarities
     }

@@ -23,8 +23,8 @@ public class ConnectorTest {
 
     @Test
     public void setCatalogTest() throws Exception {
-        connector.setCatalog("test_repuestos");
+        connector.setSchema("test_repuestos");
         assertEquals("Base de datos no fue cambiada",
-                "test_repuestos", connector.getCatalog());
+                "test_repuestos", connector.getSchema());
     }
 }

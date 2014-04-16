@@ -26,7 +26,7 @@ public class CreateConstraintsForNewColumnOperation extends ColumnOperation {
             + "REFERENCES information_schema_fuzzy.labels (label_id) "
             + "ON UPDATE CASCADE ON DELETE RESTRICT";
         
-        connector.fastUpdate(addForeignKeyConstraint);
+        connector.executeRawUpdate(addForeignKeyConstraint);
     
         String addCheckConstraint = "ALTER TABLE " 
                 + getSchemaTableForSQL() + " "
@@ -35,6 +35,6 @@ public class CreateConstraintsForNewColumnOperation extends ColumnOperation {
                 + "FROM information_schema_fuzzy.labels "
                 + "WHERE domain_id = " + getDomainIdForSql() + "))";
         
-        connector.fastUpdate(addCheckConstraint);
+        connector.executeRawUpdate(addCheckConstraint);
     }
 }

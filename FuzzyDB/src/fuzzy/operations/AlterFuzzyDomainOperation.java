@@ -27,7 +27,7 @@ public class AlterFuzzyDomainOperation extends FuzzyDomainOperation {
         // load labels
         sql = "SELECT label_id, label_name FROM information_schema_fuzzy.labels "
                 + "WHERE domain_id=" + relation.getDomain().getId();
-        rs = connector.fastQuery(sql);
+        rs = connector.executeRawQuery(sql);
         while (rs.next()) {
             relation.addLabel(rs.getInt("label_id"), rs.getString("label_name"));
         }
@@ -42,7 +42,7 @@ public class AlterFuzzyDomainOperation extends FuzzyDomainOperation {
                + "L2.label_id=label2_id AND "
                + "L1.domain_id = " + relation.getDomain().getId() + " AND "
                + "L2.domain_id = " + relation.getDomain().getId();
-        rs = connector.fastQuery(sql);
+        rs = connector.executeRawQuery(sql);
         while (rs.next()) {
             relation.addSimilarity(rs.getString("label1"), rs.getString("label2"),
                                    rs.getDouble("value"), rs.getBoolean("derivated") ? 1 : 0);

@@ -24,19 +24,19 @@ public class DropFuzzyDomainOperation extends Operation {
 
     @Override
     public void execute() throws SQLException {
-        if (this.connector.getCatalog().equals("")) {
+        if (this.connector.getSchema().equals("")) {
             throw new SQLException("No database selected");
         }
-        String schemaName = this.connector.getCatalog();
+        String schemaName = this.connector.getSchema();
 
         Logger.debug("Starting DROP FUZZY DOMAIN " + domain + " operation");
         String sql = "DELETE FROM information_schema_fuzzy.domains " +
             "WHERE table_schema = (select current_schema())" + 
             "AND domain_name = '" + domain + "'";
         
-        int rows = connector.fastUpdate(sql);
+        int rows = connector.executeRawUpdate(sql);
         if (rows == 0) {
-            String c = connector.getCatalog();
+            String c = connector.getSchema();
             if (c == null || c.isEmpty()) {
                 Logger.debug("No database selected");
                 throw Translator.ER_NO_DB_ERROR;

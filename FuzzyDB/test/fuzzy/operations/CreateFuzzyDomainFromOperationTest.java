@@ -24,7 +24,6 @@ import org.junit.rules.ExpectedException;
 public class CreateFuzzyDomainFromOperationTest {
     
     protected static Connector connector;
-    protected static Connection connection;
     
     @Rule
     public ExpectedException exception = ExpectedException.none();;
@@ -35,7 +34,6 @@ public class CreateFuzzyDomainFromOperationTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         connector = new Connector();
-        connection = connector.getConnection();
     }
 
     @AfterClass
@@ -45,16 +43,16 @@ public class CreateFuzzyDomainFromOperationTest {
     @Before
     public void setUp() throws SQLException {
         Helper.setConnector(connector);
-        connection.createStatement().executeUpdate("CREATE SCHEMA fuzzy_ddl_test");
-        connection.createStatement().executeUpdate("CREATE SCHEMA fuzzy_ddl_test1");
-        connector.setCatalog("fuzzy_ddl_test");
-        connection.createStatement().executeUpdate("CREATE TABLE fuzzy_ddl_test.people ("
+        connector.executeRawUpdate("CREATE SCHEMA fuzzy_ddl_test");
+        connector.executeRawUpdate("CREATE SCHEMA fuzzy_ddl_test1");
+        connector.setSchema("fuzzy_ddl_test");
+        connector.executeRawUpdate("CREATE TABLE fuzzy_ddl_test.people ("
                 + "id SERIAL PRIMARY KEY, "
                 + "name VARCHAR(64), "
                 + "height DECIMAL, "
                 + "birthdate DATE, "
                 + "comments TEXT)");
-        connection.createStatement().executeUpdate("INSERT INTO fuzzy_ddl_test.people(name, height, birthdate) "
+        connector.executeRawUpdate("INSERT INTO fuzzy_ddl_test.people(name, height, birthdate) "
                 + "VALUES ('Michael Jordan', 1.98, '1963-02-17'),"
                 + "('Jennifer Aniston', 1.64, '1969-02-11'),"
                 + "('Milla Jovovich', 1.74, '1975-12-17'),"
@@ -64,9 +62,9 @@ public class CreateFuzzyDomainFromOperationTest {
     
     @After
     public void tearDown() throws SQLException {
-        connector.setCatalog("information_schema");
-        connection.createStatement().executeUpdate("DROP SCHEMA fuzzy_ddl_test CASCADE");
-        connection.createStatement().executeUpdate("DROP SCHEMA fuzzy_ddl_test1 CASCADE");
+        connector.setSchema("information_schema");
+        connector.executeRawUpdate("DROP SCHEMA fuzzy_ddl_test CASCADE");
+        connector.executeRawUpdate("DROP SCHEMA fuzzy_ddl_test1 CASCADE");
         Helper.cleanSchemaMetaData("fuzzy_ddl_test");      
         Helper.cleanSchemaMetaData("fuzzy_ddl_test1");      
     }
@@ -152,7 +150,7 @@ public class CreateFuzzyDomainFromOperationTest {
     @Ignore
     public void insertFromAnotherSchemaMetadata() throws Exception{
         // FIXME: Debido a la migración a Postgres, esto seguro no sirve ni de vaina. Hay que refactorizar todo el peo del USE database.
-        connector.setCatalog("fuzzy_ddl_test1");
+        connector.setSchema("fuzzy_ddl_test1");
         CreateFuzzyDomainFromColumnOperation o = new CreateFuzzyDomainFromColumnOperation(connector);
         o.setDomainName("nombres");
         o.setSchemaName("fuzzy_ddl_test");

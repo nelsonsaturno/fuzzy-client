@@ -89,7 +89,7 @@ public class Translator {
                 + "WHERE table_schema = '" + schemaName + "' AND domain_name = '"
                 + domainName + "' "
                 + "LIMIT 1";
-        ResultSet resultSet = connector.fastQuery(sql);
+        ResultSet resultSet = connector.executeRawQuery(sql);
         if (resultSet != null && resultSet.next()) {
             return resultSet.getInt(1);
         }
@@ -106,7 +106,7 @@ public class Translator {
                 + " AND L.label_name = '"
                 + labelName + "' "
                 + "LIMIT 1";
-        ResultSet resultSet = connector.fastQuery(sql);
+        ResultSet resultSet = connector.executeRawQuery(sql);
         if (resultSet != null && resultSet.next()) {
             return resultSet.getInt(1);
         }
@@ -123,7 +123,7 @@ public class Translator {
                 + "WHERE table_schema = '" + schemaName + "' AND domain_name = '"
                 + domainName + "' "
                 + "LIMIT 1";
-        ResultSet resultSet = connector.fastQuery(sql);
+        ResultSet resultSet = connector.executeRawQuery(sql);
         if (resultSet != null && resultSet.next()) {
             return resultSet.getInt(1);
         }

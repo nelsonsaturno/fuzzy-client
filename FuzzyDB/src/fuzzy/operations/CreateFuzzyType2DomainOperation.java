@@ -28,10 +28,10 @@ public class CreateFuzzyType2DomainOperation extends Operation {
     @Override
     public void execute() throws SQLException {
 
-        if (this.connector.getCatalog().equals("")) {
+        if (this.connector.getSchema().equals("")) {
             throw new SQLException("No database selected");
         }
-        String catalog = this.connector.getCatalog();
+        String catalog = this.connector.getSchema();
 
         /*
         * Por ejemplo, CREATE FUZZY DOMAIN test AS POSSIBILITY DISTRIBUTION
@@ -76,9 +76,9 @@ public class CreateFuzzyType2DomainOperation extends Operation {
 
         Savepoint sp = this.beginTransaction();
         try {
-            this.connector.fast(create_type);
-            //this.connector.fast(create_op_gt);
-            this.connector.fast(insert_domain_catalog);
+            this.connector.executeRaw(create_type);
+            //this.connector.executeRaw(create_op_gt);
+            this.connector.executeRaw(insert_domain_catalog);
             this.commitTransaction();
         } catch (SQLException e) {
             this.rollback(sp);
