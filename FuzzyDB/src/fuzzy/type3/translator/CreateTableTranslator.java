@@ -17,7 +17,7 @@ import net.sf.jsqlparser.statement.table.CreateTable;
  */
 public class CreateTableTranslator extends Translator {
 
-    CreateTableTranslator(Connector connector, List<Operation> operations) {
+    public CreateTableTranslator(Connector connector, List<Operation> operations) {
         super(connector, operations);
     }
 
