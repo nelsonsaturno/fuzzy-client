@@ -2,11 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.operations;
+package fuzzy.type3.operations;
 
+import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Logger;
-import fuzzy.translator.Translator;
+import fuzzy.type3.translator.Translator;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 

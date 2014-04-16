@@ -1,9 +1,10 @@
-package fuzzy.translator;
+package fuzzy.type2.translator;
 
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
-import fuzzy.operations.AddFuzzyType2ColumnOperation;
-import fuzzy.operations.Operation;
+import fuzzy.type2.operations.AddFuzzyType2ColumnOperation;
+import fuzzy.common.operations.Operation;
+import fuzzy.type3.translator.Translator;
 import java.sql.SQLException;
 import java.util.Iterator;
 
@@ -19,7 +20,7 @@ import net.sf.jsqlparser.statement.table.CreateTable;
  */
 public class CreateTableType2Translator extends Translator {
 
-    CreateTableType2Translator(Connector connector, List<Operation> operations) {
+    public CreateTableType2Translator(Connector connector, List<Operation> operations) {
         super(connector, operations);
     }
 

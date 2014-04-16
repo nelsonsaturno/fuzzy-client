@@ -2,12 +2,14 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.translator;
+package fuzzy.common.translator;
 
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
 import fuzzy.helpers.Memory;
+import fuzzy.type3.translator.ExpressionColumnVisitor;
+import fuzzy.type3.translator.Translator;
 import java.sql.SQLException;
 import java.util.AbstractSet;
 import java.util.HashMap;
@@ -30,7 +32,7 @@ import net.sf.jsqlparser.statement.select.SelectItem;
  * Create the column reference set using the SelectItems in the SELECT
  * clause, matching them with the tables found in the tableRefSet.
  */
-class FuzzyColumnSet implements Iterable<FuzzyColumn> {
+public class FuzzyColumnSet implements Iterable<FuzzyColumn> {
 
     protected Connector connector;
     /**
@@ -44,7 +46,7 @@ class FuzzyColumnSet implements Iterable<FuzzyColumn> {
     protected int fuzzyType;
 
 
-    FuzzyColumnSet(Connector connector, TableRefList tableRefSet, PlainSelect plainSelect, int fuzzyType) throws Exception {
+    public FuzzyColumnSet(Connector connector, TableRefList tableRefSet, PlainSelect plainSelect, int fuzzyType) throws Exception {
         this.fuzzyType = fuzzyType;
         this.connector = connector;
         this.tableRefSet = tableRefSet;
@@ -73,7 +75,7 @@ class FuzzyColumnSet implements Iterable<FuzzyColumn> {
         keys = dict.keySet();
     }
 
-    FuzzyColumn get(Column column) {
+    public FuzzyColumn get(Column column) {
         String columnQualifiedName = FuzzyColumn.getQualifiedName(column);
         // columnQualifiedName has the format: [[schemaName.]tableName.]columnName
         for (FuzzyColumn fuzzyColumn : this) {

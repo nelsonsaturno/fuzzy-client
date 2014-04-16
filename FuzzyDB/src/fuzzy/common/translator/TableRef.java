@@ -1,5 +1,5 @@
 
-package fuzzy.translator;
+package fuzzy.common.translator;
 
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;

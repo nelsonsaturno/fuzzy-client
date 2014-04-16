@@ -2,13 +2,14 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.operations;
+package fuzzy.type3.operations;
 
+import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
-import fuzzy.ddl.Domain;
-import fuzzy.ddl.Label;
-import fuzzy.ddl.Relation;
-import fuzzy.ddl.Similarity;
+import fuzzy.type3.ddl.Domain;
+import fuzzy.type3.ddl.Label;
+import fuzzy.type3.ddl.Relation;
+import fuzzy.type3.ddl.Similarity;
 import fuzzy.helpers.Logger;
 import java.sql.SQLException;
 import java.util.ArrayList;

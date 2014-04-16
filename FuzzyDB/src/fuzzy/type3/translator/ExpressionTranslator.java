@@ -1,8 +1,13 @@
-package fuzzy.translator;
+package fuzzy.type3.translator;
 
+import fuzzy.common.translator.FuzzyColumnSet;
+import fuzzy.common.translator.FuzzyColumn;
+import fuzzy.common.translator.TableRefList;
+import fuzzy.common.translator.TableRef;
+import fuzzy.common.translator.AliasGenerator;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Memory;
-import static fuzzy.translator.TableRef.TableType.SUB_SELECT;
+import static fuzzy.common.translator.TableRef.TableType.SUB_SELECT;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;

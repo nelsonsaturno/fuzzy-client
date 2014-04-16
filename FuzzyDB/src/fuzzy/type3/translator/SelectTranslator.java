@@ -1,13 +1,18 @@
-package fuzzy.translator;
+package fuzzy.type3.translator;
 
+import fuzzy.common.translator.FuzzyColumnSet;
+import fuzzy.common.translator.FuzzyColumn;
+import fuzzy.common.translator.TableRefList;
+import fuzzy.common.translator.TableRef;
+import fuzzy.common.translator.AliasGenerator;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
 import java.sql.SQLException;
-import static fuzzy.translator.TableRef.ParentType.JOIN;
-import static fuzzy.translator.TableRef.ParentType.PLAIN_SELECT;
-import static fuzzy.translator.TableRef.ParentType.SUB_JOIN;
-import static fuzzy.translator.TableRef.TableType.SUB_SELECT;
+import static fuzzy.common.translator.TableRef.ParentType.JOIN;
+import static fuzzy.common.translator.TableRef.ParentType.PLAIN_SELECT;
+import static fuzzy.common.translator.TableRef.ParentType.SUB_JOIN;
+import static fuzzy.common.translator.TableRef.TableType.SUB_SELECT;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Iterator;

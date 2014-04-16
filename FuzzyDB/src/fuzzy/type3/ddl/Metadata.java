@@ -1,4 +1,4 @@
-package fuzzy.ddl;
+package fuzzy.type3.ddl;
 
 /**
  * Class created to keep common functionality between Labels and Similarities

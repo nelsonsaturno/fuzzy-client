@@ -1,6 +1,7 @@
-package fuzzy.operations;
+package fuzzy.type2.operations;
 
 import fuzzy.database.Connector;
+import fuzzy.common.operations.Operation;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Savepoint;

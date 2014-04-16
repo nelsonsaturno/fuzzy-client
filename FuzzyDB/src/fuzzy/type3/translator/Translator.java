@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.translator;
+package fuzzy.type3.translator;
 
 import fuzzy.database.Connector;
-import fuzzy.operations.Operation;
+import fuzzy.common.operations.Operation;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -67,19 +67,19 @@ public class Translator {
     protected List<Operation> operations;
 
 
-    protected Translator(Connector connector) {
+    public Translator(Connector connector) {
         this.connector = connector;
         //Por el momento no le voy a parar a esto
     }
 
 
-    protected Translator(Connector connector, List<Operation> operations) {
+    public Translator(Connector connector, List<Operation> operations) {
         this.connector = connector;
         this.operations = operations;
     }
 
 
-    protected Integer getFuzzyDomainId(String schemaName, String domainName)
+    public Integer getFuzzyDomainId(String schemaName, String domainName)
         throws SQLException {
         if (Connector.isNativeDataType(domainName)) {
             return null;
@@ -96,7 +96,7 @@ public class Translator {
         return null;
     }
 
-    protected Integer getFuzzyLabelId(String schemaName, String domainName, String labelName)
+    public Integer getFuzzyLabelId(String schemaName, String domainName, String labelName)
         throws SQLException {
         String sql = "SELECT label_id "
                 + "FROM information_schema_fuzzy.labels AS L "
@@ -113,7 +113,7 @@ public class Translator {
         return null;
     }
 
-    protected Integer getFuzzyType2DomainId(String schemaName, String domainName)
+    public Integer getFuzzyType2DomainId(String schemaName, String domainName)
         throws SQLException {
         if (Connector.isNativeDataType(domainName)) {
             return null;

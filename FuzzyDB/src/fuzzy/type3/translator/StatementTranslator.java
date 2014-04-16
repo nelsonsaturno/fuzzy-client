@@ -1,13 +1,13 @@
-package fuzzy.translator;
+package fuzzy.type3.translator;
 
 import fuzzy.database.Connector;
-import fuzzy.operations.DropFuzzyDomainOperation;
+import fuzzy.type3.operations.DropFuzzyDomainOperation;
 import fuzzy.helpers.Helper;
-import fuzzy.operations.AlterFuzzyDomainOperation;
-import fuzzy.operations.CreateFuzzyDomainFromColumnOperation;
-import fuzzy.operations.CreateFuzzyDomainOperation;
-import fuzzy.operations.Operation;
-import fuzzy.operations.RemoveFuzzyColumnsOperation;
+import fuzzy.type3.operations.AlterFuzzyDomainOperation;
+import fuzzy.type3.operations.CreateFuzzyDomainFromColumnOperation;
+import fuzzy.type3.operations.CreateFuzzyDomainOperation;
+import fuzzy.common.operations.Operation;
+import fuzzy.type3.operations.RemoveFuzzyColumnsOperation;
 import java.util.List;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;

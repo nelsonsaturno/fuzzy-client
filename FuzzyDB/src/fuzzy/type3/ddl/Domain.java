@@ -1,4 +1,4 @@
-package fuzzy.ddl;
+package fuzzy.type3.ddl;
 
 import fuzzy.database.Connector;
 import java.sql.ResultSet;

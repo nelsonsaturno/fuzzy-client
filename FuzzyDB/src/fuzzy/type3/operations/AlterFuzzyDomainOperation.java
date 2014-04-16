@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.operations;
+package fuzzy.type3.operations;
 
 import fuzzy.database.Connector;
-import fuzzy.ddl.Relation;
+import fuzzy.type3.ddl.Relation;
 import java.sql.ResultSet;
 import java.sql.Statement;
 

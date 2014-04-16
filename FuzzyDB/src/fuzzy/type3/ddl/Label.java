@@ -1,4 +1,4 @@
-package fuzzy.ddl;
+package fuzzy.type3.ddl;
 
 /**
  * This class represents a label of a domain in memory

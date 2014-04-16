@@ -2,12 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.translator;
+package fuzzy.common.translator;
 
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
-import static fuzzy.translator.TableRef.TableType.TABLE;
+import static fuzzy.common.translator.TableRef.TableType.TABLE;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;

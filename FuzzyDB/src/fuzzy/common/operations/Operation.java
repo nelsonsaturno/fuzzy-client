@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.operations;
+package fuzzy.common.operations;
 
 import fuzzy.database.Connector;
 import java.sql.SQLException;
@@ -16,10 +16,10 @@ public abstract class Operation {
 
     protected Connector connector;
 
-    Operation(Connector connector) {
+    public Operation(Connector connector) {
         this.connector = connector;
     }
-
+    
     /**
      * Executes the operation
      * 

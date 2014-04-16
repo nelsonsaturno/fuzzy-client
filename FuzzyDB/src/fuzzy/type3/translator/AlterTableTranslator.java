@@ -1,8 +1,8 @@
-package fuzzy.translator;
+package fuzzy.type3.translator;
 
 import fuzzy.database.Connector;
-import fuzzy.operations.ChangeColumnOperation;
-import fuzzy.operations.Operation;
+import fuzzy.type3.operations.ChangeColumnOperation;
+import fuzzy.common.operations.Operation;
 import java.sql.SQLException;
 
 import java.util.List;

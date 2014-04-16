@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.operations;
+package fuzzy.type3.operations;
 
+import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import java.sql.SQLException;
 

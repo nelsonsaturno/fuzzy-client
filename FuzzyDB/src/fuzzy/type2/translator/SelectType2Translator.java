@@ -1,27 +1,13 @@
-package fuzzy.translator;
+package fuzzy.type2.translator;
 
 import fuzzy.database.Connector;
-import fuzzy.helpers.Helper;
-import fuzzy.helpers.Logger;
-import java.sql.SQLException;
-import static fuzzy.translator.TableRef.ParentType.JOIN;
-import static fuzzy.translator.TableRef.ParentType.PLAIN_SELECT;
-import static fuzzy.translator.TableRef.ParentType.SUB_JOIN;
-import static fuzzy.translator.TableRef.TableType.SUB_SELECT;
-import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.ExpressionVisitor;
-import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitor;
-import net.sf.jsqlparser.parser.CCJSqlParserManager;
-import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
+import fuzzy.common.translator.FuzzyColumnSet;
+import fuzzy.common.translator.FuzzyColumnSet;
+import fuzzy.common.translator.TableRefList;
 
 
 public class SelectType2Translator implements SelectVisitor {

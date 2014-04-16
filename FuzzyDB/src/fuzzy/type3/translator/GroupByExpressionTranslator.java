@@ -2,8 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.translator;
+package fuzzy.type3.translator;
 
+import fuzzy.common.translator.FuzzyColumnSet;
+import fuzzy.common.translator.FuzzyColumn;
+import fuzzy.common.translator.AliasGenerator;
 import fuzzy.helpers.Logger;
 import java.util.ArrayList;
 import java.util.List;

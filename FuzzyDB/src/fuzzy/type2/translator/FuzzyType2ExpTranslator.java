@@ -1,8 +1,9 @@
-package fuzzy.translator;
+package fuzzy.type2.translator;
 
 import fuzzy.database.Connector;
 import fuzzy.helpers.Memory;
-import static fuzzy.translator.TableRef.TableType.SUB_SELECT;
+import fuzzy.common.translator.FuzzyColumnSet;
+import static fuzzy.common.translator.TableRef.TableType.SUB_SELECT;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;

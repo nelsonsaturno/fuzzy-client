@@ -1,4 +1,4 @@
-package fuzzy.translator;
+package fuzzy.type3.translator;
 
 
 import net.sf.jsqlparser.expression.Expression;

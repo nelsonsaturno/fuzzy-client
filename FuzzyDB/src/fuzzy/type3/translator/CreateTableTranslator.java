@@ -1,9 +1,9 @@
-package fuzzy.translator;
+package fuzzy.type3.translator;
 
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
-import fuzzy.operations.AddFuzzyColumnOperation;
-import fuzzy.operations.Operation;
+import fuzzy.type3.operations.AddFuzzyColumnOperation;
+import fuzzy.common.operations.Operation;
 import java.sql.SQLException;
 import java.util.Iterator;
 

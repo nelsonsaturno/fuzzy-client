@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.translator;
+package fuzzy.common.translator;
 
 import fuzzy.helpers.Logger;
 
@@ -12,7 +12,7 @@ import fuzzy.helpers.Logger;
  * 
  * @author bishma-stornelli
  */
-class AliasGenerator {
+public class AliasGenerator {
     
     protected int domainIndex = 0;
     protected int labelIndex = 0;
@@ -41,7 +41,7 @@ class AliasGenerator {
         return similarityAliasBase + ++similarityIndex;
     }
 
-    String getNewDomainAlias() {
+    public String getNewDomainAlias() {
         return this.domainAliasBase + ++this.domainIndex;
     }
     

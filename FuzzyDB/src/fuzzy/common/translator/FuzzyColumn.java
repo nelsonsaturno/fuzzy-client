@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.translator;
+package fuzzy.common.translator;
 
 import fuzzy.helpers.Logger;
 import java.io.StringReader;
@@ -55,7 +55,7 @@ public class FuzzyColumn {
      */
     protected Column fuzzyLabelIdColumn;
    
-    FuzzyColumn(TableRef tableRef, String publicName) {
+    public FuzzyColumn(TableRef tableRef, String publicName) {
         this.tableRef = tableRef;
         this.publicName = publicName;
     }
@@ -69,7 +69,7 @@ public class FuzzyColumn {
         return publicName;
     }
     
-    void includeGroupByJoin(AliasGenerator aliasGenerator) throws Exception {
+    public void includeGroupByJoin(AliasGenerator aliasGenerator) throws Exception {
         if (fuzzyLabelColumn != null) {
             return;
         }
@@ -164,7 +164,7 @@ public class FuzzyColumn {
         this.groupBySimilarityColumn = new Column(new Table(null, similarityAlias), "value");
     }
     
-    void includeFuzzyLabelLeftJoin(AliasGenerator aliasGenerator) throws Exception {
+    public void includeFuzzyLabelLeftJoin(AliasGenerator aliasGenerator) throws Exception {
         if (fuzzyLabelColumn != null) {
             return;
         }
@@ -261,11 +261,11 @@ public class FuzzyColumn {
         }
     }
 
-    Column getGroupBySimilarityColumn() {
+    public Column getGroupBySimilarityColumn() {
         return this.groupBySimilarityColumn;
     }
 
-    String getJoinForOrderBy() {
+    public String getJoinForOrderBy() {
         if (this.fuzzyLabelIdColumn != null) {
             return this.fuzzyLabelIdColumn.toString();
         } else {

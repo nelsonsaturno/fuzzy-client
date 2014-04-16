@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.ddl;
+package fuzzy.type3.ddl;
 
 import fuzzy.helpers.Logger;
 

@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.operations;
+package fuzzy.type3.operations;
 
+import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import java.sql.SQLException;
 
@@ -94,7 +95,7 @@ public class RemoveFuzzyColumnsOperation extends Operation {
         connector.executeRawUpdate(getQuery());
     }
     
-    protected String getQuery() {
+    public String getQuery() {
         String query = "DELETE FROM information_schema_fuzzy.columns "
                 + "WHERE table_schema = '" + schemaName + "'";
         if (tableName != null)

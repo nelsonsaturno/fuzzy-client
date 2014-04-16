@@ -1,4 +1,4 @@
-package fuzzy.translator;
+package fuzzy.type3.translator;
 
 import java.util.Iterator;
 import java.util.List;
