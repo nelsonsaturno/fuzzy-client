@@ -4,6 +4,7 @@
  */
 package fuzzy.operations;
 
+import fuzzy.type3.operations.CreateFuzzyDomainFromColumnOperation;
 import fuzzy.Helper;
 import fuzzy.database.Connector;
 import java.sql.Connection;

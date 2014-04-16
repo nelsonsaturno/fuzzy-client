@@ -4,6 +4,7 @@
  */
 package fuzzy.translator;
 
+import fuzzy.type3.operations.CreateFuzzyDomainFromColumnOperation;
 import fuzzy.Helper;
 import fuzzy.database.Connector.TranslationResult;
 import fuzzy.operations.*;

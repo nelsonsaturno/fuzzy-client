@@ -4,6 +4,7 @@
  */
 package fuzzy.operations;
 
+import fuzzy.type3.operations.AddFuzzyColumnOperation;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

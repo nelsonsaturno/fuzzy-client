@@ -4,6 +4,7 @@
  */
 package fuzzy.translator;
 
+import fuzzy.common.translator.AliasGenerator;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

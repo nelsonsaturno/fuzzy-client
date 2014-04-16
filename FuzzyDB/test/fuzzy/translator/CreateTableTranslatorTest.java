@@ -4,9 +4,10 @@
  */
 package fuzzy.translator;
 
+import fuzzy.type3.translator.CreateTableTranslator;
 import fuzzy.database.Connector;
-import fuzzy.operations.AddFuzzyColumnOperation;
-import fuzzy.operations.Operation;
+import fuzzy.type3.operations.AddFuzzyColumnOperation;
+import fuzzy.common.operations.Operation;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.StringReader;

@@ -4,10 +4,11 @@
  */
 package fuzzy.translator;
 
+import fuzzy.type3.translator.StatementTranslator;
 import fuzzy.database.Connector;
 import org.junit.Ignore;
-import fuzzy.operations.Operation;
-import fuzzy.operations.RemoveFuzzyColumnsOperation;
+import fuzzy.common.operations.Operation;
+import fuzzy.type3.operations.RemoveFuzzyColumnsOperation;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;

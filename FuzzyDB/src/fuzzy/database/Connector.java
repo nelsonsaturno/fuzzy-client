@@ -27,9 +27,9 @@ import net.sf.jsqlparser.util.deparser.StatementDeParser;
 
 import fuzzy.helpers.Logger;
 import fuzzy.helpers.Printer;
-import fuzzy.operations.Operation;
-import fuzzy.translator.StatementTranslator;
-import fuzzy.translator.StatementType2Translator;
+import fuzzy.common.operations.Operation;
+import fuzzy.type3.translator.StatementTranslator;
+import fuzzy.type2.translator.StatementType2Translator;
 
 
 public class Connector {

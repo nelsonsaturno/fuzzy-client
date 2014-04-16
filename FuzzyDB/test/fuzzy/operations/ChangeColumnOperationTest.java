@@ -4,6 +4,7 @@
  */
 package fuzzy.operations;
 
+import fuzzy.type3.operations.ChangeColumnOperation;
 import org.junit.Ignore;
 import fuzzy.Helper;
 import java.sql.ResultSet;
