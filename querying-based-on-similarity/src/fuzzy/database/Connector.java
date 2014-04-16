@@ -58,7 +58,6 @@ public class Connector {
      * @return true if it's a native data type of the dbms
      */
     public static boolean isNativeDataType(String dataType) {
-        System.out.println("FIXME: Cableo de tipos 'nativos' de la BD");
         return Arrays.asList(DATA_TYPES).contains(dataType.toLowerCase());
     }
 
