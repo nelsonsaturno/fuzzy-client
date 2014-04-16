@@ -5,7 +5,6 @@
 package fuzzy.translator;
 
 import fuzzy.database.Connector;
-import fuzzy.database.Console;
 import fuzzy.operations.AddFuzzyColumnOperation;
 import fuzzy.operations.Operation;
 import java.util.ArrayList;

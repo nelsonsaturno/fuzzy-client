@@ -6,7 +6,6 @@ package fuzzy.translator;
 
 import fuzzy.database.Connector;
 import org.junit.Ignore;
-import fuzzy.database.Console;
 import fuzzy.operations.Operation;
 import fuzzy.operations.RemoveFuzzyColumnsOperation;
 import java.io.StringReader;
