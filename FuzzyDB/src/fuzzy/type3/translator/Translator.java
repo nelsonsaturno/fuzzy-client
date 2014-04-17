@@ -65,6 +65,7 @@ public class Translator {
     protected String failureMessage = "";
     protected Connector connector;
     protected List<Operation> operations;
+    protected boolean ignoreAST = false;
 
 
     public Translator(Connector connector) {
@@ -76,6 +77,10 @@ public class Translator {
     public Translator(Connector connector, List<Operation> operations) {
         this.connector = connector;
         this.operations = operations;
+    }
+
+    public boolean getIgnoreAST() {
+        return this.ignoreAST;
     }
 
 

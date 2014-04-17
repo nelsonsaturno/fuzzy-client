@@ -18,11 +18,6 @@ import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.parser.ParseException;
 import net.sf.jsqlparser.parser.TokenMgrError;
-import net.sf.jsqlparser.statement.drop.Drop;
-import net.sf.jsqlparser.statement.fuzzy.domain.AlterFuzzyDomain;
-import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyDomain;
-import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyType2Domain;
-import net.sf.jsqlparser.statement.table.AlterTable;
 import net.sf.jsqlparser.util.deparser.StatementDeParser;
 
 import fuzzy.helpers.Logger;
@@ -270,6 +265,9 @@ public class Connector {
         try {
             s = pa.parse(new StringReader(sql));
         } catch (JSQLParserException e) {
+            // Seriously, I don't even know where to begin to clean this mess
+            // Thanks previous developer!'
+
             Throwable c = e.getCause();
             if (c instanceof TokenMgrError) {
                 throw new SQLException("JsqlParser.TokenMgrError: " + c.getMessage(), "42000", 3012, c);
@@ -293,13 +291,24 @@ public class Connector {
                 String rest = sql.split("\\r?\\n|\\r")[line]
                                   .substring(column);
                 throw new SQLException(
-                        "You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '" + rest + "' at line " + (line + 1) + " (JSP)",
+                        "You have an error in your fuzzy SQL syntax; check the manual that corresponds to your FuzzyDB server version for the right syntax to use near '" + rest + "' at line " + (line + 1) + " (JSP)",
                         "42000",
                         1064, c);
             } else {
                 throw new SQLException("Unknown JsqlParser exception: " + c.getMessage(), "42000", 3017, c);
             }
         }
+
+        /*
+        * Note for future refactors:
+        * StatementType2Translator relies on the fact that StatementTranslator
+        * will expand any * in a SELECT into the corresponding columns.
+        * It was necessary to do it that way to avoid breaking the code I
+        * inherited from the previous developer.
+        *
+        * A better way would be to refactor that (and perhaps other analysis
+        * and general AST decorating) into a preprocessing pass.
+        */
 
         // TRANSLATOR
         List<Operation> operations = new ArrayList<Operation>();
@@ -320,21 +329,18 @@ public class Connector {
         } catch (SQLException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
             throw new SQLException("Type 2 Translator exception: " + e.getMessage(), "42000", 3119, e);
         }
 
+        // The statement translators turn a flag whenever they encounter a
+        // statement whose translation consists entirely of Operations, and
+        // that the statement itself must be disregarded because the RDBMS
+        // will not understand it.
+        // This is the first phase of refactoring, so yeah, this is still
+        // pretty terrible. But previously this was a huge ig statement with
+        // many instanceof expressions, so this is better at least.
         String res = null;
-        if (s instanceof CreateFuzzyDomain
-         || s instanceof AlterFuzzyDomain
-            // TODO drop fuzzy domain can be translated into DELETE FROM domain WHERE ...
-         || s instanceof Drop && ((Drop)s).getType()
-                                          .equalsIgnoreCase("FUZZY DOMAIN")
-         || s instanceof AlterTable
-         || s instanceof CreateFuzzyType2Domain) {
-            // FUZZY DDL are just operations, no query
-        } else {
-            //DEPARSER
+        if (!st.getIgnoreAST() && ! st2.getIgnoreAST()) {
             StringBuffer sb = new StringBuffer();
             StatementDeParser sdp = new StatementDeParser(sb);
             try {
@@ -343,7 +349,6 @@ public class Connector {
                 throw new SQLException("Deparser exception: " + e.getMessage(),
                                                               "42000", 3019, e);
             }
-
             res = sb.toString();
         }
 
@@ -362,41 +367,28 @@ public class Connector {
 
         TranslationResult translateResult = translate(sql);
 
-        // FIXME: Envolví el código en una transacción y un bloque try{}
-        // FIXME: para que todas las sentencias de la traducción se ejecuten
-        // FIXME: juntas. Lo hice rápido, así que hay que ver como refactorizar esto.
-
-        // El código del equipo anterior ejecutaba individualmente 
-        // la consulta traducida y cada Operation generado.
-        // Sin embargo, cada consulta se ejecutaba en Auto Commit, así que si
-        // una reventaba, las anteriores no se podían echar para atrás.
+        // Turn on transactions so the translated result and operations
+        // all execute as a single atomic operation.
         this.connection.setAutoCommit(false);
         Savepoint sp = this.connection.setSavepoint();
 
         try {
-            boolean queryOk = true;
             if (null != translateResult.sql) {
-                Logger.notice(translateResult.sql);
-
-                // EXECUTE TRANSLATED INPUT
                 executeRaw(translateResult.sql);
-                queryOk = -1 != updateCount || null != resultSet;
             }
-            if (queryOk) {
-                for (Operation o : translateResult.operations) {
-                    try {
-                        o.execute();
-                    } catch (SQLException ex) {
-                        Printer.printSQLErrors(ex);
-                        throw ex;
-                    }
-                }
+            for (Operation o : translateResult.operations) {
+                o.execute();
             }
             this.connection.commit();
         } catch (SQLException ex) {
             this.connection.rollback(sp);
+            Printer.printSQLErrors(ex);
             throw ex;
         }
+
+        // Disable transactions so the next translation process can query
+        // the database without overhead.
+        this.connection.setAutoCommit(true);
     }
 
     /**

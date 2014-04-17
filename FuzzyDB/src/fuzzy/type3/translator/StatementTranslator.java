@@ -49,6 +49,10 @@ public class StatementTranslator extends Translator implements StatementVisitor 
     public void visit(AlterTable alterTable) throws Exception {
         AlterTableTranslator alterTableTranslator = new AlterTableTranslator(connector, operations);
         alterTableTranslator.translate(alterTable);
+        // Mark this statement to be ignored by the translation execution.
+        // This means this statement, when deparsed, won't make sense for the
+        // RDBMS.
+        this.ignoreAST = true;
     }
 
     //PlainSelect o Select
@@ -121,6 +125,11 @@ public class StatementTranslator extends Translator implements StatementVisitor 
         // calculate changed needed to be made on database
         cfdo.calculate();
         operations.add(cfdo);
+
+        // Mark this statement to be ignored by the translation execution.
+        // This means this statement, when deparsed, won't make sense for the
+        // RDBMS.
+        this.ignoreAST = true;
     }
 
     @Override
@@ -196,6 +205,11 @@ public class StatementTranslator extends Translator implements StatementVisitor 
         // calculate changed needed to be made on database
         afdo.calculate();
         operations.add(afdo);
+
+        // Mark this statement to be ignored by the translation execution.
+        // This means this statement, when deparsed, won't make sense for the
+        // RDBMS.
+        this.ignoreAST = true;        
     }
 
     @Override
@@ -218,6 +232,10 @@ public class StatementTranslator extends Translator implements StatementVisitor 
         } else if ("FUZZY DOMAIN".equalsIgnoreCase(type)) {
             // TODO remove fuzzy
             operations.add(new DropFuzzyDomainOperation(connector, drop.getName()));
+            // Mark this statement to be ignored by the translation execution.
+            // This means this statement, when deparsed, won't make sense for the
+            // RDBMS.
+            this.ignoreAST = true;
         }
     }
 

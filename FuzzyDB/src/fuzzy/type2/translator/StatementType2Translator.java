@@ -82,6 +82,11 @@ public class StatementType2Translator extends Translator implements StatementVis
         String upper_bound = fuzzyDomain.getUpperBound();
         op.setBounds(lower_bound, upper_bound);
         operations.add(op);
+
+        // Mark this statement to be ignored by the translation execution.
+        // This means this statement, when deparsed, won't make sense for the
+        // RDBMS.
+        this.ignoreAST = true;
     }
 
 
