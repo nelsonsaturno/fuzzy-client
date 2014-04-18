@@ -6,7 +6,6 @@ import java.util.List;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.*;
 import fuzzy.common.translator.FuzzyColumnSet;
-import fuzzy.common.translator.FuzzyColumnSet;
 import fuzzy.common.translator.TableRefList;
 
 

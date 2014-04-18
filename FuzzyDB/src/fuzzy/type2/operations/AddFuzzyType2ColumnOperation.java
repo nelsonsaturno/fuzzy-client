@@ -91,6 +91,8 @@ public class AddFuzzyType2ColumnOperation extends Operation {
                                    + "CHECK ( " 
                                    + "1.0 = ANY ((" + this.columnName + ").odd) )";
 
+        // TODO: Add constraint to check if trapezoid length is actually 4.
+        // TODO: Add constraint to check if trapezoid values make sense (x1 < x2 < x3 < x4)
 
         // Buscar el dominio a ver si fue definido sobre un rango
         // En cuyo caso también hay que agregar un CHECK para validarlo.

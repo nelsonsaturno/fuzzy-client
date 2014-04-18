@@ -48,9 +48,6 @@ CREATE TABLE IF NOT EXISTS information_schema_fuzzy.domains2 (
   UNIQUE (table_schema, domain_name)
 );
 
--- FIXME: eventualmente debería hacerse un merge de columns2 con columns
--- FIXME: sin embargo, está así para minimizar la cantidad de código del proyecto
--- FIXME: anterior que habría que modificar.
 CREATE TABLE IF NOT EXISTS information_schema_fuzzy.columns2 (
   table_schema VARCHAR(64) NOT NULL,
   table_name VARCHAR(64) NOT NULL,
@@ -60,3 +57,340 @@ CREATE TABLE IF NOT EXISTS information_schema_fuzzy.columns2 (
   FOREIGN KEY (domain_id)  REFERENCES information_schema_fuzzy.domains2 (id) 
     ON UPDATE CASCADE ON DELETE RESTRICT
 );
+
+-- Stored functions for comparing fuzzy type 2 values.
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
+DECLARE
+comp1 float := 0;
+comp2 float := 0;
+val float := 0;
+size1 int := array_length(elem1.value,1);
+size2 int := array_length(elem2.value,1);
+BEGIN
+IF elem1.type and elem2.type THEN
+FOR j IN 0..size1 LOOP
+	FOR i IN 0..size2 LOOP
+
+		IF elem2.value[i] > elem1.value[j] THEN
+		    val := 0;
+		    IF elem2.odd[i] > elem1.odd[j] THEN
+			val := elem1.odd[j];
+		    ELSE 
+			val := elem2.odd[i];
+		    END IF;
+		if val > comp1 THEN
+                comp1 := val;
+                END IF;
+                EXIT WHEN comp1 = 1;
+                END IF;
+		END LOOP;
+		EXIT WHEN comp1 = 1;
+		END LOOP;
+
+	size1 = size2;
+	size2 = array_length(elem1.value,1);
+FOR j IN 0..size1 LOOP
+	FOR i IN 0..size2 LOOP
+
+		IF elem1.value[i] > elem2.value[j] THEN
+		    val := 0;
+		    IF elem1.odd[i] > elem2.odd[j] THEN
+			val := elem2.odd[j];
+		    ELSE 
+			val := elem1.odd[i];
+		    END IF;
+		if val > comp2 THEN
+                comp2 := val;
+                END IF;
+                EXIT WHEN comp2 = 1;
+                END IF;
+		END LOOP;
+		EXIT WHEN comp2 = 1;
+		END LOOP;
+		
+
+	
+
+	return comp1 > comp2;
+ELSE IF (elem1.type = False) and (elem2.type = False) THEN
+	IF elem1.value[2] < elem2.value[2] THEN
+		return True;
+	ELSE IF elem1.value[2] > elem2.value[2] THEN
+		return False;
+		ELSE
+			return False;
+		END IF;
+	END IF;
+END IF;
+END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower_eq(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
+DECLARE
+comp1 float := 0;
+comp2 float := 0;
+val float := 0;
+size1 int := array_length(elem1.value,1);
+size2 int := array_length(elem2.value,1);
+BEGIN
+IF elem1.type and elem2.type THEN
+FOR j IN 0..size1 LOOP
+	FOR i IN 0..size2 LOOP
+
+		IF elem2.value[i] > elem1.value[j] THEN
+		    val := 0;
+		    IF elem2.odd[i] > elem1.odd[j] THEN
+			val := elem1.odd[j];
+		    ELSE 
+			val := elem2.odd[i];
+		    END IF;
+		if val > comp1 THEN
+                comp1 := val;
+                END IF;
+                EXIT WHEN comp1 = 1;
+                END IF;
+		END LOOP;
+		EXIT WHEN comp1 = 1;
+		END LOOP;
+
+	size1 = size2;
+	size2 = array_length(elem1.value,1);
+FOR j IN 0..size1 LOOP
+	FOR i IN 0..size2 LOOP
+
+		IF elem1.value[i] > elem2.value[j] THEN
+		    val := 0;
+		    IF elem1.odd[i] > elem2.odd[j] THEN
+			val := elem2.odd[j];
+		    ELSE 
+			val := elem1.odd[i];
+		    END IF;
+		if val > comp2 THEN
+                comp2 := val;
+                END IF;
+                EXIT WHEN comp2 = 1;
+                END IF;
+		END LOOP;
+		EXIT WHEN comp2 = 1;
+		END LOOP;
+		
+
+	
+
+	return comp1 >= comp2;
+ELSE IF (elem1.type = False) and (elem2.type = False) THEN
+	IF elem1.value[2] < elem2.value[2] THEN
+		return True;
+	ELSE IF elem1.value[2] > elem2.value[2] THEN
+		return False;
+		ELSE
+			return True;
+		END IF;
+	END IF;
+END IF;
+END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
+DECLARE
+comp1 float := 0;
+comp2 float := 0;
+val float := 0;
+size1 int := array_length(elem1.value,1);
+size2 int := array_length(elem2.value,1);
+BEGIN
+IF elem1.type and elem2.type THEN
+FOR j IN 0..size1 LOOP
+	FOR i IN 0..size2 LOOP
+
+		IF elem2.value[i] > elem1.value[j] THEN
+		    val := 0;
+		    IF elem2.odd[i] > elem1.odd[j] THEN
+			val := elem1.odd[j];
+		    ELSE 
+			val := elem2.odd[i];
+		    END IF;
+		if val > comp1 THEN
+                comp1 := val;
+                END IF;
+                EXIT WHEN comp1 = 1;
+                END IF;
+		END LOOP;
+		EXIT WHEN comp1 = 1;
+		END LOOP;
+
+	size1 = size2;
+	size2 = array_length(elem1.value,1);
+FOR j IN 0..size1 LOOP
+	FOR i IN 0..size2 LOOP
+
+		IF elem1.value[i] > elem2.value[j] THEN
+		    val := 0;
+		    IF elem1.odd[i] > elem2.odd[j] THEN
+			val := elem2.odd[j];
+		    ELSE 
+			val := elem1.odd[i];
+		    END IF;
+		if val > comp2 THEN
+                comp2 := val;
+                END IF;
+                EXIT WHEN comp2 = 1;
+                END IF;
+		END LOOP;
+		EXIT WHEN comp2 = 1;
+		END LOOP;
+		
+
+	
+
+	return comp2 = comp1;
+ELSE IF (elem1.type = False) and (elem2.type = False) THEN
+	IF elem1.value[2] < elem2.value[2] THEN
+		return False;
+	ELSE IF elem1.value[2] > elem2.value[2] THEN
+		return False;
+		ELSE
+			return True;
+		END IF;
+	END IF;
+END IF;
+END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater_eq(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
+DECLARE
+comp1 float := 0;
+comp2 float := 0;
+val float := 0;
+size1 int := array_length(elem1.value,1);
+size2 int := array_length(elem2.value,1);
+BEGIN
+IF elem1.type and elem2.type THEN
+FOR j IN 0..size1 LOOP
+	FOR i IN 0..size2 LOOP
+
+		IF elem2.value[i] > elem1.value[j] THEN
+		    val := 0;
+		    IF elem2.odd[i] > elem1.odd[j] THEN
+			val := elem1.odd[j];
+		    ELSE 
+			val := elem2.odd[i];
+		    END IF;
+		if val > comp1 THEN
+                comp1 := val;
+                END IF;
+                EXIT WHEN comp1 = 1;
+                END IF;
+		END LOOP;
+		EXIT WHEN comp1 = 1;
+		END LOOP;
+
+	size1 = size2;
+	size2 = array_length(elem1.value,1);
+FOR j IN 0..size1 LOOP
+	FOR i IN 0..size2 LOOP
+
+		IF elem1.value[i] > elem2.value[j] THEN
+		    val := 0;
+		    IF elem1.odd[i] > elem2.odd[j] THEN
+			val := elem2.odd[j];
+		    ELSE 
+			val := elem1.odd[i];
+		    END IF;
+		if val > comp2 THEN
+                comp2 := val;
+                END IF;
+                EXIT WHEN comp2 = 1;
+                END IF;
+		END LOOP;
+		EXIT WHEN comp2 = 1;
+		END LOOP;
+		
+
+	
+
+	return comp2 >= comp1;
+ELSE IF (elem1.type = False) and (elem2.type = False) THEN
+	IF elem1.value[2] < elem2.value[2] THEN
+		return False;
+	ELSE IF elem1.value[2] > elem2.value[2] THEN
+		return True;
+		ELSE
+			return True;
+		END IF;
+	END IF;
+END IF;
+END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
+DECLARE
+comp1 float := 0;
+comp2 float := 0;
+val float := 0;
+size1 int := array_length(elem1.value,1);
+size2 int := array_length(elem2.value,1);
+BEGIN
+IF elem1.type and elem2.type THEN
+FOR j IN 0..size1 LOOP
+	FOR i IN 0..size2 LOOP
+
+		IF elem2.value[i] > elem1.value[j] THEN
+		    val := 0;
+		    IF elem2.odd[i] > elem1.odd[j] THEN
+			val := elem1.odd[j];
+		    ELSE 
+			val := elem2.odd[i];
+		    END IF;
+		if val > comp1 THEN
+                comp1 := val;
+                END IF;
+                EXIT WHEN comp1 = 1;
+                END IF;
+		END LOOP;
+		EXIT WHEN comp1 = 1;
+		END LOOP;
+
+	size1 = size2;
+	size2 = array_length(elem1.value,1);
+FOR j IN 0..size1 LOOP
+	FOR i IN 0..size2 LOOP
+
+		IF elem1.value[i] > elem2.value[j] THEN
+		    val := 0;
+		    IF elem1.odd[i] > elem2.odd[j] THEN
+			val := elem2.odd[j];
+		    ELSE 
+			val := elem1.odd[i];
+		    END IF;
+		if val > comp2 THEN
+                comp2 := val;
+                END IF;
+                EXIT WHEN comp2 = 1;
+                END IF;
+		END LOOP;
+		EXIT WHEN comp2 = 1;
+		END LOOP;
+		
+
+	
+
+	return comp2 > comp1;
+ELSE IF (elem1.type = False) and (elem2.type = False) THEN
+	IF elem1.value[2] < elem2.value[2] THEN
+		return False;
+	ELSE IF elem1.value[2] > elem2.value[2] THEN
+		return True;
+		ELSE
+			return False;
+		END IF;
+	END IF;
+END IF;
+END IF;
+END;
+$$ LANGUAGE plpgsql;

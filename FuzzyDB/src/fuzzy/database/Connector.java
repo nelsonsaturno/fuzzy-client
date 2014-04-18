@@ -157,7 +157,7 @@ public class Connector {
      * @throws SQLException
      */
     public void executeRaw(String sql) throws SQLException {
-        Logger.debug("fast: " + sql);
+        Logger.logQuery(sql);
         Statement s = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         s.execute(sql);
         this.resultSet = s.getResultSet();
@@ -173,7 +173,7 @@ public class Connector {
      * @throws SQLException
      */
     public ResultSet executeRawQuery(String sql) throws SQLException {
-        Logger.debug("fastQuery: " + sql);
+        Logger.logQuery(sql);
         this.resultSet = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY).executeQuery(sql);
         this.updateCount = -1;
         return this.resultSet;
@@ -189,7 +189,7 @@ public class Connector {
      * @throws SQLException
      */
     public Integer executeRawUpdate(String sql) throws SQLException {
-        Logger.debug("fastUpdate: " + sql);
+        Logger.logQuery(sql);
         this.updateCount = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY).executeUpdate(sql);
         this.resultSet = null;
         return this.updateCount;
@@ -208,7 +208,7 @@ public class Connector {
      * @throws SQLException
      */
     public Integer executeRawInsert(String sql) throws SQLException {
-        Logger.debug(sql);
+        Logger.logQuery(sql);
         PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         statement.executeUpdate();
         ResultSet generatedKeys = statement.getGeneratedKeys();
@@ -382,7 +382,6 @@ public class Connector {
             this.connection.commit();
         } catch (SQLException ex) {
             this.connection.rollback(sp);
-            Printer.printSQLErrors(ex);
             throw ex;
         }
 
