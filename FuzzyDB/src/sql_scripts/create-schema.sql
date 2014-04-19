@@ -394,3 +394,38 @@ END IF;
 END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_tostring(elem anyelement)
+RETURNS varchar AS $$
+DECLARE
+final varchar := '{';
+size int;
+BEGIN
+IF elem.type THEN
+    size := array_length(elem.odd,1);
+    FOR j in 1..size LOOP
+        if (j = 1) THEN
+	    final := final || elem.odd[j];
+	    final := final || '/';
+	    final := final || elem.value[j];
+        ELSE
+            final := final || ', ';
+            final := final || elem.odd[j];
+            final := final || '/';
+            final := final || elem.value[j];
+        END IF;
+    END LOOP;
+ELSE
+    FOR j IN 1..4 LOOP
+        IF  (j = 1) THEN
+            final := final || elem.value[j];
+        ELSE
+            final := final || ', ';
+            final := final || elem.value[j];
+	END IF;
+    END LOOP;
+END IF;
+final = final || '}';
+return final;
+END;
+$$ LANGUAGE plpgsql;
