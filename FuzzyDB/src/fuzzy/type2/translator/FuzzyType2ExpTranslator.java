@@ -1,23 +1,8 @@
 package fuzzy.type2.translator;
 
 import fuzzy.database.Connector;
-import fuzzy.helpers.Memory;
 import fuzzy.common.translator.FuzzyColumnSet;
-import static fuzzy.common.translator.TableRef.TableType.SUB_SELECT;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.AllColumns;
-import net.sf.jsqlparser.statement.select.AllTableColumns;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SelectItem;
-import net.sf.jsqlparser.statement.select.SubSelect;
-
-import net.sf.jsqlparser.expression.ExpressionVisitor;
 
 import java.util.Iterator;
 import java.util.List;
@@ -75,6 +60,7 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.AllTableColumns;
+import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItemVisitor;
 import net.sf.jsqlparser.statement.select.SubSelect;
@@ -144,7 +130,9 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
     // Cosas que vienen de ItemsListVisitor
     @Override
     public void visit(SubSelect subSelect) throws Exception {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        SelectType2Translator translator = new SelectType2Translator(connector, false);
+        SelectBody selectBody = subSelect.getSelectBody();
+        selectBody.accept(translator);
     }
 
     @Override
@@ -386,21 +374,27 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
 
     @Override
     public void visit(WhenClause whenClause) throws Exception {
-        throw new UnsupportedOperationException("Not implemented yet.");
-        //whenClause.getWhenExpression().accept(this);
-        //whenClause.getThenExpression().accept(this);
+        this.replacement = null;
+        whenClause.getWhenExpression().accept(this);
+        if (null != this.replacement) {
+            whenClause.setWhenExpression(this.replacement);
+        }
+
+        this.replacement = null;
+        whenClause.getThenExpression().accept(this);
+        if (null != this.replacement) {
+            whenClause.setThenExpression(this.replacement);
+        }
     }
 
     @Override
     public void visit(AllComparisonExpression allComparisonExpression) throws Exception {
-        throw new UnsupportedOperationException("Not implemented yet.");
-        //allComparisonExpression.GetSubSelect().accept((ExpressionVisitor)this);
+        allComparisonExpression.GetSubSelect().accept((ExpressionVisitor)this);
     }
 
     @Override
     public void visit(AnyComparisonExpression anyComparisonExpression) throws Exception {
-        throw new UnsupportedOperationException("Not implemented yet.");
-        //anyComparisonExpression.GetSubSelect().accept((ExpressionVisitor)this);
+        anyComparisonExpression.GetSubSelect().accept((ExpressionVisitor)this);
     }
 
     @Override

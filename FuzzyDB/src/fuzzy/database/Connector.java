@@ -65,6 +65,7 @@ public class Connector {
     private ResultSet resultSet;
     private Integer updateCount;
     private String schema = "";
+    private boolean libraryMode = false;
 
     /**
      * Creates a Connector with default parameters, namely:
@@ -143,6 +144,14 @@ public class Connector {
         } else {
             this.schema = schemaName;
         }
+    }
+
+    public void setLibraryMode(boolean mode) {
+        this.libraryMode = mode;
+    }
+
+    public boolean getLibraryMode() {
+        return this.libraryMode;
     }
     
     // Methods to execute raw queries, that is, without translation

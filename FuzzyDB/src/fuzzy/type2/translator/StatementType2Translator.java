@@ -31,10 +31,11 @@ import net.sf.jsqlparser.util.deparser.StatementDeParser;
 
 public class StatementType2Translator extends Translator implements StatementVisitor {
 
+
     public StatementType2Translator(Connector connector, List<Operation> operations) {
         super(connector, operations);
     }
-    
+  
 
     @Override
     public void visit(CreateTable createTable) throws Exception {
@@ -51,7 +52,7 @@ public class StatementType2Translator extends Translator implements StatementVis
 
     @Override
     public void visit(Select select) throws Exception {
-        SelectType2Translator translator = new SelectType2Translator(connector, true);
+        SelectType2Translator translator = new SelectType2Translator(connector, this.connector.getLibraryMode());
         SelectBody selectBody = select.getSelectBody();
         selectBody.accept(translator);
     }
