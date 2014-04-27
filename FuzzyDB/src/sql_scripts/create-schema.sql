@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS information_schema_fuzzy.columns2 (
   domain_id INTEGER NOT NULL,
   PRIMARY KEY (table_schema, table_name, name),
   FOREIGN KEY (domain_id)  REFERENCES information_schema_fuzzy.domains2 (id) 
-    ON UPDATE CASCADE ON DELETE RESTRICT
+    ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- Stored functions for comparing fuzzy type 2 values.

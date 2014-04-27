@@ -340,7 +340,7 @@ public class Connector {
         // pretty terrible. But previously this was a huge ig statement with
         // many instanceof expressions, so this is better at least.
         String res = null;
-        if (!st.getIgnoreAST() && ! st2.getIgnoreAST()) {
+        if (!st.getIgnoreAST() && !st2.getIgnoreAST()) {
             StringBuffer sb = new StringBuffer();
             StatementDeParser sdp = new StatementDeParser(sb);
             try {

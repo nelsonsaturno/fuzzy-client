@@ -36,7 +36,7 @@ public class DropFuzzyDomainOperation extends Operation {
             "AND domain_name = '" + domain + "'";
         
         int rows = connector.executeRawUpdate(sql);
-        if (rows == 0) {
+        /*if (rows == 0) {
             String c = connector.getSchema();
             if (c == null || c.isEmpty()) {
                 Logger.debug("No database selected");
@@ -44,7 +44,7 @@ public class DropFuzzyDomainOperation extends Operation {
             }
             Logger.debug("Unknown domain '" + domain + "'");
             throw Translator.FR_UNKNOWN_DOMAIN(domain);
-        }
+        }*/
     }
     
 }

@@ -1510,20 +1510,20 @@ Expression FuzzyType2Expression():
     (
 
         LOOKAHEAD(2)
-        token=<S_DOUBLE> "/" ext_exp=PrimaryExpression()
+        token=<S_DOUBLE> "/" ext_exp=SimpleExpression()
         { retval = new FuzzyByExtension(Double.parseDouble(token.image), ext_exp); }
 
         (
-            "," token=<S_DOUBLE> "/" ext_exp=PrimaryExpression()
+            "," token=<S_DOUBLE> "/" ext_exp=SimpleExpression()
             { ((FuzzyByExtension) retval).addPossibility(Double.parseDouble(token.image), ext_exp); }
         )*
 
         |
 
-        trap_exp1=PrimaryExpression() ","
-        trap_exp2=PrimaryExpression() ","
-        trap_exp3=PrimaryExpression() ","
-        trap_exp4=PrimaryExpression()
+        trap_exp1=SimpleExpression() ","
+        trap_exp2=SimpleExpression() ","
+        trap_exp3=SimpleExpression() ","
+        trap_exp4=SimpleExpression()
         { retval = new FuzzyTrapezoid(trap_exp1, trap_exp2, trap_exp3, trap_exp4); }
     )
     "}f"

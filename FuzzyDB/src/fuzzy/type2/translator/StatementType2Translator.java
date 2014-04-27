@@ -1,23 +1,18 @@
 package fuzzy.type2.translator;
 
-import fuzzy.type2.translator.CreateTableType2Translator;
 import fuzzy.database.Connector;
-import fuzzy.type3.operations.DropFuzzyDomainOperation;
-import fuzzy.helpers.Helper;
-import fuzzy.type3.operations.AlterFuzzyDomainOperation;
-import fuzzy.type3.operations.CreateFuzzyDomainFromColumnOperation;
-import fuzzy.type3.operations.CreateFuzzyDomainOperation;
 import fuzzy.common.operations.Operation;
-import fuzzy.type3.operations.RemoveFuzzyColumnsOperation;
+import fuzzy.common.operations.RawSQLOperation;
+import fuzzy.helpers.Helper;
+import fuzzy.helpers.Memory;
 import fuzzy.type2.operations.CreateFuzzyType2DomainOperation;
+import fuzzy.type2.operations.DropFuzzyType2DomainOperation;
+import fuzzy.type2.operations.RemoveFuzzyType2ColumnsOperation;
 import fuzzy.type3.translator.Translator;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
-import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.Relation;
-import net.sf.jsqlparser.expression.Similarity;
-import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
@@ -32,6 +27,7 @@ import net.sf.jsqlparser.statement.table.AlterTable;
 import net.sf.jsqlparser.statement.table.CreateTable;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
+import net.sf.jsqlparser.util.deparser.StatementDeParser;
 
 public class StatementType2Translator extends Translator implements StatementVisitor {
 
@@ -97,10 +93,39 @@ public class StatementType2Translator extends Translator implements StatementVis
 
     @Override
     public void visit(Drop drop) throws Exception {
-        /*
-        Si es un fuzzy domain, ver si es fuzzy tipo 2 y borrarlo.
-        Y dropear las tablas en cascade?
-        */
+        String type = drop.getType();
+        if ("TABLE".equalsIgnoreCase(type)) {
+            String table = drop.getName();
+            operations.add(new RemoveFuzzyType2ColumnsOperation(connector, Helper.getSchemaName(connector), table));
+        } else if ("FUZZY DOMAIN".equalsIgnoreCase(type)) {
+            /*
+            * Hello, let me explain WTF is this
+            * Here a DROP FUZZY DOMAIN is translated into a DROP TYPE IF EXISTS
+            * However, I cannot do that directly on the tree because the previous
+            * translations (Type 3) will turn on the 'ignoreAST' flag on this
+            * statement.
+            * The easy hack here is to just change the type of the DROP, deparse
+            * it and add it as an additional operation.
+            *
+            * A better way would be for the previous translation to determine
+            * if the DROP actually involves a Type 3 type. If not, carry on
+            * without marking the statement as ignorable.
+            */
+            
+            drop.setType("TYPE IF EXISTS");
+            StringBuffer sb = new StringBuffer();
+            StatementDeParser sdp = new StatementDeParser(sb);
+            try {
+                drop.accept(sdp);
+            } catch (Exception e) {
+                throw new SQLException("Deparser exception: " + e.getMessage(),
+                                                              "42000", 3019, e);
+            }
+            String sql = sb.toString();
+            operations.add(new DropFuzzyType2DomainOperation(connector, drop.getName()));
+            operations.add(new RawSQLOperation(this.connector, sql));
+        }
+        Memory.wipeMemory();
     }
 
 

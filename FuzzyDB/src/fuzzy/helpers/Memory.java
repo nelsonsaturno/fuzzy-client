@@ -159,4 +159,10 @@ public class Memory {
         return null != cols && cols.contains(columnName);
     }
     
+    public static void wipeMemory() {
+        columns = null;
+        fuzzyColumns = null;
+        fuzzyType2Columns = null;
+    }
+    
 }
