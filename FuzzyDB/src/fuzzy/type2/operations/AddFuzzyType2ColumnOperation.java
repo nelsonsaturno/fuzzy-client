@@ -91,9 +91,6 @@ public class AddFuzzyType2ColumnOperation extends Operation {
                                    + "CHECK ( " 
                                    + "1.0 = ANY ((" + this.columnName + ").odd) )";
 
-        // TODO: Add constraint to check if trapezoid length is actually 4.
-        // TODO: Add constraint to check if trapezoid values make sense (x1 < x2 < x3 < x4)
-
         // Buscar el dominio a ver si fue definido sobre un rango
         // En cuyo caso también hay que agregar un CHECK para validarlo.
         String find_domain_range = "SELECT start, finish "
@@ -120,6 +117,39 @@ public class AddFuzzyType2ColumnOperation extends Operation {
             check_value = "";
         }
 
+        // Check if valid trapezoid
+
+        // Forgive me $(DEITY) for I have sinned...
+        String valid_trapezoid = "ALTER TABLE " + this.schemaName + "." + this.tableName + " "
+                               + "ADD CONSTRAINT " + this.columnName + "_valid_trapezoid "
+                               + " CHECK ((" + this.columnName + ").type = FALSE AND array_length((" + this.columnName + ").value, 1) = 4 AND ("
+                               + "("
+                               + "(" + this.columnName + ").value[1] IS NOT NULL "
+                               + "AND (" + this.columnName + ").value[2] IS NOT NULL "
+                               + "AND (" + this.columnName + ").value[3] IS NOT NULL "
+                               + "AND (" + this.columnName + ").value[4] IS NOT NULL "
+                               + "AND (" + this.columnName + ").value[1] < (" + this.columnName + ").value[2]"
+                               + "AND (" + this.columnName + ").value[2] < (" + this.columnName + ").value[3]"
+                               + "AND (" + this.columnName + ").value[3] < (" + this.columnName + ").value[4]"
+                               + ")"
+                               + "OR"
+                               + "("
+                               + "(" + this.columnName + ").value[1] IS NULL "
+                               + "AND (" + this.columnName + ").value[2] IS NULL "
+                               + "AND (" + this.columnName + ").value[3] IS NOT NULL "
+                               + "AND (" + this.columnName + ").value[4] IS NOT NULL "
+                               + "AND (" + this.columnName + ").value[3] < (" + this.columnName + ").value[4] "
+                               + ") "
+                               + "OR "
+                               + "( "
+                               + "(" + this.columnName + ").value[1] IS NOT NULL "
+                               + "AND (" + this.columnName + ").value[2] IS NOT NULL "
+                               + "AND (" + this.columnName + ").value[3] IS NULL "
+                               + "AND (" + this.columnName + ").value[4] IS NULL "
+                               + "AND (" + this.columnName + ").value[1] < (" + this.columnName + ").value[2]"
+                               + ") "
+                               + "))";
+
         Savepoint sp = this.beginTransaction();
         try {
             this.connector.executeRaw(insert_column);
@@ -129,6 +159,7 @@ public class AddFuzzyType2ColumnOperation extends Operation {
             if (null != lower_bound && null != upper_bound) {
                 this.connector.executeRaw(check_value);
             }
+            this.connector.executeRaw(valid_trapezoid);
             this.commitTransaction();
         } catch (SQLException e) {
             this.rollback(sp);
