@@ -49,17 +49,21 @@ public class TableRefList {
      */
     private void populateList(Object parent, Object element) throws SQLException, Exception {
         // base case. table found
-        if (element instanceof Table || element instanceof SubSelect) {
+        if (element instanceof Table) {
             Logger.debug("Inspecting a Table or SubSelect element");
             // SubSelect or Table are both FromItem
             FromItem table = (FromItem) element;
 
             // register reference found
             TableRef tableRef = new TableRef(connector, parent, table);
-            if (this.has(tableRef.getTable())) {
+            if (
+                    (element instanceof Table && this.has(tableRef.getTable()))
+ 
+            ) {
                 throw new SQLException("Not unique table/alias: '" + tableRef.getId() + "'",
                         "42000", 1066);
             }
+            
             Logger.debug("Adding " + tableRef.getId() + " to TableRefList");
             dict.add(tableRef);
 
@@ -76,6 +80,8 @@ public class TableRefList {
             for (Join join : (List<Join>) element) {
                 populateList(element, join);
             }
+        } else if (element instanceof SubSelect) {
+            throw new UnsupportedOperationException("Using SubSelects in FROM clause is not supported yet. ");
         }
     }
 

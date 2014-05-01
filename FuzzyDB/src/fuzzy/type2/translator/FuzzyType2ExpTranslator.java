@@ -185,11 +185,17 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
 
     @Override
     public void visit(Between between) throws Exception {
-        // TODO: Traducir el Between en FuzzyType2ExpTranslator
-        throw new UnsupportedOperationException("Not implemented yet.");
-        /*between.getLeftExpression().accept(this);
+        this.replacement = null;
         between.getBetweenExpressionStart().accept(this);
-        between.getBetweenExpressionEnd().accept(this);*/
+        if (null != this.replacement) {
+            between.setBetweenExpressionStart(this.replacement);
+        }
+        
+        this.replacement = null;
+        between.getBetweenExpressionEnd().accept(this);
+        if (null != this.replacement) {
+            between.setBetweenExpressionEnd(this.replacement);
+        }
     }
 
     @Override
@@ -219,10 +225,12 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
 
     @Override
     public void visit(InExpression inExpression) throws Exception {
-        // TODO: Traducir el IN en FuzzyType2ExpTranslator.
-        throw new UnsupportedOperationException("Not implemented yet.");
-        //inExpression.getLeftExpression().accept(this);
-        //inExpression.getItemsList().accept(this);
+        this.replacement = null;
+        inExpression.getLeftExpression().accept(this);
+        if (null != this.replacement) {
+            inExpression.setLeftExpression(this.replacement);
+        }
+        inExpression.getItemsList().accept(this);
     }
 
     @Override
