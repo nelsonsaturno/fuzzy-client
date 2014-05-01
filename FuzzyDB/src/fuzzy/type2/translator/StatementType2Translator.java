@@ -8,6 +8,7 @@ import fuzzy.helpers.Memory;
 import fuzzy.type2.operations.CreateFuzzyType2DomainOperation;
 import fuzzy.type2.operations.DropFuzzyType2DomainOperation;
 import fuzzy.type2.operations.RemoveFuzzyType2ColumnsOperation;
+import fuzzy.type3.translator.AlterTableTranslator;
 import fuzzy.type3.translator.Translator;
 import java.sql.SQLException;
 import java.util.List;
@@ -46,7 +47,8 @@ public class StatementType2Translator extends Translator implements StatementVis
 
     @Override
     public void visit(AlterTable alterTable) throws Exception {
-        throw new UnsupportedOperationException("Alter table is not supported yet.");
+        AlterTableType2Translator alterTableTranslator = new AlterTableType2Translator(connector, operations);
+        alterTableTranslator.translate(alterTable);
     }
 
 

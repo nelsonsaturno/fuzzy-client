@@ -1,12 +1,13 @@
 package net.sf.jsqlparser.util.deparser;
 
 import java.util.Iterator;
+import net.sf.jsqlparser.statement.table.AddColumn;
 
 import net.sf.jsqlparser.statement.table.AlterOperation;
 import net.sf.jsqlparser.statement.table.AlterTable;
 import net.sf.jsqlparser.statement.table.ChangeColumn;
 import net.sf.jsqlparser.statement.table.ColumnDefinition;
-import net.sf.jsqlparser.statement.table.Index;
+import net.sf.jsqlparser.statement.table.DropColumn;
 
 /**
  * A class to de-parse (that is, tranform from JSqlParser hierarchy into a string)
@@ -36,6 +37,7 @@ public class AlterTableDeParser {
             buffer.append("\n    ");
             switch (alterOperation.getType()) {
             case CHANGE:
+            {
                 ChangeColumn changeColumn = (ChangeColumn)alterOperation;
                 ColumnDefinition columnDefinition = changeColumn.getColumnDefinition();
                 buffer.append("CHANGE ");
@@ -54,6 +56,38 @@ public class AlterTableDeParser {
                         buffer.append((String) iterator.next());
                     }
                 }
+                break;
+            }
+            case ADD:
+            {
+                AddColumn addColumn = (AddColumn)alterOperation;
+                ColumnDefinition columnDefinition = addColumn.getColumnDefinition();
+                buffer.append("ADD ");
+                buffer.append(columnDefinition.getColumnName());
+                buffer.append(" ");
+                buffer.append(columnDefinition.getColDataType().getDataType());
+                if (columnDefinition.getColDataType().getArgumentsStringList() != null) {
+                    for (Iterator iterator = columnDefinition.getColDataType().getArgumentsStringList().iterator(); iterator.hasNext();) {
+                        buffer.append(" ");
+                        buffer.append((String) iterator.next());
+                    }
+                }
+                if (columnDefinition.getColumnSpecStrings() != null) {
+                    for (Iterator iterator = columnDefinition.getColumnSpecStrings().iterator(); iterator.hasNext();) {
+                        buffer.append(" ");
+                        buffer.append((String) iterator.next());
+                    }
+                }
+                break;
+            }
+            case DROP:
+            {
+                DropColumn dropColumn = (DropColumn)alterOperation;
+                buffer.append("DROP ");
+                buffer.append(" ");
+                buffer.append(dropColumn.getColumnOld());
+                break;
+            }
             }
         }
     }

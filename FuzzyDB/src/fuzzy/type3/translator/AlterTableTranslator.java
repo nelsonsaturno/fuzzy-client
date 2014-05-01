@@ -3,6 +3,7 @@ package fuzzy.type3.translator;
 import fuzzy.database.Connector;
 import fuzzy.type3.operations.ChangeColumnOperation;
 import fuzzy.common.operations.Operation;
+import fuzzy.helpers.Logger;
 import java.sql.SQLException;
 
 import java.util.List;
@@ -43,6 +44,13 @@ public class AlterTableTranslator extends Translator {
                     }
                     cco.setOptions(options);
                     operations.add(cco);
+                    break;
+                case ADD:
+                    Logger.notice("Notice: if the type involved is Fuzzy Type 3, this will have unexpected results.");
+                    break;
+                case DROP:
+                    Logger.notice("Notice: if the type involved is Fuzzy Type 3, this will have unexpected results.");
+                    break;
             }
         }
     }

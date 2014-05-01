@@ -122,7 +122,8 @@ public class AddFuzzyType2ColumnOperation extends Operation {
         // Forgive me $(DEITY) for I have sinned...
         String valid_trapezoid = "ALTER TABLE " + this.schemaName + "." + this.tableName + " "
                                + "ADD CONSTRAINT " + this.columnName + "_valid_trapezoid "
-                               + " CHECK ((" + this.columnName + ").type = FALSE AND array_length((" + this.columnName + ").value, 1) = 4 AND ("
+                               + " CHECK ( (" + this.columnName + " IS NULL) OR ("
+                               + "((" + this.columnName + ").type = FALSE AND array_length((" + this.columnName + ").value, 1) = 4 AND ("
                                + "("
                                + "(" + this.columnName + ").value[1] IS NOT NULL "
                                + "AND (" + this.columnName + ").value[2] IS NOT NULL "
@@ -148,7 +149,7 @@ public class AddFuzzyType2ColumnOperation extends Operation {
                                + "AND (" + this.columnName + ").value[4] IS NULL "
                                + "AND (" + this.columnName + ").value[1] < (" + this.columnName + ").value[2]"
                                + ") "
-                               + "))";
+                               + "))))";
 
         Savepoint sp = this.beginTransaction();
         try {

@@ -1,11 +1,7 @@
 package net.sf.jsqlparser.statement.table;
 
-import net.sf.jsqlparser.statement.table.ColDataType;
 import java.util.List;
 
-import sun.net.www.content.text.PlainTextInputStream;
-
-import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
 /**

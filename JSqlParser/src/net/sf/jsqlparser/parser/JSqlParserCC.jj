@@ -109,6 +109,8 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.table.AlterOperation;
 import net.sf.jsqlparser.statement.table.AlterTable;
 import net.sf.jsqlparser.statement.table.ChangeColumn;
+import net.sf.jsqlparser.statement.table.AddColumn;
+import net.sf.jsqlparser.statement.table.DropColumn;
 import net.sf.jsqlparser.statement.table.ColDataType;
 import net.sf.jsqlparser.statement.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.table.CreateTable;
@@ -1837,15 +1839,22 @@ AlterTable AlterTable():
     }
 }
 
-ChangeColumn ChangeColumn():
+AlterOperation ChangeColumn():
 {
     String colorg, colnew;
     ColumnDefinition columnDefinition;
 }
 {
-    <K_CHANGE> colorg=RelObjectName()
+    /*<K_CHANGE> colorg=RelObjectName()
                columnDefinition=ColumnDefinition()
-    { return new ChangeColumn(colorg, columnDefinition); }
+    { return new ChangeColumn(colorg, columnDefinition); }*/
+    (
+        <K_ADD> columnDefinition=ColumnDefinition()
+        { return new AddColumn(columnDefinition); }
+        |
+        <K_DROP> colorg=RelObjectName()
+        { return new DropColumn(colorg); }
+    )
 }
 
 CreateFuzzyDomain CreateFuzzyDomain():

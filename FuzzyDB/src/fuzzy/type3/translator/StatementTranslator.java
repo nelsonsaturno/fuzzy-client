@@ -49,10 +49,6 @@ public class StatementTranslator extends Translator implements StatementVisitor 
     public void visit(AlterTable alterTable) throws Exception {
         AlterTableTranslator alterTableTranslator = new AlterTableTranslator(connector, operations);
         alterTableTranslator.translate(alterTable);
-        // Mark this statement to be ignored by the translation execution.
-        // This means this statement, when deparsed, won't make sense for the
-        // RDBMS.
-        this.ignoreAST = true;
     }
 
     //PlainSelect o Select
