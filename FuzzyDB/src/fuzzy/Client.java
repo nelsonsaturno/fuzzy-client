@@ -11,6 +11,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 
 import fuzzy.database.Connector;
+import fuzzy.database.Connector.ExecutionResult;
 import fuzzy.helpers.Printer;
 import fuzzy.helpers.Reader;
 
@@ -154,8 +155,9 @@ public class Client {
                 }
 
                 // connector.execute() translates and then executes.
+                ExecutionResult result = null;
                 try {
-                    connector.execute(sentence);
+                    result = connector.execute(sentence);
                 } catch (SQLException e) {
                     Printer.printSQLErrors(e);
                     continue;
@@ -164,10 +166,9 @@ public class Client {
                 // TODO: it reeks of bad design to use side effects of execute()
                 // TODO: to extract the result. It'd be better if execute()
                 // TODO: returned a class with the results, and use that instead.
-                if (null != connector.getResultSet()) {
-                    Printer.printResultSet(connector.getResultSet());
-                } else if (-1 != connector.getUpdateCount()) {
-                    Printer.printRowsUpdated(connector.getUpdateCount());
+                if (null != result) {
+                    Printer.printResultSet(result.result);
+                    Printer.printRowsUpdated(result.updateCount);
                 }
             }
         }

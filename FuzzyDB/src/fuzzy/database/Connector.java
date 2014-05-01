@@ -156,6 +156,16 @@ public class Connector {
     
     // Methods to execute raw queries, that is, without translation
     // These are essentially wrappers for the corresponding Connection methods.
+    
+    public class ExecutionResult {
+        public ResultSet result;
+        public Integer updateCount;
+        
+        public ExecutionResult(ResultSet r, Integer u) {
+            this.result = r;
+            this.updateCount = u;
+        }
+    }
 
     /**
      * Executes the given query directly in the RDBMS, without translation.
@@ -163,14 +173,14 @@ public class Connector {
      * getUpdatecount().
      * 
      * @param sql the query to execute.
+     * @return ExecutionResult instance with the JDBC result set.
      * @throws SQLException
      */
-    public void executeRaw(String sql) throws SQLException {
+    public ExecutionResult executeRaw(String sql) throws SQLException {
         Logger.logQuery(sql);
         Statement s = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         s.execute(sql);
-        this.resultSet = s.getResultSet();
-        this.updateCount = s.getUpdateCount();
+        return new ExecutionResult(s.getResultSet(), s.getUpdateCount());
     }
 
     /**
@@ -371,7 +381,7 @@ public class Connector {
      * @param sql the fuzzy SQL to be translated and executed.
      * @throws SQLException
      */
-    public void execute(String sql) throws SQLException {
+    public ExecutionResult execute(String sql) throws SQLException {
         Logger.debug("Executing: " + sql);
 
         TranslationResult translateResult = translate(sql);
@@ -380,10 +390,11 @@ public class Connector {
         // all execute as a single atomic operation.
         this.connection.setAutoCommit(false);
         Savepoint sp = this.connection.setSavepoint();
+        ExecutionResult result = null;
 
         try {
             if (null != translateResult.sql) {
-                executeRaw(translateResult.sql);
+                result = executeRaw(translateResult.sql);
             }
             for (Operation o : translateResult.operations) {
                 o.execute();
@@ -397,6 +408,7 @@ public class Connector {
         // Disable transactions so the next translation process can query
         // the database without overhead.
         this.connection.setAutoCommit(true);
+        return result;
     }
 
     /**
