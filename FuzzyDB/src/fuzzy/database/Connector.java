@@ -133,9 +133,9 @@ public class Connector {
         // Set the schema, and test if it was really set
         // If not, revert the schema and throw an exception.
         this.executeRaw("SET search_path TO "+schemaName);
-        this.executeRaw("SELECT current_schema()");
-        this.resultSet.next();
-        if (this.resultSet.getObject(1) == null) {
+        ExecutionResult r = this.executeRaw("SELECT current_schema()");
+        r.result.next();
+        if (r.result.getObject(1) == null) {
             if (!this.schema.equals("")) {
                 // Revert to old schema
                 this.executeRaw("SET search_path TO " + this.schema);
@@ -164,7 +164,7 @@ public class Connector {
         public ExecutionResult(ResultSet r, Integer u) {
             this.result = r;
             this.updateCount = u;
-        }
+        }        
     }
 
     /**

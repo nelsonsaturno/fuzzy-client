@@ -168,7 +168,9 @@ public class Client {
                 // TODO: returned a class with the results, and use that instead.
                 if (null != result) {
                     Printer.printResultSet(result.result);
-                    Printer.printRowsUpdated(result.updateCount);
+                    if (result.updateCount != -1) {
+                        Printer.printRowsUpdated(result.updateCount);
+                    }
                 }
             }
         }
