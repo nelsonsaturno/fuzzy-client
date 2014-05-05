@@ -167,7 +167,9 @@ public class Client {
                 // TODO: to extract the result. It'd be better if execute()
                 // TODO: returned a class with the results, and use that instead.
                 if (null != result) {
-                    Printer.printResultSet(result.result);
+                    if (null != result.result) {
+                        Printer.printResultSet(result.result);
+                    }
                     if (result.updateCount != -1) {
                         Printer.printRowsUpdated(result.updateCount);
                     }
