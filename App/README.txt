@@ -66,6 +66,21 @@ Montar el app en Django:
   Si explotó, puede ser porque no activaron el environment (paso anterior)
   o no estaba corriendo el gateway (sección anterior)
 
+- BONUS POINT:
+  Usen el API fuzzyQuery y fuzzyStatement para hacer cosas en la BD
+  difusa desde el shell de Django, por ejemplo:
+
+  $ python manage.py shell
+  $ >> from fuzzyapp.database import fuzzyQuery, fuzzyStatement
+  $ >> fuzzyStatement("CREATE FUZZY DOMAIN bla AS .........")
+  $ >> result = fuzzyQuery("SELECT * FROM personas", columns= .......)
+  $ >> for i in result:
+  $ >>     print i
+
+  Con cada consulta que hagan desde Django podrán ver que la consola
+  del gateway muestra las consultas que está ejecutando.
+  Lean el API aquí abajo para ver como usarlo:
+
 ------------------
 
 API para hacer consultas dentro de Python:
