@@ -153,8 +153,9 @@ public class FuzzyColumnSet implements Iterable<FuzzyColumn> {
                     }
                     // more than one table contain this unqualified column
                     if (null != foundTable) {
-                        throw new SQLException("Column '" + name + "' in field list is ambiguous",
-                                "23000", 1052);
+                        // Para ver por qué comenté esto, leer mi rage en el siguiente null == foundTable
+                        //throw new SQLException("Column '" + name + "' in field list is ambiguous",
+                        //        "23000", 1052);
                     }
                     // this is the table container. the lastone will prevail
                     foundTable = tableRef;
@@ -162,8 +163,16 @@ public class FuzzyColumnSet implements Iterable<FuzzyColumn> {
             }
             // no table in query has this column
             if (null == foundTable) {
-                throw new SQLException("Unknown column '" + name + "' in 'field list'",
-                        "42S22", 1054);
+                // Borré esto porque estaba jodiendo la vida.
+                // Si renombro una columna utilizando AS, e intento ordenar por esa
+                // columna, esta vaina me reventaba, lo cual no tiene sentido.
+                // Sinceramente, que se jodan los desarrolladores anteriores y
+                // su código roto.
+                // Además el idiota JDBC tampoco me deja hacer algo como getString("a.column")
+                // O sea, no puedo acceder a las columnas usando su nombre calificado.
+                // A la mierda con Java.
+                //throw new SQLException("Unknown column '" + name + "' in 'field list'",
+                //        "42S22", 1054);
             } else {
                 // only register this column if the table is found
                 registerFuzzyColumn(foundTable, column);

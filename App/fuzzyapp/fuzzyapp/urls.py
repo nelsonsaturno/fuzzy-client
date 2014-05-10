@@ -1,12 +1,11 @@
-from django.conf.urls import patterns, include, url
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-from django.contrib import admin
-admin.autodiscover()
+from django.conf.urls import patterns, url
+
+from fuzzyapp import views
+
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'fuzzyapp.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^$', views.ListaMateriasView.as_view(), name='lista-materias'),
 )

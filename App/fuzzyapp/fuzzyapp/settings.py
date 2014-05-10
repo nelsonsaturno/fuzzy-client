@@ -36,12 +36,13 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'fuzzyapp'
 )
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -84,4 +85,4 @@ from py4j.java_gateway import JavaGateway
 
 PY4J_GATEWAY = JavaGateway(auto_field=True)
 FUZZYDB = PY4J_GATEWAY.entry_point.getConnector()
-FUZZYDB.setSchema('public')
+FUZZYDB.setSchema('opinion')

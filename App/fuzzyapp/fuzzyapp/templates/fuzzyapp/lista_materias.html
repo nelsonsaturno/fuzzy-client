@@ -1,0 +1,33 @@
+Materias con atributos difusos
+
+<form action="/" method="post">
+{{ form.as_p }}
+<input type="submit" value="Buscar" />
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Calificación esperada</th>
+            <th>Dificultad</th>
+            <th>Preparación previa</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for materia in materias %}
+        <tr>
+            <td>{{ materia.codigo }}</td>
+            <td>{{ materia.nombre }}</td>
+            <td>{{ materia.calificacion }}</td>
+            <td>{{ materia.dificultad }}</td>
+            <td>{{ materia.preparacion }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td>No hay materias para mostrar.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

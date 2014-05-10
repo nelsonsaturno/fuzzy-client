@@ -141,3 +141,49 @@ tipo sobre el cual está definido el tipo difuso. Por ejemplo, edad
 es un tipo difuso sobre int, entonces hay que pasar una función que reciba
 el string devuelto por Postgres y lo convierta a un entero en Python.
 En el ejemplo simplemente pasé la función int de python.
+
+-------------------
+
+Base de datos de prueba
+
+Yo en mi máquina hice una base de datos de prueba así:
+
+- Dentro de postgres a pata hice:
+  CREATE SCHEMA opinion
+
+Luego usando el traductor de nuestro proyecto hice lo siguiente:
+
+USE OPINION
+
+CREATE FUZZY DOMAIN fuzzyint AS POSSIBILITY DISTRIBUTION ON INTEGER
+
+CREATE TABLE asignatura (codigo varchar(8) NOT NULL, nombre varchar(256) NOT NULL);
+
+CREATE TABLE asignatura_fuzzy (codigo text NOT NULL, calificacion fuzzyint NOT NULL, preparacion fuzzyint NOT NULL, dificultad fuzzyint NOT NULL, stale boolean NOT NULL);
+
+----------------------
+
+Aplicación actual
+
+Todo está documentado y todo el código está dentro de fuzzyapp/, así que pueden
+simplemente leer el código.
+
+Marqué con ###### TODO ##### las partes que deben hacer o revisar ustedes. Aunque
+las cosas que marqué relacionadas con el esquema de base de datos y tal probablemente
+lo pueden ignorar, ahorita lo importante es el TODO que está en
+models.py/ class MateriaQuerySet / método __iter__,
+y el que está en models.py / class Materia / método save
+Allí es la parte donde deben hacer el chequeo de stale, calcular los valores difusos,
+y guardarlos en BD.
+
+
+La aplicación ahorita es simplemente una lista de materias, con un formulario
+que permite ordenarlos de acuerdo a calificación esperada, preparación y dificultad.
+
+También permite filtrarlos de acuerdo a departamento. Aunque eso no es muy útil
+ahorita porque la BD de Opinión no guarda info de departamentos, así que en
+forms.py debemos poner a mano las iniciales de cada departamento sobre el que
+queremos filtrar.
+
+Falta poner la página bonita. El template está en fuzzyapp/templates/fuzzyapp/listar_materias.html.
+Pueden hacerlo usando Bootstrap (http://getbootstrap.com/), es un tiro al piso así.
