@@ -4,8 +4,9 @@ from __future__ import unicode_literals
 from django.views.generic import View
 from django.shortcuts import render_to_response
 
+from fuzzyapp.database import fuzzyQuery
 from fuzzyapp.models import Materia
-from fuzzyapp.forms import FiltroMateriasForm
+from fuzzyapp.forms import FiltroMateriasForm, AgruparMateriasForm
 
 
 class ListaMateriasView(View):
@@ -27,9 +28,7 @@ class ListaMateriasView(View):
         materias = Materia.objects.all()
         if form.is_valid():
             if form.cleaned_data["filtrar_dptos"]:
-                materias.filter(
-                    codigo__startswithany=form.cleaned_data["dptos"]
-                )
+                materias.id_unidad_in(form.cleaned_data["dptos"])
             orden1 = form.cleaned_data["orden1"]
             orden2 = form.cleaned_data["orden2"]
             orden3 = form.cleaned_data["orden3"]
@@ -43,4 +42,58 @@ class ListaMateriasView(View):
         return render_to_response(
             "fuzzyapp/lista_materias.html",
             {"materias": list(materias), "form": form}
+        )
+
+
+c = {
+    "calificacion": "Califiación",
+    "preparacion": "Preparación",
+    "dificultad": "Dificultad"
+}
+
+
+class AgruparMateriasView(View):
+    """
+    En este view no estoy usando nuestro models, sino que uso directamente fuzzyQuery.
+    La razón es que no hay manera fácil de integrar la funcionalidad de agregación a
+    nuestro miniframework de materias, así que es más fácil hacerlo a mano.
+    """
+
+    def get(self, request):
+        resultado = []
+        form = AgruparMateriasForm()
+        return render_to_response(
+            "fuzzyapp/agrupar_materias.html",
+            {"resultado": resultado, "form": form}
+        )
+
+    def post(self, request):
+        form = AgruparMateriasForm(request.POST)
+        resultado = []
+        if form.is_valid():
+            campo = form.cleaned_data["campo"]
+            if campo == '':
+                return render_to_response(
+                    "fuzzyapp/agrupar_materias.html",
+                    {"resultado": resultado, "form": form}
+                )
+            query = (
+                "SELECT array_agg(a.codigo) as codigos, array_agg(a.nombre) as nombres, af.{campo} as campo "
+                "FROM opinion.asignatura as a "
+                "JOIN opinion.asignatura_fuzzy as af USING(codigo) "
+                "GROUP BY af.{campo} "
+            )
+
+            query = query.format(campo=campo)
+            columns = {
+                "codigos": {"type": "array", "subtype_converter": unicode},
+                "nombres": {"type": "array", "subtype_converter": unicode},
+                "campo": {"type": "fuzzy", "subtype_converter": int}
+            }
+            resultado = list(fuzzyQuery(query, columns))
+            resultado = list(map(lambda x: (zip(x['codigos'], x['nombres']), x['campo']), resultado))
+
+        return render_to_response(
+            "fuzzyapp/agrupar_materias.html",
+            {"resultado": resultado, "form": form, "campo": c[campo]}
         )

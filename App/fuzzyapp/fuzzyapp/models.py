@@ -65,6 +65,19 @@ class MateriaQuerySet(object):
                 )
         return self
 
+    def id_unidad_in(self, ids):
+        """
+        Método para filtrar por aquellas materias que se relacionen con una unidad
+        con id en 'ids'. Lo pongo aquí cara e tabla porque ya estoy harto de este
+        proyecto y quiero salir del paso.
+        """
+        condition_format = "(ua.id_unidad = {value})"
+        conditions = map(
+            lambda x: condition_format.format(value=x),
+            ids
+        )
+        self.conditions.append("(" + " OR ".join(conditions) + ")")
+
     def order_by(self, column, direction='DESC'):
         """
         Recibe una secuencia de columnas sobre las cuales ordenar el resultado.
@@ -89,6 +102,7 @@ class MateriaQuerySet(object):
             "SELECT a.codigo, a.nombre, af.stale, af.calificacion, af.preparacion, af.dificultad "
             "FROM opinion.asignatura as a "
             "JOIN opinion.asignatura_fuzzy as af USING (codigo) "
+            "JOIN opinion.unidad_asignatura as ua USING (codigo) "
         )
         ################# TODO #################
 

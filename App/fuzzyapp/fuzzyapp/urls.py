@@ -8,4 +8,5 @@ from fuzzyapp import views
 
 urlpatterns = patterns('',
     url(r'^$', views.ListaMateriasView.as_view(), name='lista-materias'),
+    url(r'^agrupar$', views.AgruparMateriasView.as_view(), name='lista-materias'),
 )

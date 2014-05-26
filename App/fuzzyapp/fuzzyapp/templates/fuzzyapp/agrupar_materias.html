@@ -1,0 +1,44 @@
+<h2>Materias con atributos difusos</h2>
+
+<h3>Agrupar de acuerdo a una columna difusa</h3>
+
+<h4>Consultas:</h4>
+<ul>
+    <li><a href='/'>Ordenar</a></li>
+    <li><a href='/agrupar'>Agrupar</a></li>
+</ul>
+
+<form action="/agrupar" method="post">
+{{ form.as_p }}
+<input type="submit" value="Buscar" />
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Código - Nombre</th>
+            <th>{{ campo }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for materias, valor in resultado %}
+        <tr>
+            <td>
+                <table>
+                    {% for materia in materias %}
+                    <tr>
+                        <td>{{ materia.0 }}</td>
+                        <td>{{ materia.1 }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </td>
+            <td>{{ valor }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td>No hay materias para mostrar.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

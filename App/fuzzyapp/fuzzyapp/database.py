@@ -162,8 +162,17 @@ c_conversions = {
     "string": lambda x, y, **kwargs: x.getString(y),
     "boolean": lambda x, y, **kwargs: x.getBoolean(y),
     "fuzzy": lambda x, y, **kwargs: convert_fuzzy(x.getObject(y).toString(), **kwargs), # NOQA
+    "array": lambda x, y, **kwargs: convert_array(x.getArray(y), **kwargs),
     "default": lambda x, y, **kwargs: x.getObject(y).toString(),
 }
+
+
+def convert_array(array_obj, subtype_converter):
+    res = array_obj.getResultSet()
+    result = []
+    while res.next():
+        result.append(subtype_converter(res.getObject(2)))
+    return result
 
 
 def convert_fuzzy(string, subtype_converter):
