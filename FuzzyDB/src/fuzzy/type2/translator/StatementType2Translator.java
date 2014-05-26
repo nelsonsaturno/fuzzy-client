@@ -49,6 +49,7 @@ public class StatementType2Translator extends Translator implements StatementVis
     public void visit(AlterTable alterTable) throws Exception {
         AlterTableType2Translator alterTableTranslator = new AlterTableType2Translator(connector, operations);
         alterTableTranslator.translate(alterTable);
+        Memory.wipeMemory();
     }
 
 
@@ -63,12 +64,14 @@ public class StatementType2Translator extends Translator implements StatementVis
     @Override
     public void visit(CreateFuzzyDomain createFuzzyDomain) throws Exception {
         // Nada, el otro translator es encargado de traducir esto.
+        Memory.wipeMemory();
     }
 
 
     @Override
     public void visit(AlterFuzzyDomain alterFuzzyDomain) throws Exception {
         // Nada, el otro translator es encargado de traducir esto.
+        Memory.wipeMemory();
     }
 
 
@@ -86,6 +89,7 @@ public class StatementType2Translator extends Translator implements StatementVis
         // This means this statement, when deparsed, won't make sense for the
         // RDBMS.
         this.ignoreAST = true;
+        Memory.wipeMemory();
     }
 
 
