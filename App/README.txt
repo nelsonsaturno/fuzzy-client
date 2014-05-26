@@ -187,3 +187,10 @@ queremos filtrar.
 
 Falta poner la página bonita. El template está en fuzzyapp/templates/fuzzyapp/listar_materias.html.
 Pueden hacerlo usando Bootstrap (http://getbootstrap.com/), es un tiro al piso así.
+
+--------------------------
+Actualización última semana
+
+Agregué una vista nueva en /agrupar, la cual permite mostrar las materias agrupadas de
+acuerdo a una columna difusa (una sola). Es super simple. No creo que deban tocar nada allí
+además de hacer que el template html se vea bien.
