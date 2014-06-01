@@ -43,7 +43,9 @@ class FuzzyExtension(FuzzyValue):
         return str(list(self.values))
 
     def __unicode__(self):
-        return unicode(list(self.values))
+        str_vals = map(lambda (p, v): "{:.2f}/{}".format(p, v), filter(lambda (p, v): p > 0, self.values))
+        str_vals = ', '.join(str_vals)
+        return "{{f {} }}".format(str_vals)
     ########## TODO ########
 
 

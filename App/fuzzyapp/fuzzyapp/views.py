@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 from django.views.generic import View
 from django.shortcuts import render_to_response
 
-from fuzzyapp.database import fuzzyQuery
+from fuzzyapp.database import fuzzyQuery, convert_fuzzy
 from fuzzyapp.models import Materia
 from fuzzyapp.forms import FiltroMateriasForm, AgruparMateriasForm
 
@@ -78,7 +78,7 @@ class AgruparMateriasView(View):
                     {"resultado": resultado, "form": form}
                 )
             query = (
-                "SELECT array_agg(a.codigo) as codigos, array_agg(a.nombre) as nombres, af.{campo} as campo "
+                "SELECT array_agg(a.codigo) as codigos, array_agg(a.nombre) as nombres, array_agg(af.{campo}) as campos "
                 "FROM opinion.asignatura as a "
                 "JOIN opinion.asignatura_fuzzy as af USING(codigo) "
                 "GROUP BY af.{campo} "
@@ -88,10 +88,10 @@ class AgruparMateriasView(View):
             columns = {
                 "codigos": {"type": "array", "subtype_converter": unicode},
                 "nombres": {"type": "array", "subtype_converter": unicode},
-                "campo": {"type": "fuzzy", "subtype_converter": int}
+                "campos": {"type": "array", "subtype_converter": lambda x: convert_fuzzy(x.toString(), int)}
             }
             resultado = list(fuzzyQuery(query, columns))
-            resultado = list(map(lambda x: (zip(x['codigos'], x['nombres']), x['campo']), resultado))
+            resultado = list(map(lambda x: zip(x['codigos'], x['nombres'], x['campos']), resultado))
 
         return render_to_response(
             "fuzzyapp/agrupar_materias.html",

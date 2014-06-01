@@ -94,37 +94,25 @@
 <table class='table table-striped'>
     <thead>
         <tr>
-            <th></th>
+            <th>Código</th>
+            <th>Materia</th>
             <th>{{ campo }}</th>
         </tr>
     </thead>
     <tbody>
-        {% for materias, valor in resultado %}
-        <tr>
-            <td>
-                <table class='table table-striped'>
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Materia</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for materia in materias %}
-                    <tr>
-                        <td>{{ materia.0 }}</td>
-                        <td>{{ materia.1 }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-                </table>
-            </td>
-            <td>{{ valor }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td>No hay materias para mostrar.</td>
-        </tr>
+        {% for materias in resultado %}
+            {% for materia in materias %}
+                <tr>
+                    <td>{{ materia.0 }}</td>
+                    <td>{{ materia.1 }}</td>
+                    <td>{{ materia.2 }}</td>
+                </tr>
+            {% endfor %}
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
         {% endfor %}
     </tbody>
 </table>

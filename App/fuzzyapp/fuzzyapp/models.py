@@ -99,10 +99,10 @@ class MateriaQuerySet(object):
         # schema llamado 'opinion'.
         # Hay que cambiarlo para que se ajuste a la realidad, si hace falta.
         sql = (
-            "SELECT a.codigo, a.nombre, af.stale, af.calificacion, af.preparacion, af.dificultad "
+            "SELECT DISTINCT a.codigo, a.nombre, af.stale, af.calificacion, af.preparacion, af.dificultad "
             "FROM opinion.asignatura as a "
             "JOIN opinion.asignatura_fuzzy as af USING (codigo) "
-            "JOIN opinion.unidad_asignatura as ua USING (codigo) "
+            "LEFT OUTER JOIN opinion.unidad_asignatura as ua USING (codigo) "
         )
         ################# TODO #################
 
