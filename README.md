@@ -1,34 +1,31 @@
 # FuzzyDB
 
-Prototype for defining, storing and querying a relational database with fuzzy
-attributes. It works as a translator of a SQL definition extended with syntax
-for dealing with fuzzy attributes, to SQL as understood by PostgreSQL.
+Prototipo para definir, almacenar y consultar una base de datos relacional con
+atributos difusos. Se implementa como un traductor de SQL extendido con atributos
+difusos, a SQL entendido por PostgreSQL.
 
-### Dependencies:
-- PostgreSQL 9.3 or better.
-  The translator uses several custom SQL extensions provided by Postgres,
-  so it is pretty tightly coupled to that RDBMS.
-- Java 1.7.
-  The JSqlParser version our SQL parser is based on uses an internal 
-  proprietary Java API, so it might not work on a more recent version.
-- JavaCC for compiling the SQL parser.
-- Ant for compiling the parser and the client. All required libraries are
-  included within the repository.
-- Bash for executing the script that compiles the parser and automatically
-  updates its corresponding .jar library in the client.
-  If you don't have bash, you can do it manually.
+### Dependencias
 
-### Modifying the code:
+- PostgreSQL 9.3 or más reciente.
+- Java 1.7 o mejor.
+- JavaCC.
+- Ant.
+- Bash para ejecutar el script para compilar el cliente.
+  Es posible compilarlo usando ant y moviendo algunos archivos a mano.
 
-This project is divided in two subprojects:
+Todas las librerías (.jar) necesarios están incluidas en el repositorio.
+
+### Modificar el código
+
+El proyecto está dividido en 3 subproyectos:
+
 - Parser
-  A fork of JSqlParser, modified with fuzzy syntax extensions.
-- Client
-  A console application that translates fuzzy SQL into SQL statements for
-  Postgres.
+  Un fork de JSqlParser, extendido con atributos difusos.
+  Su trabajo es generar el árbol de sintaxis y proveer las interfaces para manipularlo.
+- FuzzyDB
+  El cliente que realiza la traducción de las consultas y las ejecuta en PostgreSQL.
+- App
+  Una aplicación web escrita en Python/Django para demostrar algunas funcionalidades del proyecto.
 
-Each project also has its Netbeans files, so you can import it in Netbeans
-effortlessly.
-
-### Big TODO:
-- Move JSqlParser into a subrepo and make it easier to merge upstream changes.
+En la carpeta doc/ se encuentra un manual explicando el funcionamiento interno de los subproyectos
+y algunos consejos sobre cómo continuar el desarrollo.
