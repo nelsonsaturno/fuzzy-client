@@ -38,14 +38,14 @@ class FiltroMateriasForm(forms.Form):
     Permite elegir cuáles departamentos mostrar (basado en sus códigos)
     y hasta 3 campos sobre los cuales ordenar el resultado.
     """
-    filtrar_dptos = forms.BooleanField(initial=False, required=False)
-    dptos = forms.MultipleChoiceField(choices=filtros_dptos(), required=False)
-    orden1 = forms.ChoiceField(choices=campos_ordenamiento, required=False)
-    asc1 = forms.ChoiceField(choices=direccion, required=False, initial='DESC')
-    orden2 = forms.ChoiceField(choices=campos_ordenamiento, required=False)
-    asc2 = forms.ChoiceField(choices=direccion, required=False, initial='DESC')
-    orden3 = forms.ChoiceField(choices=campos_ordenamiento, required=False)
-    asc3 = forms.ChoiceField(choices=direccion, required=False, initial='DESC')
+    filtrar_dptos = forms.BooleanField(initial=False, required=False, label="¿Filtrar unidades?")
+    dptos = forms.MultipleChoiceField(choices=filtros_dptos(), required=False, label="Unidades")
+    orden1 = forms.ChoiceField(choices=campos_ordenamiento, required=False, label="Primer campo para ordenar")
+    asc1 = forms.ChoiceField(choices=direccion, required=False, initial='DESC', label="Dirección")
+    orden2 = forms.ChoiceField(choices=campos_ordenamiento, required=False, label="Segundo campo para ordenar")
+    asc2 = forms.ChoiceField(choices=direccion, required=False, initial='DESC', label="Dirección")
+    orden3 = forms.ChoiceField(choices=campos_ordenamiento, required=False, label="Tercer campo para ordenar")
+    asc3 = forms.ChoiceField(choices=direccion, required=False, initial='DESC', label="Dirección")
 
 
 class AgruparMateriasForm(forms.Form):

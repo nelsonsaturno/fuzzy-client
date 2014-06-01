@@ -46,7 +46,7 @@ class ListaMateriasView(View):
 
 
 c = {
-    "calificacion": "Califiación",
+    "calificacion": "Calificación",
     "preparacion": "Preparación",
     "dificultad": "Dificultad"
 }
