@@ -81,7 +81,11 @@ Montar el app en Django:
 
   Con cada consulta que hagan desde Django podrán ver que la consola
   del gateway muestra las consultas que está ejecutando.
-  Lean el API aquí abajo para ver como usarlo:
+
+- Si llegaron hasta aquí todo funciona y tiene la BD cargada. Entonces solo falta calcular los
+  atributos difusos de cada materia:
+
+  $ python manage.py updatefuzzy
 
 ------------------
 
