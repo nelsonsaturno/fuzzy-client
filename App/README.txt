@@ -58,6 +58,8 @@ Montar el app en Django:
   $ source env_fuzzyapp/bin/activate
   $ pip install -r requirements.txt
 
+- Configurar la base de datos según la sección 'Base de datos' más adelante.
+
 - Probar si se conecta al gateway:
 
   $ python manage.py shell
@@ -85,112 +87,59 @@ Montar el app en Django:
 
 API para hacer consultas dentro de Python:
 
-Pueden importar la siguientes funciones en Python:
-
-   from fuzzyapp.database import fuzzyStatement, fuzzyQuery
-
-Las cuales tienen la siguiente firmas:
-
-   def fuzzyStatement(sql)
-
-   Ejecuta una consulta de una vez. No devuelve nada. Sirve para ejecutar
-   cosas que no devuelven nada, como INSERT, UPDATE y DELETEs.
-
-- sql es un string con la consulta a ejecutar.
-
-
-   def fuzzyQuery(sql, columns)
-
-   Devuelve un iterador que devuelve las filas retornadas por la consulta
-   en forma de diccionarios de python. La forma en que se generan estas
-   filas depende de la definición que se le pase en 'columns'.
-
-- sql es un string con la consulta a ejecutar.
-- columns es un diccionario donde se definen qué columnas devuelve esa
-  consulta y su tipo. Esto permite que fuzzyQuery pueda leer los objetos
-  Java que devuelve el traductor y sepa qué columnas debe extraer y
-  a qué tipos de Python convertirlas. Es un miniframework realmente.
-
-Por ejemplo, para usar fuzzyQuery sobre la tabla de personas del paper,
-se puede hacer lo siguiente:
-
-fuzzyQuery(
-    "SELECT nombre, apellido, edad, sueldo FROM personas",
-    columns={
-       "nombre": {"type": "string", },
-       "apellido": {"type": "string", },
-       "edad": {"type": "fuzzy", "subtype_converter": int},
-       "sueldo": {"type": "integer", }
-    }
-)
-
-El diccionario columnas lleva adentro pares columna : definición,
-donde la definición es una diccionario que debe tener la clave "type"
-indicando su tipo.
-
-Los tipos disponibles son:
-"integer"
-"string"
-"boolean"
-"default" (le hace toString() de Java a la columna)
-"fuzzy" (nuestro tipo difuso)
-
-"fuzzy" además debe llevar otro argumento, "subtype_converter", el cual
-debe ser una función que reciba un string y lo convierta a un valor del
-tipo sobre el cual está definido el tipo difuso. Por ejemplo, edad
-es un tipo difuso sobre int, entonces hay que pasar una función que reciba
-el string devuelto por Postgres y lo convierta a un entero en Python.
-En el ejemplo simplemente pasé la función int de python.
+Revisen fuzzyapp/database.py, allí se aplica bien el API. En fuzzyapp/models.py pueden ver como
+se trató de imitar el estilo del ORM de Django utilizando el api en database.py.
 
 -------------------
 
 Base de datos de prueba
 
-Yo en mi máquina hice una base de datos de prueba así:
+Utilizamos la base de datos de encuesta de opinión estudiantil. De ella tomamos las siguientes
+tablas, las cuales modificamos como sea para que cargaran en el traductor:
 
-- Dentro de postgres a pata hice:
-  CREATE SCHEMA opinion
+- asignatura
+- unidad
+- unidad_asignatura
+- historial
+- respuesta
+- profesor_encuesta
 
-Luego usando el traductor de nuestro proyecto hice lo siguiente:
+Estas tablas la colocamos en un schema denominado 'opinion', la cual se debe hacer a mano en el
+cliente de Postgres, pues JSqlParser no entiende 'CREATE SCHEMA' AFAIK.
 
-USE OPINION
+- CREATE SCHEMA opinion
 
-CREATE FUZZY DOMAIN fuzzyint AS POSSIBILITY DISTRIBUTION ON INTEGER
-
-CREATE TABLE asignatura (codigo varchar(8) NOT NULL, nombre varchar(256) NOT NULL);
+Luego creen la tabla para almacenar los atributos difusos adicionales para las materias:
 
 CREATE TABLE asignatura_fuzzy (codigo text NOT NULL, calificacion fuzzyint NOT NULL, preparacion fuzzyint NOT NULL, dificultad fuzzyint NOT NULL, stale boolean NOT NULL);
+
+Pueden mentalmente ignorar el campo 'stale', pero asegúrense de colocarlo.
+
+Luego pueden cargar los datos utilizando los scripts de carga de EOE. Un feature interesante es
+que el traductor lee las cosas desde entrada estándar, así que pueden hacer lo siguiente para
+cargar las cosas rápidamente:
+
+- Borren todo lo que esté en el header del archivo, de forma que la primera línea sea un INSERT.
+- Coloquen como primera línea 'USE opinion;'
+- Asegúrense que la última línea del archivo sea una línea en blanco. Esto capaz no hace falta,
+  pero porsia.
+- Carguen el script haciendo:
+
+    $ java -jar FuzzyDB.jar < script.sql
+
+El '<' le dice a bash que sustituya la entrada estándar por el archivo dado. Entonces lo que va
+a pasar es que bash va a pasar todo el script al traductor y éste lo va a separar por los ';' y
+saltos de línea y ejecutará cada consulta individualmente. Sin tiene más experiencia en bash podrían
+encadenar varios archivos y cargar todo con un solo comando.
+WARNING: asegúrense que el archivo tenga puros caracteres UTF-8 válidos, o Java revienta ungracefully.
 
 ----------------------
 
 Aplicación actual
 
-Todo está documentado y todo el código está dentro de fuzzyapp/, así que pueden
-simplemente leer el código.
+Todo está bien documentado. Hay algunos #### TODO ####, pero realmente los pueden ignorar.
 
-Marqué con ###### TODO ##### las partes que deben hacer o revisar ustedes. Aunque
-las cosas que marqué relacionadas con el esquema de base de datos y tal probablemente
-lo pueden ignorar, ahorita lo importante es el TODO que está en
-models.py/ class MateriaQuerySet / método __iter__,
-y el que está en models.py / class Materia / método save
-Allí es la parte donde deben hacer el chequeo de stale, calcular los valores difusos,
-y guardarlos en BD.
-
-
-La aplicación ahorita es simplemente una lista de materias, con un formulario
-que permite ordenarlos de acuerdo a calificación esperada, preparación y dificultad.
-
-También permite filtrarlos de acuerdo a departamento. Aunque eso no es muy útil
-ahorita porque la BD de Opinión no guarda info de departamentos, así que en
-forms.py debemos poner a mano las iniciales de cada departamento sobre el que
-queremos filtrar.
-
-Falta poner la página bonita. El template está en fuzzyapp/templates/fuzzyapp/listar_materias.html.
-Pueden hacerlo usando Bootstrap (http://getbootstrap.com/), es un tiro al piso así.
-
---------------------------
-Actualización última semana
-
-Agregué una vista nueva en /agrupar, la cual permite mostrar las materias agrupadas de
-acuerdo a una columna difusa (una sola). Es super simple. No creo que deban tocar nada allí
-además de hacer que el template html se vea bien.
+Lo importante que se puede sacar a futuro de esta App/ es ver cómo conectar Django con una base
+de datos accedida a través de una librería en Java. Con esto de base pueden empezar right away
+con las aplicaciones de otros talleres directamente en Django sin tener que andar investigando
+sobre py4j y tal.

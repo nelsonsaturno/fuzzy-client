@@ -1,5 +1,13 @@
 # Manual de desarrollo
 
+## Introducción
+
+Este proyecto está hecho fundamentalmente en Java, y hay una buena excusa: hacía falta un parser
+de SQL medio decente que pudiera ser extendido, y esto era lo que había. Les prometo que si se
+esfuerzan por meterse en el código existente las cuestiones van a facilitarse bastante. Empezar
+de cero es definitivamente una muy mala idea, es mucho mejor ir refactorizando poco a poco a medida
+que se desarrollen funcionalidades nuevas.
+
 ## JSqlParser
 
 Este es un fork de JSqlParser, cuyo sitio oficial es http://jsqlparser.sourceforge.net/.
@@ -107,7 +115,7 @@ Para que el cliente funcione correctamente, se debe haber cargado en la base de 
 src/sql_scripts/create-schema.sql.
 
 Este script crea un schema denominado 'information_schema_fuzzy', el cual contiene las tablas
-y funciones para realizar la funcionalidad difusa.
+y LOS COMPARADORES (I cannot stress this enough)
 
 Debido a que se utiliza la sentencia CREATE OPERATOR CLASS al momento de definir atributos difusos
 de tipo 2, es necesario que el usuario que realice la sentencia
@@ -213,14 +221,26 @@ arbitrario en el AST.
   La fase de preprocesamiento consistiría únicamente de análisis de la consulta, calificar todas
   las columnas que aparezcan en cualquier expresión, expandir los *, anotar cada columna y/o tabla
   con información adicional (por ejemplo, si es difusa y de qué tipo).
+  Esto sería bueno porque además así se pueden atrapar algunos bugs que hay por ahí. Por ejemplo,
+  actualment eno es posible colocar una subconsulta en el FROM, y el código es tan feo que no tengo
+  idea de cómo comenzar a arreglar eso.
 - Si se implementa un Visitor con tipo de retorno parametrizado en JSqlParser, se puede refactorizar
   fuzzy.type2.translator.FuzzyType2ExpTranslator para que deje de usar variables 'globales'.
+  (el this.replacement)
 - fuzzy.helpers.Memory hay que o refactorizarlo, eliminarlo o lo que sea. Lo que está ahorita
   ha traído más bugs que otra cosa.
+
+
+## App
+
+La propia carpeta App/ tiene un README que explica en bastante detalle qué está pasando. Además
+el propio código es bastante corto (unas ~700 líneas en Python), bien documentado,
+y será muy familiar para alguien que conozca Django.
 
 
 ## Odds and ends
 
 El código trata de seguir las convenciones usuales de Java. Sin embargo, básicamente a todo le
 falta Javadocs. Además los comentarios son inconsistentes, algunas cosas fueron comentadas en inglés
-(engrish más bien...) y otras están en español.
+(engrish más bien...) y otras están en español. Espero que con cada iteración de taller de
+desarrollo esto vaya mejorando?
