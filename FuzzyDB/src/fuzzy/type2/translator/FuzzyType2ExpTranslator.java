@@ -168,7 +168,7 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
             args.add(column);
             f.setParameters(new ExpressionList(args));
             this.replacement = f;
-            this.alias = column.getColumnName();
+            this.alias = column.getColumnName() + "_human_readable";
         }
     }
 

@@ -115,8 +115,8 @@ FOR j IN 0..size1 LOOP
 ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 
 
-	IF (elem1.value[3] != Null) and (elem2.value[2] = Null) THEN
-		IF (elem1.value[2] != Null) THEN
+	IF (elem1.value[3] is not Null) and (elem2.value[2] is Null) THEN
+		IF (elem1.value[2] is not Null) THEN
 			IF elem1.value[2] > elem2.value[3] THEN
 				return False;
 			END IF;
@@ -124,11 +124,11 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 		END IF;
 	END IF;
 
-	IF (elem1.value[3] != Null) and (elem2.value[2] != Null) THEN
+	IF (elem1.value[3] is not Null) and (elem2.value[2] is not Null) THEN
 		IF elem1.value[3] < elem2.value[2] THEN
 			return True;		
 		END IF;
-		IF (elem1.value[2] = Null) or (elem2.value[3] = Null ) THEN
+		IF (elem1.value[2] is Null) or (elem2.value[3] is Null ) THEN
 			return False;
 		END IF;
 		IF elem1.value[2] > elem2.value[3]  THEN
@@ -137,8 +137,8 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 		return False;
 	END IF;	
 
-	IF (elem1.value[3] = Null) THEN
-		IF (elem2.value[3] = null) THEN
+	IF (elem1.value[3] is Null) THEN
+		IF (elem2.value[3] is null) THEN
 			return False;		
 		END IF;
 		IF elem1.value[2] > elem2.value[3] THEN
@@ -152,12 +152,12 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 END IF;
 END IF;
 IF (elem1.type = False) and (elem2.type = True) THEN
-	IF elem1.value[2] = Null THEN
+	IF elem1.value[2] is Null THEN
 		return True;
 	END IF;
 	FOR i IN 1..size2 LOOP
 		IF elem2.odd[i] = 1 THEN
-			IF elem1.value[2] != Null THEN
+			IF elem1.value[2] is not Null THEN
 				IF elem1.value[2] <= elem2.value[i] THEN
 					return True;
 				END IF;
@@ -168,13 +168,13 @@ IF (elem1.type = False) and (elem2.type = True) THEN
 END IF;
 
 IF (elem1.type = True) and (elem2.type = False) THEN
-	IF elem2.value[2] = Null THEN
+	IF elem2.value[3] is Null THEN
 		return True;
 	END IF;
 	FOR i IN 1..size1 LOOP
 		IF elem1.odd[i] = 1 THEN
-			IF elem2.value[2] != Null THEN
-				IF elem2.value[2] <= elem1.value[i] THEN
+			IF elem2.value[2] is not Null THEN
+				IF elem1.value[i] <= elem2.value[3] THEN
 					return True;
 				END IF;
 			END IF;
@@ -241,8 +241,8 @@ FOR j IN 0..size1 LOOP
 	return comp1 >= comp2;
 ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 
-	IF (elem1.value[3] != Null) and (elem2.value[2] = Null) THEN
-		IF (elem1.value[2] != Null) THEN
+	IF (elem1.value[3] is not Null) and (elem2.value[2] is Null) THEN
+		IF (elem1.value[2] is not Null) THEN
 			IF elem1.value[2] > elem2.value[3] THEN
 				return False;
 			END IF;
@@ -250,11 +250,11 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 		END IF;
 	END IF;
 
-	IF (elem1.value[3] != Null) and (elem2.value[2] != Null) THEN
+	IF (elem1.value[3] is not Null) and (elem2.value[2] is not Null) THEN
 		IF elem1.value[3] < elem2.value[2] THEN
 			return True;		
 		END IF;
-		IF (elem1.value[2] = Null) or (elem2.value[3] = Null ) THEN
+		IF (elem1.value[2] is Null) or (elem2.value[3] is Null ) THEN
 			return True;
 		END IF;
 		IF elem1.value[2] > elem2.value[3]  THEN
@@ -263,8 +263,8 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 		return True;
 	END IF;	
 
-	IF (elem1.value[3] = Null) THEN
-		IF (elem2.value[3] = null) THEN
+	IF (elem1.value[3] is Null) THEN
+		IF (elem2.value[3] is null) THEN
 			return True;		
 		END IF;
 		IF elem1.value[2] > elem2.value[3] THEN
@@ -281,12 +281,12 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 END IF;
 END IF;
 IF (elem1.type = False) and (elem2.type = True) THEN
-	IF elem1.value[2] = Null THEN
+	IF elem1.value[2] is Null THEN
 		return True;
 	END IF;
 	FOR i IN 1..size2 LOOP
 		IF elem2.odd[i] = 1 THEN
-			IF elem1.value[2] != Null THEN
+			IF elem1.value[2] is not Null THEN
 				IF elem1.value[2] <= elem2.value[i] THEN
 					return True;
 				END IF;
@@ -297,13 +297,13 @@ IF (elem1.type = False) and (elem2.type = True) THEN
 END IF;
 
 IF (elem1.type = True) and (elem2.type = False) THEN
-	IF elem2.value[2] = Null THEN
+	IF elem2.value[3] is Null THEN
 		return True;
 	END IF;
 	FOR i IN 1..size1 LOOP
 		IF elem1.odd[i] = 1 THEN
-			IF elem2.value[2] != Null THEN
-				IF elem2.value[2] <= elem1.value[i] THEN
+			IF elem2.value[2] is not Null THEN
+				IF elem1.value[i] <= elem2.value[3] THEN
 					return True;
 				END IF;
 			END IF;
@@ -371,8 +371,8 @@ FOR j IN 0..size1 LOOP
 
 	return comp2 = comp1;
 ELSE IF (elem1.type = False) and (elem2.type = False) THEN
-	IF (elem1.value[3] != Null) and (elem2.value[2] = Null) THEN
-		IF (elem1.value[2] != Null) THEN
+	IF (elem1.value[3] is not Null) and (elem2.value[2] is Null) THEN
+		IF (elem1.value[2] is not Null) THEN
 			IF elem1.value[2] > elem2.value[3] THEN
 				return False;
 			END IF;
@@ -380,11 +380,11 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 		END IF;
 	END IF;
 
-	IF (elem1.value[3] != Null) and (elem2.value[2] != Null) THEN
+	IF (elem1.value[3] is not Null) and (elem2.value[2] is not Null) THEN
 		IF elem1.value[3] < elem2.value[2] THEN
 			return False;		
 		END IF;
-		IF (elem1.value[2] = Null) or (elem2.value[3] = Null ) THEN
+		IF (elem1.value[2] is Null) or (elem2.value[3] is Null ) THEN
 			return True;
 		END IF;
 		IF elem1.value[2] > elem2.value[3]  THEN
@@ -393,8 +393,8 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 		return True;
 	END IF;	
 
-	IF (elem1.value[3] = Null) THEN
-		IF (elem2.value[3] = null) THEN
+	IF (elem1.value[3] is Null) THEN
+		IF (elem2.value[3] is null) THEN
 			return True;		
 		END IF;
 		IF elem1.value[2] > elem2.value[3] THEN
@@ -413,20 +413,20 @@ END IF;
 IF (elem1.type = False) and (elem2.type = True) THEN
 	bool1 := False;
 	bool2 := False;
-	IF elem1.value[2] = Null THEN
+	IF elem1.value[2] is Null THEN
 		bool1 := True;
 	END IF;
-	IF elem1.value[3] = Null THEN
+	IF elem1.value[3] is Null THEN
 		bool2 := True;
 	END IF;
 	FOR i IN 1..size2 LOOP
 		IF elem2.odd[i] = 1 THEN
-			IF elem1.value[2] != Null THEN
+			IF elem1.value[2] is not Null THEN
 				IF elem1.value[2] <= elem2.value[i] THEN
 					bool1 := True;
 				END IF;
 			END IF;
-			IF elem1.value[3] != Null THEN
+			IF elem1.value[3] is not Null THEN
 				IF elem1.value[3] >= elem2.value[i] THEN
 					bool2 := True;
 				END IF;
@@ -442,20 +442,20 @@ END IF;
 IF (elem1.type = True) and (elem2.type = False) THEN
 	bool1 := False;
 	bool2 := False;
-	IF elem2.value[2] = Null THEN
+	IF elem2.value[2] is Null THEN
 		bool1 := True;
 	END IF;
-	IF elem2.value[3] = Null THEN
+	IF elem2.value[3] is Null THEN
 		bool2 := True;
 	END IF;
 	FOR i IN 1..size1 LOOP
 		IF elem1.odd[i] = 1 THEN
-			IF elem2.value[2] != Null THEN
+			IF elem2.value[2] is not Null THEN
 				IF elem2.value[2] <= elem1.value[i] THEN
 					bool1 := True;
 				END IF;
 			END IF;
-			IF elem2.value[3] != Null THEN
+			IF elem2.value[3] is not Null THEN
 				IF elem2.value[3] >= elem1.value[i] THEN
 					bool2 := True;
 				END IF;
@@ -526,8 +526,8 @@ END LOOP;
 return comp2 > comp1;
 ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 
-	IF (elem1.value[3] != Null) and (elem2.value[2] = Null) THEN
-		IF (elem1.value[2] != Null) THEN
+	IF (elem1.value[3] is not Null) and (elem2.value[2] is Null) THEN
+		IF (elem1.value[2] is not Null) THEN
 			IF elem1.value[2] > elem2.value[3] THEN
 				return True;
 			END IF;
@@ -535,11 +535,11 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 		END IF;
 	END IF;
 
-	IF (elem1.value[3] != Null) and (elem2.value[2] != Null) THEN
+	IF (elem1.value[3] is not Null) and (elem2.value[2] is not Null) THEN
 		IF elem1.value[3] < elem2.value[2] THEN
 			return False;		
 		END IF;
-		IF (elem1.value[2] = Null) or (elem2.value[3] = Null ) THEN
+		IF (elem1.value[2] is Null) or (elem2.value[3] is Null ) THEN
 			return False;
 		END IF;
 		IF elem1.value[2] > elem2.value[3]  THEN
@@ -548,8 +548,8 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 		return False;
 	END IF;	
 
-	IF (elem1.value[3] = Null) THEN
-		IF (elem2.value[3] = null) THEN
+	IF (elem1.value[3] is Null) THEN
+		IF (elem2.value[3] is null) THEN
 			return False;		
 		END IF;
 		IF elem1.value[2] > elem2.value[3] THEN
@@ -569,12 +569,12 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 END IF;
 END IF;
 IF (elem1.type = False) and (elem2.type = True) THEN
-	IF elem1.value[3] = Null THEN
+	IF elem1.value[3] is Null THEN
 		return True;
 	END IF;
 	FOR i IN 1..size2 LOOP
 		IF elem2.odd[i] = 1 THEN
-			IF elem1.value[3] != Null THEN
+			IF elem1.value[3] is not Null THEN
 				IF elem1.value[3] >= elem2.value[i] THEN
 					return True;
 				END IF;
@@ -585,13 +585,13 @@ IF (elem1.type = False) and (elem2.type = True) THEN
 END IF;
 
 IF (elem1.type = True) and (elem2.type = False) THEN
-	IF elem2.value[3] = Null THEN
+	IF elem2.value[2] is Null THEN
 		return True;
 	END IF;
 	FOR i IN 1..size1 LOOP
 		IF elem1.odd[i] = 1 THEN
-			IF elem2.value[3] != Null THEN
-				IF elem2.value[3] >= elem1.value[i] THEN
+			IF elem2.value[2] is not Null THEN
+				IF elem2.value[2] <= elem1.value[i] THEN
 					return True;
 				END IF;
 			END IF;
@@ -603,13 +603,6 @@ END IF;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION greaterThanInt(elem1 int_fuzzy, elem2 int_fuzzy) RETURNS boolean AS $$
-DECLARE 
-escierto boolean := greaterThan(elem1,elem2);
-BEGIN
-return escierto;
-END;
-$$ LANGUAGE plpgsql;
 
 
 
@@ -668,8 +661,8 @@ FOR j IN 0..size1 LOOP
 	return comp2 >= comp1;
 ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 
-	IF (elem1.value[3] != Null) and (elem2.value[2] = Null) THEN
-		IF (elem1.value[2] != Null) THEN
+	IF (elem1.value[3] is not Null) and (elem2.value[2] is Null) THEN
+		IF (elem1.value[2] is not Null) THEN
 			IF elem1.value[2] > elem2.value[3] THEN
 				return True;
 			END IF;
@@ -677,11 +670,11 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 		END IF;
 	END IF;
 
-	IF (elem1.value[3] != Null) and (elem2.value[2] != Null) THEN
+	IF (elem1.value[3] is not Null) and (elem2.value[2] is not Null) THEN
 		IF elem1.value[3] < elem2.value[2] THEN
 			return False;		
 		END IF;
-		IF (elem1.value[2] = Null) or (elem2.value[3] = Null ) THEN
+		IF (elem1.value[2] is Null) or (elem2.value[3] is Null ) THEN
 			return True;
 		END IF;
 		IF elem1.value[2] > elem2.value[3]  THEN
@@ -690,8 +683,8 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 		return True;
 	END IF;	
 
-	IF (elem1.value[3] = Null) THEN
-		IF (elem2.value[3] = null) THEN
+	IF (elem1.value[3] is Null) THEN
+		IF (elem2.value[3] is null) THEN
 			return True;		
 		END IF;
 		IF elem1.value[2] > elem2.value[3] THEN
@@ -706,12 +699,12 @@ ELSE IF (elem1.type = False) and (elem2.type = False) THEN
 END IF;
 END IF;
 IF (elem1.type = False) and (elem2.type = True) THEN
-	IF elem1.value[3] = Null THEN
+	IF elem1.value[3] is Null THEN
 		return True;
 	END IF;
 	FOR i IN 1..size2 LOOP
 		IF elem2.odd[i] = 1 THEN
-			IF elem1.value[3] != Null THEN
+			IF elem1.value[3] is not Null THEN
 				IF elem1.value[3] >= elem2.value[i] THEN
 					return True;
 				END IF;
@@ -722,13 +715,13 @@ IF (elem1.type = False) and (elem2.type = True) THEN
 END IF;
 
 IF (elem1.type = True) and (elem2.type = False) THEN
-	IF elem2.value[3] = Null THEN
+	IF elem2.value[2] is Null THEN
 		return True;
 	END IF;
 	FOR i IN 1..size1 LOOP
 		IF elem1.odd[i] = 1 THEN
-			IF elem2.value[3] != Null THEN
-				IF elem2.value[3] >= elem1.value[i] THEN
+			IF elem2.value[2] is not Null THEN
+				IF elem2.value[2] <= elem1.value[i] THEN
 					return True;
 				END IF;
 			END IF;
@@ -776,14 +769,14 @@ IF elem.type THEN
 ELSE
     FOR j IN 1..4 LOOP
         IF (j = 1) THEN
-	    IF elem.value[j] = Null THEN
+	    IF elem.value[j] is Null THEN
 		final := final || nulo;
 	    ELSE 
             	final := final || elem.value[j];
 	    END IF;
         ELSE
             final := final || ', ';
-	    IF elem.value[j] = Null THEN
+	    IF elem.value[j] is Null THEN
 		final := final || nulo;
 	    ELSE 
             	final := final || elem.value[j];
