@@ -33,9 +33,8 @@ public class Logger {
     }
 
     public static void debug(String string) {
-        return;
-        // Printer.printInRed("DEBUG: ");
-        //Printer.printlnInRed(string);
+        Printer.printInRed("DEBUG: ");
+        Printer.printlnInRed(string);
     }
     
     public static void logQuery(String string) {

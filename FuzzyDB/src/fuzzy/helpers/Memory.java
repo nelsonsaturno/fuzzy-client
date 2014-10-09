@@ -107,15 +107,20 @@ public class Memory {
             while (rs.next()) {
                 String tab = rs.getString("table_name");
                 LinkedHashSet<String> cols = fuzzyColumns.get(schemaName + "." + tab);
+                Logger.debug("Tabla fuzzy -> " + schemaName + "." + tab);
                 if (null == cols) {
                     cols = new LinkedHashSet<String>();
                 }
                 cols.add(rs.getString("column_name"));
+                Logger.debug("Agregamos " + rs.getString("column_name"));
                 fuzzyColumns.put(schemaName + "." + tab, cols);
             }
         }
+        
+        Logger.debug("Finalmente -> " + schemaName + "." + tableName + " Buscamos " + columnName);
         // if it's in the list, is a fuzzy column
         HashSet<String> cols = fuzzyColumns.get(schemaName + "." + tableName);
+        Logger.debug(cols.contains(columnName)?"Si":"No");
         return null != cols && cols.contains(columnName);
     }
 
