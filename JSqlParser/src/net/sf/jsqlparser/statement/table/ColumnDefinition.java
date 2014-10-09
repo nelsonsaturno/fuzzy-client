@@ -41,7 +41,8 @@ public class ColumnDefinition {
 	}
 
 	public void setColumnName(String string) {
-		columnName = string;
+            if (string != null)
+		columnName = string.toLowerCase();
 	}
 	
 	public String toString() {
