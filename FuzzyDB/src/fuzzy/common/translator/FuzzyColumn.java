@@ -4,6 +4,8 @@
  */
 package fuzzy.common.translator;
 
+/*prueba */
+
 import fuzzy.helpers.Logger;
 import java.io.StringReader;
 import java.sql.SQLException;
