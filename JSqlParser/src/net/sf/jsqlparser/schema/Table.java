@@ -40,7 +40,8 @@ public class Table implements FromItem {
 
 	public Table(String schemaName, String name) {
 		this.schemaName = schemaName;
-		this.name = name.toLowerCase();
+                if (name != null)
+                    this.name = name.toLowerCase();
 	}
 	
 	public String getName() {
@@ -52,6 +53,7 @@ public class Table implements FromItem {
 	}
 
 	public void setName(String string) {
+            if (string != null)
 		name = string.toLowerCase();
 	}
 
@@ -64,6 +66,7 @@ public class Table implements FromItem {
 	}
 
 	public void setAlias(String string) {
+            if (string != null)
 		alias = string.toLowerCase();
 	}
 	
