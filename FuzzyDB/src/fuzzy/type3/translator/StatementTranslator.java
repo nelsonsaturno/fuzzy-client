@@ -237,7 +237,9 @@ public class StatementTranslator extends Translator implements StatementVisitor 
 
     @Override
     public void visit(Insert insert) throws Exception {
-        SelectTranslator selectTranslator = new SelectTranslator(connector);
+        InsertTranslator2 insertTranslator = new InsertTranslator2(connector);
+        insertTranslator.translate(insert);
+//        SelectTranslator selectTranslator = new SelectTranslator(connector);
 //		selectTranslator.setBuffer(buffer);
 //        ExpressionTranslator expressionTranslator = new ExpressionTranslator(selectTranslator);
 //        selectTranslator.setExpressionVisitor(expressionTranslator);
