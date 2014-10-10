@@ -1,87 +1,112 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package fuzzy.type3.translator;
 
-
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.ExpressionVisitor;
+import fuzzy.database.Connector;
+import fuzzy.helpers.Helper;
+import fuzzy.helpers.Memory;
+import fuzzy.helpers.Logger;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitor;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.insert.Insert;
-import net.sf.jsqlparser.statement.select.SelectVisitor;
-import net.sf.jsqlparser.statement.select.SubSelect;
 
 /**
- * A class to de-parse (that is, tranform from JSqlParser hierarchy into a string)
- * an {@link net.sf.jsqlparser.statement.insert.Insert}
+ *
+ * @author hector
  */
-public class InsertTranslator implements ItemsListVisitor {
-
-    protected ExpressionVisitor expressionVisitor;
-    protected SelectVisitor selectVisitor;
-
-    public InsertTranslator() {
+public class InsertTranslator extends Translator {
+    
+    public InsertTranslator(Connector connector){
+        super(connector);
     }
-
-    /**
-     * @param expressionVisitor a {@link ExpressionVisitor} to de-parse {@link net.sf.jsqlparser.expression.Expression}s. It has to share the same<br>
-     * StringBuffer (buffer parameter) as this object in order to work
-     * @param selectVisitor a {@link SelectVisitor} to de-parse {@link net.sf.jsqlparser.statement.select.Select}s.
-     * It has to share the same<br>
-     * StringBuffer (buffer parameter) as this object in order to work
-     * @param buffer the buffer that will be filled with the insert
-     */
-    public InsertTranslator(ExpressionVisitor expressionVisitor, SelectVisitor selectVisitor) {
-        this.expressionVisitor = expressionVisitor;
-        this.selectVisitor = selectVisitor;
-    }
-
+    
     public void translate(Insert insert) {
-//        buffer.append("INSERT INTO ");
-//        buffer.append(insert.getTable().getWholeTableName());
-//        if (insert.getColumns() != null) {
-//            buffer.append("(");
-//            for (Iterator iter = insert.getColumns().iterator(); iter.hasNext();) {
-//                Column column = (Column) iter.next();
-//                buffer.append(column.getColumnName());
-//                if (iter.hasNext()) {
-//                    buffer.append(", ");
-//                }
-//            }
-//            buffer.append(")");
-//        }
-//
-//        insert.getItemsList().accept(this);
+        String schemaName;
+        
+        String tableName = insert.getTable().getName();
+        List values = ( (ExpressionList) insert.getItemsList() ).getExpressions();
+        List<String> columnNames;
+        List columns = insert.getColumns();
+        int size = values.size();
+        
+        try {
+            schemaName = Helper.getSchemaName(connector);
+        } catch (SQLException ex) {
+            Logger.debug(InsertTranslator.class.getName() + ": " + "Error getting schema name");
+            return;
+        }
+        
+        if ( columns != null ) {
+            columnNames = new ArrayList<String>();
+            for (Object column : columns) {
+                columnNames.add( ( (Column)column).getColumnName() );
+            }
+        } else {
+            
+            HashSet<String> allColumns;
+            
+            try {
+                allColumns = Memory.getColumns(connector, schemaName, tableName);
+            } catch (SQLException ex) {
+                Logger.debug(InsertTranslator.class.getName() + ": " + "Error getting all columns");
+                return;
+            }
+            
+            columnNames = new ArrayList<String>(allColumns);
+        }
+                
+        if ( size != columnNames.size() ) {
+            Logger.debug(InsertTranslator.class.getName() + ": " + "Columns size and Values size are differents");
+            return;
+        }
 
-    }
+        int i = 0;
+        Integer labelId;
+        StringValue fuzzyLabel;
+        String domainName;
+        boolean isFuzzy;
+        
+        for (String column : columnNames) {
 
-    public void visit(ExpressionList expressionList) throws Exception {
-//        buffer.append(" VALUES (");
-//        for (Iterator iter = expressionList.getExpressions().iterator(); iter.hasNext();) {
-//            Expression expression = (Expression) iter.next();
-//            expression.accept(expressionVisitor);
-//            if (iter.hasNext()) {
-//                buffer.append(", ");
-//            }
-//        }
-//        buffer.append(")");
-    }
+            try {
+                isFuzzy = Memory.isFuzzyColumn(connector, schemaName, tableName, column);
+            } catch (SQLException ex) {
+                Logger.debug(InsertTranslator.class.getName() + ": " + "Error querying if column is fuzzy");
+                return;
+            }
 
-    public void visit(SubSelect subSelect) throws Exception {
-        subSelect.getSelectBody().accept(selectVisitor);
-    }
+            if ( isFuzzy ) {
 
-    public ExpressionVisitor getExpressionVisitor() {
-        return expressionVisitor;
-    }
+                try {
+                    domainName = Helper.getDomainNameForColumn(connector, insert.getTable(), column);
+                } catch (SQLException ex) {
+                    Logger.debug(InsertTranslator.class.getName() + ": " + "Error getting domain name");
+                    return;
+                }
 
-    public SelectVisitor getSelectVisitor() {
-        return selectVisitor;
-    }
+                if ( values.get(i) instanceof StringValue ) {
+                    fuzzyLabel = (StringValue) values.get(i);
 
-    public void setExpressionVisitor(ExpressionVisitor visitor) {
-        expressionVisitor = visitor;
-    }
+                    try {
+                        labelId = getFuzzyLabelId(schemaName, domainName, fuzzyLabel.getValue());
+                    } catch (SQLException ex) {
+                        Logger.debug(InsertTranslator.class.getName() + ": " + "Error getting label id");
+                        return;
+                    }
 
-    public void setSelectVisitor(SelectVisitor visitor) {
-        selectVisitor = visitor;
+                    fuzzyLabel.setValue(labelId.toString());
+                }
+            }
+
+            i++;
+        }
     }
 }
