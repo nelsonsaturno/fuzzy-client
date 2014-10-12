@@ -9,7 +9,6 @@ import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
-import fuzzy.type3.translator.InsertTranslator;
 import fuzzy.type3.translator.Translator;
 import fuzzy.type5.operations.CreateFuzzyType5DomainOperation;
 import java.sql.SQLException;
@@ -96,20 +95,18 @@ public class StatementType5Translator extends Translator implements StatementVis
         try {
             schemaName = Helper.getSchemaName(connector);
         } catch (SQLException ex) {
-            Logger.debug(StatementType5Translator.class.getName() + ": " 
-                    + "Error getting schema name");
-            return;
+            throw new SQLException("Error getting schema name");
         }
         
         if ( schemaName == null || schemaName.equals("") ) {
-            return; // TODO: lanzar excepcion
+            throw new SQLException("Error getting schema name");
         }
         
         Integer type3DomainId = getFuzzyDomainId(schemaName, type3DomainName);
         
         // domainName es un tipo Nativo o no esta definido como tipo 3
         if ( type3DomainId == null ) {
-            return; // TODO: lanzar excepcion
+            throw new SQLException("type3 Domain not found");
         }
         
         CreateFuzzyType5DomainOperation operation = 

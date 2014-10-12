@@ -79,6 +79,12 @@ public class StatementType2Translator extends Translator implements StatementVis
     public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception {
         String name = fuzzyDomain.getName();
         String type = fuzzyDomain.getType();
+        
+        // Instruccion corresponde a tipo 5
+        if ( !Connector.isNativeDataType(type) ) {
+            return;
+        }
+        
         CreateFuzzyType2DomainOperation op = new CreateFuzzyType2DomainOperation(connector, name, type);
         String lower_bound = fuzzyDomain.getLowerBound();
         String upper_bound = fuzzyDomain.getUpperBound();
