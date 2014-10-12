@@ -797,7 +797,7 @@ CREATE TABLE IF NOT EXISTS information_schema_fuzzy.domains5 (
   domain_name VARCHAR(64) NOT NULL,
   type3_domain_id INTEGER NOT NULL,
   UNIQUE (table_schema, domain_name),
-  FOREIGN KEY (type3_domain_id) REFERENCES information_schema_fuzzy.domains(id)
+  FOREIGN KEY (type3_domain_id) REFERENCES information_schema_fuzzy.domains(domain_id)
 );
 
 -- OPCION 2
