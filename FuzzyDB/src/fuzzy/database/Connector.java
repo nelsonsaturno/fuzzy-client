@@ -25,6 +25,8 @@ import fuzzy.helpers.Printer;
 import fuzzy.common.operations.Operation;
 import fuzzy.type3.translator.StatementTranslator;
 import fuzzy.type2.translator.StatementType2Translator;
+import fuzzy.type5.translator.StatementType5Translator;
+import java.util.logging.Level;
 
 
 public class Connector {
@@ -349,6 +351,14 @@ public class Connector {
             throw e;
         } catch (Exception e) {
             throw new SQLException("Type 2 Translator exception: " + e.getMessage(), "42000", 3119, e);
+        }
+        
+        // Fuzzy Type 5 extensions translator
+        StatementType5Translator st5 = new StatementType5Translator(this, operations);
+        try {
+            s.accept(st5);
+        } catch (Exception e) {
+            throw new SQLException("Type 5 Translator exception: " + e.getMessage(), "42000", 3119, e);
         }
 
         // The statement translators turn a flag whenever they encounter a

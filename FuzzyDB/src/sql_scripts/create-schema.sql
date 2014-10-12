@@ -788,3 +788,39 @@ final = final || '}';
 return final;
 END;
 $$ LANGUAGE plpgsql;
+
+-- ################# TIPO 5 #################
+
+CREATE TABLE IF NOT EXISTS information_schema_fuzzy.domains5 (
+  domain_id SERIAL PRIMARY KEY,
+  table_schema VARCHAR(64) NOT NULL,
+  domain_name VARCHAR(64) NOT NULL,
+  type3_domain_id INTEGER NOT NULL,
+  UNIQUE (table_schema, domain_name),
+  FOREIGN KEY (type3_domain_id) REFERENCES information_schema_fuzzy.domains2(id)
+);
+
+-- OPCION 2
+
+CREATE TABLE IF NOT EXISTS information_schema_fuzzy.columns5 (
+  column_id SERIAL PRIMARY KEY,
+  table_schema VARCHAR(64) NOT NULL,
+  table_name VARCHAR(64) NOT NULL,
+  column_name VARCHAR(64) NOT NULL,
+  domain_id INTEGER NOT NULL,
+--  PRIMARY KEY (table_schema, table_name, name),
+  FOREIGN KEY (domain_id) REFERENCES information_schema_fuzzy.domains5 (domain_id)
+    ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS information_schema_fuzzy.values5 (
+  column_id INTEGER NOT NULL,
+  label_id INTEGER NOT NULL,
+  fuzzy_row_id INTEGER NOT NULL,
+  p_value DECIMAL(31,30) NOT NULL,
+  PRIMARY KEY (column_id, label_id, fuzzy_row_id),
+  FOREIGN KEY (column_id) REFERENCES information_schema_fuzzy.columns5 (column_id)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+  FOREIGN KEY (label_id) REFERENCES information_schema_fuzzy.labels (label_id)
+    ON UPDATE CASCADE ON DELETE CASCADE
+);
