@@ -9,6 +9,7 @@ import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
+import fuzzy.type3.translator.InsertTranslator;
 import fuzzy.type3.translator.Translator;
 import fuzzy.type5.operations.CreateFuzzyType5DomainOperation;
 import java.sql.SQLException;
@@ -38,53 +39,35 @@ public class StatementType5Translator extends Translator implements StatementVis
     }
 
     @Override
-    public void visit(Select select) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    public void visit(Select select) throws Exception { }
 
     @Override
-    public void visit(Delete delete) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    public void visit(Delete delete) throws Exception { }
 
     @Override
-    public void visit(Update update) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    public void visit(Update update) throws Exception { }
 
     @Override
-    public void visit(Insert insert) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    public void visit(Insert insert) throws Exception { }
 
     @Override
-    public void visit(Replace replace) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    public void visit(Replace replace) throws Exception { }
 
     @Override
-    public void visit(Drop drop) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    public void visit(Drop drop) throws Exception { }
 
     @Override
-    public void visit(Truncate truncate) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    public void visit(Truncate truncate) throws Exception { }
 
     @Override
-    public void visit(CreateTable createTable) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    public void visit(CreateTable createTable) throws Exception { }
 
     @Override
-    public void visit(AlterTable alterTable) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    public void visit(AlterTable alterTable) throws Exception { }
 
     @Override
     public void visit(CreateFuzzyDomain fuzzyDomain) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        // Instruccion corresponde a tipo 3
     }
 
     @Override
@@ -95,10 +78,12 @@ public class StatementType5Translator extends Translator implements StatementVis
         try {
             schemaName = Helper.getSchemaName(connector);
         } catch (SQLException ex) {
+            Logger.debug(StatementType5Translator.class.getName() + ": " + "Error getting schema name");
             throw new SQLException("Error getting schema name");
         }
         
         if ( schemaName == null || schemaName.equals("") ) {
+            Logger.debug(StatementType5Translator.class.getName() + ": " + "Error getting schema name");
             throw new SQLException("Error getting schema name");
         }
         
@@ -106,6 +91,7 @@ public class StatementType5Translator extends Translator implements StatementVis
         
         // domainName es un tipo Nativo o no esta definido como tipo 3
         if ( type3DomainId == null ) {
+            Logger.debug(StatementType5Translator.class.getName() + ": " + "type3 Domain not found");
             throw new SQLException("type3 Domain not found");
         }
         
@@ -119,7 +105,5 @@ public class StatementType5Translator extends Translator implements StatementVis
     }
 
     @Override
-    public void visit(AlterFuzzyDomain alterFuzzyDomain) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    public void visit(AlterFuzzyDomain alterFuzzyDomain) throws Exception { }
 }

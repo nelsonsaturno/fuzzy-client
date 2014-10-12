@@ -34,7 +34,7 @@ public class CreateFuzzyType5DomainOperation extends Operation {
                                    + "VALUES (DEFAULT, "               // domain_id
                                    + "'" + catalog + "' ,"             // table_schema
                                    + "'" + this.domainName + "' ,"     // domain_name
-                                   + "'" + this.type3DomainId + ")";   // type3_domain_id
+                                   + "'" + this.type3DomainId + ");";   // type3_domain_id
         
         this.connector.executeRaw(insertDomainCatalog);
     }
