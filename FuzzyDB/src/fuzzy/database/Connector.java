@@ -54,7 +54,7 @@ public class Connector {
      * @return true if it's a native data type of the RDBMS.
      */
     public static boolean isNativeDataType(String dataType) {
-        return Arrays.asList(DATA_TYPES).contains(dataType.toLowerCase());
+        return Arrays.asList(DATA_TYPES).contains(dataType.toUpperCase());
     }
     
     // Driver module used by java.sql

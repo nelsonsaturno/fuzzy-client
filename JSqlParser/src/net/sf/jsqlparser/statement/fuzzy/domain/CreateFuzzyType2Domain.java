@@ -12,7 +12,11 @@ public class CreateFuzzyType2Domain implements Statement {
     private OrderedDomain ordered_domain;
 
     public CreateFuzzyType2Domain(String name, OrderedDomain ordered_domain) {
-        this.name = name;
+
+        if ( name != null ) {
+            this.name = name.toLowerCase();
+        }
+        
         this.ordered_domain = ordered_domain;
     }
 

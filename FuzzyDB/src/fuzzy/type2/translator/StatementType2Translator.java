@@ -8,7 +8,6 @@ import fuzzy.helpers.Memory;
 import fuzzy.type2.operations.CreateFuzzyType2DomainOperation;
 import fuzzy.type2.operations.DropFuzzyType2DomainOperation;
 import fuzzy.type2.operations.RemoveFuzzyType2ColumnsOperation;
-import fuzzy.type3.translator.AlterTableTranslator;
 import fuzzy.type3.translator.Translator;
 import java.sql.SQLException;
 import java.util.List;

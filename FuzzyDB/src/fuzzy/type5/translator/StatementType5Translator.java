@@ -9,7 +9,6 @@ import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
-import fuzzy.type3.translator.InsertTranslator;
 import fuzzy.type3.translator.Translator;
 import fuzzy.type5.operations.CreateFuzzyType5DomainOperation;
 import java.sql.SQLException;
@@ -72,7 +71,13 @@ public class StatementType5Translator extends Translator implements StatementVis
 
     @Override
     public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception {
-        String type3DomainName = fuzzyDomain.getType();
+        String type3DomainName = fuzzyDomain.getType().toLowerCase();
+        
+        // Instruccion corresponde a tipo 2
+        if ( Connector.isNativeDataType(type3DomainName) ) {
+            return;
+        }
+        
         String schemaName;
         
         try {

@@ -18,7 +18,11 @@ public class CreateFuzzyDomain implements Statement {
 
     public CreateFuzzyDomain(String name, ExpressionList values,
             ExpressionList similarityList) {
-        this.name = name;
+        
+        if ( name != null ) {
+            this.name = name.toLowerCase();
+        }
+        
         this.values = values;
         this.similarityList = similarityList;
     }
@@ -41,6 +45,9 @@ public class CreateFuzzyDomain implements Statement {
 
     public void setName(String name) {
         this.name = name;
+        if ( name != null ) {
+            this.name = name.toLowerCase();
+        }
     }
 
     /**
