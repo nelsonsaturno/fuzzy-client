@@ -47,7 +47,10 @@ public class StatementType5Translator extends Translator implements StatementVis
     public void visit(Update update) throws Exception { }
 
     @Override
-    public void visit(Insert insert) throws Exception { }
+    public void visit(Insert insert) throws Exception {
+        InsertTranslator insertTranslator = new InsertTranslator(connector, operations);
+        insertTranslator.translate(insert);
+    }
 
     @Override
     public void visit(Replace replace) throws Exception { }
