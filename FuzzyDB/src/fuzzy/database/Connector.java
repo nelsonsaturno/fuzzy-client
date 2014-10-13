@@ -39,12 +39,12 @@ public class Connector {
      * updated with Postgres' types, or better yet, query the database and
      * populate this list at setup time.
      */
-    private static final String [] DATA_TYPES = {"TINYINT​", "BOOLEAN​", "SMALLINT​",
-        "MEDIUMINT​", "INT​", "INTEGER​", "BIGINT​", "DECIMAL​", "DEC, NUMERIC, FIXED​",
-        "FLOAT​", "DOUBLE​", "DOUBLE PRECISION​", "BIT​", "CHAR​", "VARCHAR​", "BINARY​",
-        "CHAR BYTE​", "VARBINARY​", "TINYBLOB​", "BLOB​", "BLOB DATA TYPE​", "MEDIUMBLOB​",
-        "LONGBLOB​", "TINYTEXT​", "TEXT​", "MEDIUMTEXT​", "LONGTEXT​", "ENUM​", "SET", "DATE​",
-        "TIME​", "DATETIME​", "TIMESTAMP​", "YEAR​", "POINT", "LINESTRING", "POLYGON",
+    private static final String [] DATA_TYPES = {"TINYINT", "BOOLEAN", "SMALLINT",
+        "MEDIUMINT", "INT​", "BIGINT", "INTEGER", "DECIMAL", "DEC, NUMERIC, FIXED​",
+        "FLOAT", "DOUBLE", "DOUBLE PRECISION", "BIT", "CHAR", "VARCHAR", "BINARY",
+        "CHAR BYTE", "VARBINARY", "TINYBLOB", "BLOB", "BLOB DATA TYPE", "MEDIUMBLOB",
+        "LONGBLOB", "TINYTEXT", "TEXT", "MEDIUMTEXT", "LONGTEXT", "ENUM", "SET", "DATE",
+        "TIME", "DATETIME", "TIMESTAMP", "YEAR", "POINT", "LINESTRING", "POLYGON",
         "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON", "GEOMETRYCOLLECTION", "GEOMETRY"};
     
     /**
