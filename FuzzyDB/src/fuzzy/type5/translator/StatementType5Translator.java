@@ -59,7 +59,10 @@ public class StatementType5Translator extends Translator implements StatementVis
     public void visit(Truncate truncate) throws Exception { }
 
     @Override
-    public void visit(CreateTable createTable) throws Exception { }
+    public void visit(CreateTable createTable) throws Exception {
+        CreateTableTranslator translator = new CreateTableTranslator(connector, operations);
+        translator.translate(createTable);
+    }
 
     @Override
     public void visit(AlterTable alterTable) throws Exception { }

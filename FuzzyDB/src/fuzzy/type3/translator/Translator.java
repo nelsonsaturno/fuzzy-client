@@ -134,4 +134,25 @@ public class Translator {
         }
         return null;
     }
+    
+    public Integer getFuzzyType5DomainId(String schemaName, String domainName)
+        throws SQLException {
+        
+        if (Connector.isNativeDataType(domainName)) {
+            return null;
+        }
+        
+        String sql = "SELECT domain_id "
+                + "FROM information_schema_fuzzy.domains5 "
+                + "WHERE table_schema = '" + schemaName + "' AND domain_name = '"
+                + domainName + "' "
+                + "LIMIT 1";
+        
+        ResultSet resultSet = connector.executeRawQuery(sql);
+        if ( resultSet != null && resultSet.next() ) {
+            return resultSet.getInt(1);
+        }
+        
+        return null;
+    }
 }
