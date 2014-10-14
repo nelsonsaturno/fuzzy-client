@@ -13,12 +13,12 @@ import java.sql.SQLException;
  *
  * @author hector
  */
-public class CreateFuzzyType5DomainOperation extends Operation {
+public class CreateFuzzyDomainOperation extends Operation {
 
     String domainName;
     Integer type3DomainId;
 
-    public CreateFuzzyType5DomainOperation(Connector connector, 
+    public CreateFuzzyDomainOperation(Connector connector, 
             String domainName, Integer type3DomainId) {
         
         super(connector);
@@ -30,12 +30,26 @@ public class CreateFuzzyType5DomainOperation extends Operation {
     public void execute() throws SQLException {
         String catalog = this.connector.getSchema();
         
-        String insertDomainCatalog = "INSERT INTO information_schema_fuzzy.domains5 "
+        String insertDomainCatalog = "INSERT INTO information_schema_fuzzy.domains "
                                    + "VALUES (DEFAULT, "               // domain_id
                                    + "'" + catalog + "' ,"             // table_schema
                                    + "'" + this.domainName + "' ,"     // domain_name
-                                   + " " + this.type3DomainId + ");"; // type3_domain_id
+                                   + " 5 ,"                            // domain_type
+                                   + " " + this.type3DomainId + ");";  // type3_domain_id
+    
+        
+        /*
+        * CREATE TYPE test_schema.test AS (
+        *    odd real[], 
+        *    value integer[],
+        * )
+        */
+        String fullTypeName = catalog + "." + domainName;
+        String createType = "CREATE TYPE " + fullTypeName + " AS ("
+                           + "odd real[], "
+                           + "value INTEGER ARRAY)";
         
         this.connector.executeRaw(insertDomainCatalog);
+        this.connector.executeRaw(createType);
     }
 }

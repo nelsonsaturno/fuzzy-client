@@ -49,12 +49,13 @@ public class addFuzzyTypeColumnOperation extends Operation {
         * INSERT INTO information_schema_fuzzy.columns5
         * VALUES ('column_id','test_schema', 'test_table', 'col_name', 666)
         */        
-        String insertColumnCatalog = "INSERT INTO information_schema_fuzzy.columns5 "
-                                   + "VALUES (DEFAULT, "           // column_id
+        String insertColumnCatalog = "INSERT INTO information_schema_fuzzy.columns "
+                                   + "VALUES ("
                                    + "'" + this.schemaName + "' ," // table_schema
                                    + "'" + this.tableName + "' ,"  // table_name
                                    + "'" + this.columnName + "' ," // columnName
-                                   + " " + this.domainId + ");";   // domain_id
+                                   + " " + this.domainId + ", "   // domain_id
+                                   + "DEFAULT );";           // column_id
         
         this.connector.executeRaw(insertColumnCatalog);
     }

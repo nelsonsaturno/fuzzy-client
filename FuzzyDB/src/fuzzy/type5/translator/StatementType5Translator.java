@@ -10,7 +10,7 @@ import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
 import fuzzy.type3.translator.Translator;
-import fuzzy.type5.operations.CreateFuzzyType5DomainOperation;
+import fuzzy.type5.operations.CreateFuzzyDomainOperation;
 import java.sql.SQLException;
 import java.util.List;
 import net.sf.jsqlparser.statement.StatementVisitor;
@@ -98,7 +98,7 @@ public class StatementType5Translator extends Translator implements StatementVis
             throw new SQLException("Error getting schema name");
         }
         
-        Integer type3DomainId = getFuzzyDomainId(schemaName, type3DomainName);
+        Integer type3DomainId = getFuzzyDomainId(schemaName, type3DomainName, "3");
         
         // domainName es un tipo Nativo o no esta definido como tipo 3
         if ( type3DomainId == null ) {
@@ -106,8 +106,8 @@ public class StatementType5Translator extends Translator implements StatementVis
             throw new SQLException("type3 Domain not found");
         }
         
-        CreateFuzzyType5DomainOperation operation = 
-                new CreateFuzzyType5DomainOperation(connector, 
+        CreateFuzzyDomainOperation operation = 
+                new CreateFuzzyDomainOperation(connector, 
                         fuzzyDomain.getName(), 
                         type3DomainId);
         

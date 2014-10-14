@@ -96,10 +96,10 @@ public class TranslatorTest {
     @Test
     public void getFuzzyDomainIdTest() throws SQLException {
         Translator t = new Translator(connector);
-        Assert.assertEquals(new Integer(1) , t.getFuzzyDomainId("test_repuestos", "ciudad"));
-        Assert.assertEquals(null, t.getFuzzyDomainId("test_repuestos", "pepito"));
-        Assert.assertEquals(null, t.getFuzzyDomainId("caramelo", "ciudad"));        
-        Assert.assertEquals(null, t.getFuzzyDomainId("test_repuestos", "INteger"));
+        Assert.assertEquals(new Integer(1) , t.getFuzzyDomainId("test_repuestos", "ciudad", "3"));
+        Assert.assertEquals(null, t.getFuzzyDomainId("test_repuestos", "pepito", "3"));
+        Assert.assertEquals(null, t.getFuzzyDomainId("caramelo", "ciudad", "3"));        
+        Assert.assertEquals(null, t.getFuzzyDomainId("test_repuestos", "INteger", "3"));
     }
     
     @Test

@@ -42,8 +42,8 @@ public class AddFuzzyColumnOperation extends Operation {
                             + schemaName +"','"
                             + tableName + "','"
                             + columnName + "',"
-                            + domainId
-                            + ")";
+                            + domainId + ","
+                            + " DEFAULT )";
     }
 
     public String getColumnName() {

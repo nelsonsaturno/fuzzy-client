@@ -33,7 +33,7 @@ public class CreateTableType2Translator extends Translator {
                 ColumnDefinition columnDefinition = (ColumnDefinition) iter.next();
                 String columnName = columnDefinition.getColumnName();
                 String dataType = columnDefinition.getColDataType().getDataType();
-                Integer domainId = null;
+                Integer domainId;
                 if ((domainId = getFuzzyType2DomainId(schemaName, dataType)) != null) {
                     // Agregar la columna al catálogo, y encolar consultas para agregar
                     // restricciones de integridad al tipo difuso.

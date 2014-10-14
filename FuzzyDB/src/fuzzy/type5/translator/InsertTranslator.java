@@ -116,6 +116,13 @@ public class InsertTranslator extends Translator {
                                 if (!labels.contains(labelId)) {
                                     
                                     labels.add(labelId);
+                                    operations.add(
+                                            new InsertIntoValuesOperation(
+                                                    connector,
+                                                    Helper.getColumnIdForColumn(connector, insert.getTable(), column),
+                                                    labelId,
+                                                    Helper.getNewRowId(connector, insert.getTable()), // FUzzy_row_id???
+                                                    elem_possiblity));
                                     
                                 } else {
                                     Logger.debug(InsertTranslator.class.getName() + ": " + "Some labels are repeated");

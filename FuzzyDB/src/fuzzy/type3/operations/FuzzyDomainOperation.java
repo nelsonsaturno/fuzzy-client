@@ -58,7 +58,7 @@ abstract public class FuzzyDomainOperation extends Operation {
         if (0 == domain.getId()) {
             String sql = "INSERT INTO information_schema_fuzzy.domains "
                             + "VALUES (DEFAULT, (select current_schema()), '"//TODO escape
-                            + domain.getName() + "')";
+                            + domain.getName() + "', 3, NULL)";
             domain.setId(connector.executeRawInsert(sql));
         }
         List<String> labelsToCreate = new ArrayList<String>();

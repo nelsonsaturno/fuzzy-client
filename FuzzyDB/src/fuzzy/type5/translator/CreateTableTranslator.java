@@ -11,9 +11,7 @@ import fuzzy.helpers.Helper;
 import fuzzy.type3.translator.Translator;
 import fuzzy.type5.operations.addFuzzyTypeColumnOperation;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.List;
-import net.sf.jsqlparser.statement.table.ColDataType;
 import net.sf.jsqlparser.statement.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.table.CreateTable;
 
@@ -47,26 +45,13 @@ public class CreateTableTranslator extends Translator {
             columnName = columnDefinition.getColumnName();
             columnTypeName = columnDefinition.getColDataType().getDataType();
                         
-            domainId = getFuzzyType5DomainId(schemaName, columnTypeName);
+            domainId = getFuzzyDomainId(schemaName, columnTypeName, "5");
             
             // El dominio es tipo 5
             if ( domainId != null ) {
                 operations.add(new addFuzzyTypeColumnOperation(connector, 
                         schemaName, tableName, columnName, domainId));
-                columns.remove(columnDefinition);
             }
         }
-        
-        // Se añade columna '_fuzzy_row_id' que se correspondera con '_fuzzy_row_id'
-        // en Values: tabla definida como metadata, que tendra los valores de
-        // cada distribucion de posibilidad
-        ColumnDefinition _fuzzy_row_id = new ColumnDefinition();
-        ColDataType type = new ColDataType();
-        type.setDataType("INTEGER");
-        
-        _fuzzy_row_id.setColumnName("_fuzzy_row_id");
-        _fuzzy_row_id.setColDataType(type);
-        
-        columns.add(_fuzzy_row_id);
     }
 }

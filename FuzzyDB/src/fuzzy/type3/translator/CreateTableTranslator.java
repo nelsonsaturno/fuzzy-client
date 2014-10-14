@@ -31,7 +31,7 @@ public class CreateTableTranslator extends Translator {
                 String columnName = columnDefinition.getColumnName();
                 String dataType = columnDefinition.getColDataType().getDataType();
                 Integer domainId = null;
-                if ((domainId = getFuzzyDomainId(schemaName, dataType)) != null) {
+                if ((domainId = getFuzzyDomainId(schemaName, dataType, "3")) != null) {
                     columnDefinition.getColDataType().setDataType("INTEGER");
                     // I got to translate the default value too, because it must references
                     // the label id and not the label

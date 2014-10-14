@@ -43,12 +43,11 @@ public class InsertIntoValuesOperation extends Operation {
      */
     public String getQuery() {
         return "INSERT INTO information_schema_fuzzy.values5 "
-                            + "VALUES ('"
-                            + columnId +"','"
-                            + labelId + "','"
-                            + fuzzy_row_id + "',"
-                            + p_value
-                            + ")";
+                            + "VALUES ("
+                            + columnId +", "
+                            + labelId + ", "
+                            + fuzzy_row_id + ", "
+                            + p_value + ")";
     }
     
 }

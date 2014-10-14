@@ -24,7 +24,7 @@ public class InsertNewColumnsOperation extends ColumnOperation {
             + "VALUES (" + getSchemaNameForSql() +", "
                 + "'" + tableName + "', "
                 + "'" + columnName + "', "
-                + getDomainIdForSql() + ")";
+                + getDomainIdForSql() + ", DEFAULT)";
         
         connector.executeRawUpdate(insertIntoColumns);
     }
