@@ -24,6 +24,7 @@ import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyType2Domain;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.replace.Replace;
 import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.table.AlterTable;
 import net.sf.jsqlparser.statement.table.CreateTable;
 import net.sf.jsqlparser.statement.truncate.Truncate;
@@ -40,7 +41,11 @@ public class StatementType5Translator extends Translator implements StatementVis
     }
 
     @Override
-    public void visit(Select select) throws Exception { }
+    public void visit(Select select) throws Exception {
+        SelectTranslator translator = new SelectTranslator(connector, !this.connector.getLibraryMode());
+        SelectBody selectBody = select.getSelectBody();
+        selectBody.accept(translator);
+    }
 
     @Override
     public void visit(Delete delete) throws Exception { }

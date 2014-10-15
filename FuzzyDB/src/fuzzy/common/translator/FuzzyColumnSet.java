@@ -273,6 +273,9 @@ public class FuzzyColumnSet implements Iterable<FuzzyColumn> {
         if (this.fuzzyType == 2 && !Memory.isFuzzyType2Column(connector, schemaName, tableName, column.getColumnName())) {
             return;
         }
+        if (this.fuzzyType == 5 && !Memory.isFuzzyType5Column(connector, schemaName, tableName, column.getColumnName())) {
+            return;
+        }
         String qualifiedName = FuzzyColumn.getQualifiedName(column);
         if (!dict.containsKey(qualifiedName)) {
             Logger.debug("Registering " + qualifiedName + " as fuzzy column");

@@ -385,7 +385,7 @@ public class SelectTranslator implements SelectVisitor, OrderByVisitor, SelectIt
                 + "AND " + similarityAlias + ".label2_id = " 
                 + fuzzyColumn.getJoinForOrderBy()
                 + ") "
-                + "ORDER BY IFNULL(" + similarityAlias + ".value, 0)";
+                + "ORDER BY COALESCE(" + similarityAlias + ".value, 0)";
         Logger.debug("Parsing:\n" + sql);
         // It's easier to parse what I want to replace than building it
 

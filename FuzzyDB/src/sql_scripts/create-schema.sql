@@ -70,7 +70,7 @@ size1 int := array_length(elem1.value,1);
 size2 int := array_length(elem2.value,1);
 BEGIN
 IF elem1.type and elem2.type THEN
-FOR j IN 0..size1 LOOP
+    FOR j IN 0..size1 LOOP
 	FOR i IN 0..size2 LOOP
 
 		IF elem2.value[i] > elem1.value[j] THEN
@@ -91,7 +91,7 @@ FOR j IN 0..size1 LOOP
 
 	size1 = size2;
 	size2 = array_length(elem1.value,1);
-FOR j IN 0..size1 LOOP
+    FOR j IN 0..size1 LOOP
 	FOR i IN 0..size2 LOOP
 
 		IF elem1.value[i] > elem2.value[j] THEN
@@ -738,14 +738,6 @@ $$ LANGUAGE plpgsql;
 
 
 
-
-
-
-
-
-
-
-
 CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_tostring(elem anyelement)
 RETURNS varchar AS $$
 DECLARE
@@ -791,6 +783,8 @@ return final;
 END;
 $$ LANGUAGE plpgsql;
 
+-- ################# TIPO 5 #################
+
 CREATE OR REPLACE FUNCTION information_schema_fuzzy.array_unique (ANYARRAY) RETURNS ANYARRAY
 LANGUAGE SQL
 AS $body$
@@ -800,18 +794,29 @@ AS $body$
   );
 $body$;
 
--- ################# TIPO 5 #################
-/*
-CREATE TABLE IF NOT EXISTS information_schema_fuzzy.domains5 (
-  domain_id SERIAL PRIMARY KEY,
-  table_schema VARCHAR(64) NOT NULL,
-  domain_name VARCHAR(64) NOT NULL,
-  type3_domain_id INTEGER NOT NULL,
-  UNIQUE (table_schema, domain_name),
-  FOREIGN KEY (type3_domain_id) REFERENCES information_schema_fuzzy.domains(domain_id)
-);*/
-
--- OPCION 2
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy5_tostring(elem anyelement)
+RETURNS varchar AS $$
+DECLARE
+final varchar := '{';
+size int;
+BEGIN
+size := array_length(elem.odd,1);
+FOR j in 1..size LOOP
+    IF (j = 1) THEN
+        final := final || elem.odd[j];
+        final := final || '/';
+        final := final || elem.value[j];
+    ELSE
+        final := final || ', ';
+        final := final || elem.odd[j];
+        final := final || '/';
+        final := final || elem.value[j];
+    END IF;
+END LOOP;
+final = final || '}';
+return final;
+END;
+$$ LANGUAGE plpgsql;
 
 CREATE TABLE IF NOT EXISTS information_schema_fuzzy.columns5 (
   table_schema VARCHAR(64) NOT NULL,
@@ -822,7 +827,18 @@ CREATE TABLE IF NOT EXISTS information_schema_fuzzy.columns5 (
   FOREIGN KEY (domain_id) REFERENCES information_schema_fuzzy.domains (domain_id)
     ON UPDATE CASCADE ON DELETE CASCADE
 );
+
 /*
+
+CREATE TABLE IF NOT EXISTS information_schema_fuzzy.domains5 (
+  domain_id SERIAL PRIMARY KEY,
+  table_schema VARCHAR(64) NOT NULL,
+  domain_name VARCHAR(64) NOT NULL,
+  type3_domain_id INTEGER NOT NULL,
+  UNIQUE (table_schema, domain_name),
+  FOREIGN KEY (type3_domain_id) REFERENCES information_schema_fuzzy.domains(domain_id)
+);
+
 CREATE TABLE IF NOT EXISTS information_schema_fuzzy.values5 (
   column_id INTEGER NOT NULL,
   label_id INTEGER NOT NULL,
