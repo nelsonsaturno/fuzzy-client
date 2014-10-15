@@ -47,7 +47,7 @@ public class CreateFuzzyDomainOperation extends Operation {
         String fullTypeName = catalog + "." + domainName;
         String createType = "CREATE TYPE " + fullTypeName + " AS ("
                            + "odd real[], "
-                           + "value INTEGER ARRAY)";
+                           + "value TEXT ARRAY)";
         
         this.connector.executeRaw(insertDomainCatalog);
         this.connector.executeRaw(createType);

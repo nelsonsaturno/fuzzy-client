@@ -28,7 +28,7 @@ public class InsertTranslator extends Translator {
         super(connector);
     }
     
-    public void translate(Insert insert) {
+    public void translate(Insert insert) throws Exception {
         String schemaName;
         
         String tableName = insert.getTable().getName();
@@ -65,7 +65,7 @@ public class InsertTranslator extends Translator {
                 
         if ( size != columnNames.size() ) {
             Logger.debug(InsertTranslator.class.getName() + ": " + "Columns size and Values size are differents");
-            return;
+            throw new SQLException(InsertTranslator.class.getName() + ": " + "Columns size and Values size are differents");
         }
 
         int i = 0;

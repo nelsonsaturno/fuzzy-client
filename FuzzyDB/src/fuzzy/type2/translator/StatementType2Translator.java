@@ -134,7 +134,11 @@ public class StatementType2Translator extends Translator implements StatementVis
                                                               "42000", 3019, e);
             }
             String sql = sb.toString();
-            operations.add(new DropFuzzyType2DomainOperation(connector, drop.getName()));
+            
+            // If is not a type3 domain we add extra operations
+            if (null == getFuzzyDomainId(connector.getSchema(), drop.getName(), "3"))
+                operations.add(new DropFuzzyType2DomainOperation(connector, drop.getName()));
+            
             operations.add(new RawSQLOperation(this.connector, sql));
         }
         Memory.wipeMemory();

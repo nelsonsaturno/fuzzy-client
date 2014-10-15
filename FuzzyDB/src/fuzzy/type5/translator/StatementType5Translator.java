@@ -9,8 +9,10 @@ import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
+import fuzzy.helpers.Memory;
 import fuzzy.type3.translator.Translator;
 import fuzzy.type5.operations.CreateFuzzyDomainOperation;
+import fuzzy.type5.operations.RemoveFuzzyColumnsOperation;
 import java.sql.SQLException;
 import java.util.List;
 import net.sf.jsqlparser.statement.StatementVisitor;
@@ -56,7 +58,16 @@ public class StatementType5Translator extends Translator implements StatementVis
     public void visit(Replace replace) throws Exception { }
 
     @Override
-    public void visit(Drop drop) throws Exception { }
+    public void visit(Drop drop) throws Exception {
+        String type = drop.getType();
+        if ("TABLE".equalsIgnoreCase(type)) {
+            String table = drop.getName();
+            operations.add(new RemoveFuzzyColumnsOperation(connector, Helper.getSchemaName(connector), table));
+        } else if ("FUZZY DOMAIN".equalsIgnoreCase(type)) {
+            // This case has been handled by type2 drop
+        }
+        Memory.wipeMemory();
+    }
 
     @Override
     public void visit(Truncate truncate) throws Exception { }

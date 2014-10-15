@@ -11,14 +11,12 @@ import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
 import fuzzy.helpers.Memory;
 import fuzzy.type3.translator.Translator;
-import fuzzy.type5.operations.InsertIntoValuesOperation;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.TreeSet;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.fuzzy.FuzzyByExtension;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.RowExpression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.insert.Insert;
@@ -70,20 +68,17 @@ public class InsertTranslator extends Translator {
                 
         if ( size != columnNames.size() ) {
             Logger.debug(InsertTranslator.class.getName() + ": " + "Columns size and Values size are differents");
-            return;
+            throw new SQLException(InsertTranslator.class.getName() + ": " + "Columns size and Values size are differents");
         }
 
         int i = 0;
-        String labelId;
-        FuzzyByExtension fuzzyExt;
-        String domainName;
+        RowExpression fuzzyExt;
         boolean isFuzzy;
-        TreeSet<String> labels = new TreeSet<String>();
         
         for (String column : columnNames) {
 
             try {
-                isFuzzy = Memory.isFuzzyColumn(connector, schemaName, tableName, column);
+                isFuzzy = Memory.isFuzzyType5Column(connector, schemaName, tableName, column);
             } catch (SQLException ex) {
                 Logger.debug(InsertTranslator.class.getName() + ": " + "Error querying if column is fuzzy");
                 return;
@@ -91,56 +86,14 @@ public class InsertTranslator extends Translator {
 
             if ( isFuzzy ) {
 
-                try {
-                    domainName = Helper.getDomainNameForColumn(connector, insert.getTable(), column);
-                } catch (SQLException ex) {
-                    Logger.debug(InsertTranslator.class.getName() + ": " + "Error getting domain name");
-                    return;
-                }
-
-                if ( values.get(i) instanceof FuzzyByExtension ) {
-                    fuzzyExt = (FuzzyByExtension) values.get(i);
-                    
-                    for (FuzzyByExtension.Element element : fuzzyExt.getPossibilities()) {
-                        String elem_possiblity = element.getPossibility().toString();
-                        if (element.getExpression() instanceof StringValue) {
-                            
-                            StringValue sv = (StringValue) element.getExpression();
-                            
-                            try {
-                                
-                                labelId = String.valueOf(
-                                        getFuzzyLabelId(schemaName, domainName, sv.getValue())
-                                );
-                                
-                                if (!labels.contains(labelId)) {
-                                    
-                                    labels.add(labelId);
-                                    operations.add(
-                                            new InsertIntoValuesOperation(
-                                                    connector,
-                                                    Helper.getColumnIdForColumn(connector, insert.getTable(), column),
-                                                    labelId,
-                                                    Helper.getNewRowId(connector, insert.getTable()), // FUzzy_row_id???
-                                                    elem_possiblity));
-                                    
-                                } else {
-                                    Logger.debug(InsertTranslator.class.getName() + ": " + "Some labels are repeated");
-                                    return;
-                                }
-                                
-                            } catch (SQLException ex) {
-                                
-                                Logger.debug(InsertTranslator.class.getName() + ": " + "Error getting label id");
-                                return;
-                                
-                            }
-                            
-                        } else {
-                            Logger.debug(InsertTranslator.class.getName() + ": " + "Some values aren't labels");
-                            return;
-                        }
-                    }
+                // RowExpression beacause it was translated by Type2ExpTranslator
+                // The only change needed is to delete the last boolean in the row
+                if ( values.get(i) instanceof RowExpression ) {
+                    Logger.debug("InstanceOF RowExpression");
+                    fuzzyExt = (RowExpression) values.get(i);
+                    List<Expression> le = 
+                        fuzzyExt.getExpressions().getExpressions();
+                    le.remove(le.size()-1); // Remove the last boolean
                 }
             }
 

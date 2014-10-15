@@ -31,6 +31,7 @@ public class Memory {
      */
     private static HashMap<String, LinkedHashSet<String>> fuzzyColumns = null;
     private static HashMap<String, LinkedHashSet<String>> fuzzyType2Columns = null;
+    private static HashMap<String, LinkedHashSet<String>> fuzzyType5Columns = null;
     
     public static HashSet<String> getColumns(Connector c, Table table) 
         throws SQLException{
@@ -43,6 +44,7 @@ public class Memory {
      * @param schemaName schema name in which the table is stored
      * @param tableName table name of which columns want to be got
      * @return list of columns contained by the specified table
+     * @throws java.sql.SQLException
      */
     // TODO este metodo puede no encontrar la columna que busca en cuyo caso muestra
     // una excepcion pero el flujo sigue. Deberia regresarse 
@@ -92,6 +94,7 @@ public class Memory {
      * @param tableName table container
      * @param columnName column to check to see if it's fuzzy
      * @return if the column indeed is fuzzy
+     * @throws java.sql.SQLException
      */
     public static boolean isFuzzyColumn(Connector c, String schemaName, String tableName, String columnName)
         throws SQLException{
@@ -120,7 +123,7 @@ public class Memory {
         Logger.debug("Finalmente -> " + schemaName + "." + tableName + " Buscamos " + columnName);
         // if it's in the list, is a fuzzy column
         HashSet<String> cols = fuzzyColumns.get(schemaName + "." + tableName);
-        Logger.debug(cols.contains(columnName)?"Si":"No");
+        Logger.debug(cols != null ? cols.contains(columnName)?"Si":"No" : "No");
         return null != cols && cols.contains(columnName);
     }
 
@@ -164,10 +167,44 @@ public class Memory {
         return null != cols && cols.contains(columnName);
     }
     
+    public static boolean isFuzzyType5Column(Connector c, Table table, String columnName)
+        throws SQLException {
+        String schemaName = null != table.getSchemaName() ? Helper.getSchemaName(c) : table.getSchemaName();
+        return isFuzzyType5Column(c, schemaName, table.getName(), columnName);
+    }
+    
+    public static boolean isFuzzyType5Column(Connector c, String schemaName, String tableName, String columnName)
+        throws SQLException {
+
+        if (null == fuzzyType5Columns) {
+            fuzzyType5Columns = new HashMap<String, LinkedHashSet<String>>();
+        }
+        
+        if (!fuzzyType5Columns.containsKey(schemaName + "." + tableName)) {
+            ResultSet rs = c.executeRawQuery("SELECT table_name, column_name "
+                                             + "FROM information_schema_fuzzy.columns5 "
+                                             + "WHERE table_schema = '" + schemaName + "'");
+            // register columns read from database
+            while (rs.next()) {
+                String tab = rs.getString("table_name");
+                LinkedHashSet<String> cols = fuzzyType5Columns.get(schemaName + "." + tab);
+                if (null == cols) {
+                    cols = new LinkedHashSet<String>();
+                }
+                cols.add(rs.getString("column_name"));
+                fuzzyType5Columns.put(schemaName + "." + tab, cols);
+            }
+        }
+        // if it's in the list, is a fuzzy column
+        HashSet<String> cols = fuzzyType5Columns.get(schemaName + "." + tableName);
+        return null != cols && cols.contains(columnName);
+    }
+    
     public static void wipeMemory() {
         columns = null;
         fuzzyColumns = null;
         fuzzyType2Columns = null;
+        fuzzyType5Columns = null;
     }
     
 }

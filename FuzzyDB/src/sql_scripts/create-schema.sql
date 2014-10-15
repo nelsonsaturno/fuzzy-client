@@ -35,9 +35,7 @@ CREATE TABLE IF NOT EXISTS information_schema_fuzzy.columns (
   table_name VARCHAR(64) NOT NULL,
   column_name VARCHAR(64) NOT NULL,
   domain_id INTEGER NOT NULL,
-  column_id SERIAL NOT NULL,
   PRIMARY KEY (table_schema, table_name, column_name),
-  UNIQUE (column_id),
   FOREIGN KEY (domain_id) REFERENCES information_schema_fuzzy.domains (domain_id)
     ON UPDATE CASCADE ON DELETE RESTRICT
 );
@@ -793,6 +791,15 @@ return final;
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.array_unique (ANYARRAY) RETURNS ANYARRAY
+LANGUAGE SQL
+AS $body$
+  SELECT ARRAY(
+    SELECT DISTINCT $1[s.i]
+    FROM generate_series(array_lower($1,1), array_upper($1,1)) AS s(i)
+  );
+$body$;
+
 -- ################# TIPO 5 #################
 /*
 CREATE TABLE IF NOT EXISTS information_schema_fuzzy.domains5 (
@@ -802,21 +809,20 @@ CREATE TABLE IF NOT EXISTS information_schema_fuzzy.domains5 (
   type3_domain_id INTEGER NOT NULL,
   UNIQUE (table_schema, domain_name),
   FOREIGN KEY (type3_domain_id) REFERENCES information_schema_fuzzy.domains(domain_id)
-);
+);*/
 
 -- OPCION 2
 
 CREATE TABLE IF NOT EXISTS information_schema_fuzzy.columns5 (
-  column_id SERIAL PRIMARY KEY,
   table_schema VARCHAR(64) NOT NULL,
   table_name VARCHAR(64) NOT NULL,
   column_name VARCHAR(64) NOT NULL,
   domain_id INTEGER NOT NULL,
---  PRIMARY KEY (table_schema, table_name, name),
-  FOREIGN KEY (domain_id) REFERENCES information_schema_fuzzy.domains5 (domain_id)
+  PRIMARY KEY (table_schema, table_name, column_name),
+  FOREIGN KEY (domain_id) REFERENCES information_schema_fuzzy.domains (domain_id)
     ON UPDATE CASCADE ON DELETE CASCADE
 );
-
+/*
 CREATE TABLE IF NOT EXISTS information_schema_fuzzy.values5 (
   column_id INTEGER NOT NULL,
   label_id INTEGER NOT NULL,

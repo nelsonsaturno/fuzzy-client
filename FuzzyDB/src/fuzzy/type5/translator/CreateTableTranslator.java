@@ -9,7 +9,7 @@ import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.type3.translator.Translator;
-import fuzzy.type5.operations.addFuzzyTypeColumnOperation;
+import fuzzy.type5.operations.AddFuzzyColumnOperation;
 import java.sql.SQLException;
 import java.util.List;
 import net.sf.jsqlparser.statement.table.ColumnDefinition;
@@ -39,7 +39,7 @@ public class CreateTableTranslator extends Translator {
         
         String columnName, columnTypeName;
         ColumnDefinition columnDefinition;
-        Integer domainId;
+        Integer domainId, type3domainId;
         for (int i = 0; i < columns.size(); i++ ) {
             columnDefinition = (ColumnDefinition) columns.get(i);
             columnName = columnDefinition.getColumnName();
@@ -49,8 +49,10 @@ public class CreateTableTranslator extends Translator {
             
             // El dominio es tipo 5
             if ( domainId != null ) {
-                operations.add(new addFuzzyTypeColumnOperation(connector, 
-                        schemaName, tableName, columnName, domainId));
+                type3domainId = Helper.getType3DomainIdRelated(connector, createTable.getTable(), domainId);
+                
+                operations.add(new AddFuzzyColumnOperation(connector, 
+                        schemaName, tableName, columnName, domainId, type3domainId));
             }
         }
     }

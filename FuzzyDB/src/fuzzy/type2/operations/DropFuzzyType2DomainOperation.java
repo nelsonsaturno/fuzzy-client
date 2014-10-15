@@ -6,9 +6,8 @@ package fuzzy.type2.operations;
 
 import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
-import fuzzy.helpers.Logger;
-import fuzzy.type3.translator.Translator;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 
 /**
  *
@@ -55,23 +54,30 @@ public class DropFuzzyType2DomainOperation extends Operation {
         String dropGreaterFunc = String.format(dropFuncFormat, "greater");
         String dropCmpFunc = String.format(dropFuncFormat, "cmp");
 
-        connector.executeRawUpdate(updateCatalog);
+        Savepoint sp = this.beginTransaction();
+        try {
+            connector.executeRawUpdate(updateCatalog);
+            connector.executeRaw(dropOpClass);
 
-        connector.executeRaw(dropOpClass);
+            connector.executeRaw(dropCmpFunc);
 
-        connector.executeRaw(dropCmpFunc);
+            connector.executeRaw(dropLowerOp);
+            connector.executeRaw(dropLowerEqOp);
+            connector.executeRaw(dropEqOp);
+            connector.executeRaw(dropGreaterEqOp);
+            connector.executeRaw(dropGreaterOp);
 
-        connector.executeRaw(dropLowerOp);
-        connector.executeRaw(dropLowerEqOp);
-        connector.executeRaw(dropEqOp);
-        connector.executeRaw(dropGreaterEqOp);
-        connector.executeRaw(dropGreaterOp);
-
-        connector.executeRaw(dropLowerFunc);
-        connector.executeRaw(dropLowerEqFunc);
-        connector.executeRaw(dropEqFunc);
-        connector.executeRaw(dropGreaterEqFunc);
-        connector.executeRaw(dropGreaterFunc);
+            connector.executeRaw(dropLowerFunc);
+            connector.executeRaw(dropLowerEqFunc);
+            connector.executeRaw(dropEqFunc);
+            connector.executeRaw(dropGreaterEqFunc);
+            connector.executeRaw(dropGreaterFunc);
+            
+            this.commitTransaction();
+        } catch (SQLException e) {
+            this.rollback(sp);
+            throw e;
+        }
     }
     
 }
