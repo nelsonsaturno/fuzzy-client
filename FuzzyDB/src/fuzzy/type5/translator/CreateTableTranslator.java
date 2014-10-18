@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.util.List;
 import net.sf.jsqlparser.statement.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.table.CreateTable;
-
+import fuzzy.helpers.Error;
 /**
  *
  * @author hector
@@ -31,7 +31,7 @@ public class CreateTableTranslator extends Translator {
         List columns = createTable.getColumnDefinitions();
         
         if ( columns == null ) {
-            throw new SQLException("No column definitions");
+            throw new SQLException(Error.getError("noCol"));
         }
         
         String schemaName = Helper.getSchemaName(connector, createTable.getTable());

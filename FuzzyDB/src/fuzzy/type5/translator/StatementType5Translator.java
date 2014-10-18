@@ -5,6 +5,7 @@
  */
 package fuzzy.type5.translator;
 
+import fuzzy.helpers.Error;
 import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
@@ -105,21 +106,21 @@ public class StatementType5Translator extends Translator implements StatementVis
         try {
             schemaName = Helper.getSchemaName(connector);
         } catch (SQLException ex) {
-            Logger.debug(StatementType5Translator.class.getName() + ": " + "Error getting schema name");
-            throw new SQLException("Error getting schema name");
+            Logger.debug(StatementType5Translator.class.getName() + ": " + Error.getError("getSchemaT5"));
+            throw new SQLException(Error.getError("getSchemaT5"));
         }
         
         if ( schemaName == null || schemaName.equals("") ) {
-            Logger.debug(StatementType5Translator.class.getName() + ": " + "Error getting schema name");
-            throw new SQLException("Error getting schema name");
+            Logger.debug(StatementType5Translator.class.getName() + ": " + Error.getError("getSchemaT5"));
+            throw new SQLException(Error.getError("getSchemaT5"));
         }
         
         Integer type3DomainId = getFuzzyDomainId(schemaName, type3DomainName, "3");
         
         // domainName es un tipo Nativo o no esta definido como tipo 3
         if ( type3DomainId == null ) {
-            Logger.debug(StatementType5Translator.class.getName() + ": " + "type3 Domain not found");
-            throw new SQLException("type3 Domain not found");
+            Logger.debug(StatementType5Translator.class.getName() + ": " + Error.getError("getDomainT3"));
+            throw new SQLException(Error.getError("getDomainT3"));
         }
         
         CreateFuzzyDomainOperation operation = 

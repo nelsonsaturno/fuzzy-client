@@ -7,6 +7,7 @@ package fuzzy.type5.translator;
 
 import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
+import fuzzy.helpers.Error;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
 import fuzzy.helpers.Memory;
@@ -43,7 +44,7 @@ public class InsertTranslator extends Translator {
         try {
             schemaName = Helper.getSchemaName(connector);
         } catch (SQLException ex) {
-            Logger.debug(InsertTranslator.class.getName() + ": " + "Error getting schema name");
+            Logger.debug(InsertTranslator.class.getName() + ": " + Error.getError("getSchemaT5"));
             return;
         }
         
@@ -59,7 +60,7 @@ public class InsertTranslator extends Translator {
             try {
                 allColumns = Memory.getColumns(connector, schemaName, tableName);
             } catch (SQLException ex) {
-                Logger.debug(InsertTranslator.class.getName() + ": " + "Error getting all columns");
+                Logger.debug(InsertTranslator.class.getName() + ": " + Error.getError("getAllCols"));
                 return;
             }
             
@@ -67,8 +68,8 @@ public class InsertTranslator extends Translator {
         }
                 
         if ( size != columnNames.size() ) {
-            Logger.debug(InsertTranslator.class.getName() + ": " + "Columns size and Values size are differents");
-            throw new SQLException(InsertTranslator.class.getName() + ": " + "Columns size and Values size are differents");
+            Logger.debug(InsertTranslator.class.getName() + ": " + Error.getError("colValSiz"));
+            throw new SQLException(InsertTranslator.class.getName() + ": " + Error.getError("colValSiz"));
         }
 
         int i = 0;
@@ -80,7 +81,7 @@ public class InsertTranslator extends Translator {
             try {
                 isFuzzy = Memory.isFuzzyType5Column(connector, schemaName, tableName, column);
             } catch (SQLException ex) {
-                Logger.debug(InsertTranslator.class.getName() + ": " + "Error querying if column is fuzzy");
+                Logger.debug(InsertTranslator.class.getName() + ": " + Error.getError("fuzzyColQuery"));
                 return;
             }
 

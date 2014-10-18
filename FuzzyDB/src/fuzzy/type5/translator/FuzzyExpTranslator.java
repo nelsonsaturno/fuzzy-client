@@ -69,7 +69,7 @@ import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItemVisitor;
 import net.sf.jsqlparser.statement.select.SubSelect;
-
+import fuzzy.helpers.Error;
 /**
  * 
  */
@@ -108,12 +108,12 @@ public class FuzzyExpTranslator implements ExpressionVisitor, ItemsListVisitor, 
     // Cosas que vienen de SelectItemVisitor
     @Override
     public void visit(AllColumns ac) throws Exception {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        throw new UnsupportedOperationException(Error.getError("notImplemented"));
     }
 
     @Override
     public void visit(AllTableColumns atc) throws Exception {
-        throw new UnsupportedOperationException("Not implemented yet.");
+        throw new UnsupportedOperationException(Error.getError("notImplemented"));
     }
 
     @Override
@@ -446,17 +446,17 @@ public class FuzzyExpTranslator implements ExpressionVisitor, ItemsListVisitor, 
 
     @Override
     public void visit(Relation relation) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(Error.getError("notImplemented"));
     }
 
     @Override
     public void visit(ArrayExpression array) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(Error.getError("notImplemented"));
     }
 
     @Override
     public void visit(RowExpression row) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(Error.getError("notImplemented"));
     }
 
     @Override
