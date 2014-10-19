@@ -106,11 +106,11 @@ public class CreateFuzzyType2DomainOperation extends Operation {
         * $$ LANGUAGE plpgsql;
         */
         String funcNameFormat = catalog + ".__" + this.name + "_%s";
-        String lowerFuncName = String.format(funcNameFormat, "lower");
-        String lowerEqFuncName = String.format(funcNameFormat, "lower_eq");
-        String eqFuncName = String.format(funcNameFormat, "eq");
-        String greaterEqFuncName = String.format(funcNameFormat, "greater_eq");
-        String greaterFuncName = String.format(funcNameFormat, "greater");
+        String lowerFuncName = String.format(funcNameFormat, "centroid_lower");
+        String lowerEqFuncName = String.format(funcNameFormat, "centroid_lower_eq");
+        String eqFuncName = String.format(funcNameFormat, "centroid_eq");
+        String greaterEqFuncName = String.format(funcNameFormat, "centroid_greater_eq");
+        String greaterFuncName = String.format(funcNameFormat, "centroid_greater");
 
         String createFuncFormat = "CREATE OR REPLACE FUNCTION %s(elem1 " + fullTypeName + ", elem2 " + fullTypeName + ") "
                                 + "RETURNS boolean AS $$ "
@@ -119,11 +119,11 @@ public class CreateFuzzyType2DomainOperation extends Operation {
                                 + "END; "
                                 + "$$ LANGUAGE plpgsql;";
 
-        String createLowerFunc = String.format(createFuncFormat, lowerFuncName, "information_schema_fuzzy.fuzzy2_lower");
-        String createLowerEqFunc = String.format(createFuncFormat, lowerEqFuncName, "information_schema_fuzzy.fuzzy2_lower_eq");
-        String createEqFunc = String.format(createFuncFormat, eqFuncName, "information_schema_fuzzy.fuzzy2_eq");
-        String createGreaterEqFunc = String.format(createFuncFormat, greaterEqFuncName, "information_schema_fuzzy.fuzzy2_greater_eq");
-        String createGreaterFunc = String.format(createFuncFormat, greaterFuncName, "information_schema_fuzzy.fuzzy2_greater");
+        String createLowerFunc = String.format(createFuncFormat, lowerFuncName, "information_schema_fuzzy.fuzzy2_centroid_lower");
+        String createLowerEqFunc = String.format(createFuncFormat, lowerEqFuncName, "information_schema_fuzzy.fuzzy2_centroid_lower_eq");
+        String createEqFunc = String.format(createFuncFormat, eqFuncName, "information_schema_fuzzy.fuzzy2_centroid_eq");
+        String createGreaterEqFunc = String.format(createFuncFormat, greaterEqFuncName, "information_schema_fuzzy.fuzzy2_centroid_greater_eq");
+        String createGreaterFunc = String.format(createFuncFormat, greaterFuncName, "information_schema_fuzzy.fuzzy2_centroid_greater");
 
         /*
         * For each operator <, <=, =, >=, >
@@ -131,11 +131,11 @@ public class CreateFuzzyType2DomainOperation extends Operation {
         * RIGHTARG = test_schema.test, PROCEDURE = test_schema.__test__<opname>)
         */
         String createOpFormat = "CREATE OPERATOR %s (LEFTARG = " + fullTypeName + ", RIGHTARG = " + fullTypeName + ", PROCEDURE = %s)";
-        String createLowerOp = String.format(createOpFormat, "<", lowerFuncName);
-        String createLowerEqOp = String.format(createOpFormat, "<=", lowerEqFuncName);
-        String createEqOp = String.format(createOpFormat, "=", eqFuncName);
-        String createGreaterEqOp = String.format(createOpFormat, ">=", greaterEqFuncName);
-        String createGreaterOp = String.format(createOpFormat, ">", greaterFuncName);
+        String createLowerOp = String.format(createOpFormat, "&@<", lowerFuncName);
+        String createLowerEqOp = String.format(createOpFormat, "&@<=", lowerEqFuncName);
+        String createEqOp = String.format(createOpFormat, "&@=", eqFuncName);
+        String createGreaterEqOp = String.format(createOpFormat, "&@>=", greaterEqFuncName);
+        String createGreaterOp = String.format(createOpFormat, "&@>", greaterFuncName);
 
         /*
         * CREATE OR REPLACE FUNCTION test_schema.__test__cmp(comp1 test_schema.test, comp2 test_schema.test)
@@ -153,8 +153,8 @@ public class CreateFuzzyType2DomainOperation extends Operation {
         String createCmpFunc = "CREATE OR REPLACE FUNCTION " + cmpFuncName + "(comp1 " + fullTypeName + ", comp2 " + fullTypeName +") "
                                + "RETURNS integer AS $$ "
                                + "BEGIN "
-                               + "if comp1 = comp2 then return 0; "
-                               + "else if comp1 < comp2 then return -1; "
+                               + "if comp1 &@= comp2 then return 0; "
+                               + "else if comp1 &@< comp2 then return -1; "
                                + "else return 1; "
                                + "end if; "
                                + "end if; "
@@ -174,11 +174,11 @@ public class CreateFuzzyType2DomainOperation extends Operation {
         String opClassName = String.format(funcNameFormat, "opclass");
         String createOpClass = "CREATE OPERATOR CLASS " + opClassName + " "
                              + "DEFAULT FOR TYPE " + fullTypeName + " USING btree AS "
-                             + "OPERATOR 1 <, "
-                             + "OPERATOR 2 <=, "
-                             + "OPERATOR 3 =, "
-                             + "OPERATOR 4 >=, "
-                             + "OPERATOR 5 >, "
+                             + "OPERATOR 1 &@<, "
+                             + "OPERATOR 2 &@<=, "
+                             + "OPERATOR 3 &@=, "
+                             + "OPERATOR 4 &@>=, "
+                             + "OPERATOR 5 &@>, "
                              + "FUNCTION 1 " + cmpFuncName + " (" + fullTypeName + ", " + fullTypeName + ");";
 
 

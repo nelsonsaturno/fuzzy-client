@@ -3,7 +3,7 @@
 --              fuzzy type II values based on the Riemman integral and the centroid. 
 
 -- Definition of lower element '<'
-CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_centroid_lower(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
     DECLARE
         mass_moment_1   float := 0;
         mass_moment_2   float := 0;
@@ -107,7 +107,7 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
 $$ LANGUAGE plpgsql;
 
 -- Definition of lower or equal element '<='
-CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower_eq(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_centroid_lower_eq(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
     DECLARE
         mass_moment_1   float := 0;
         mass_moment_2   float := 0;
@@ -211,7 +211,7 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower_eq(elem1 anyele
 $$ LANGUAGE plpgsql;
 
 -- Definition of equal element '='
-CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_centroid_eq(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
     DECLARE
         mass_moment_1   float := 0;
         mass_moment_2   float := 0;
@@ -315,7 +315,7 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
 $$ LANGUAGE plpgsql;
 
 -- Definition of greater element '>'
-CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_centroid_greater(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
     DECLARE
         mass_moment_1   float := 0;
         mass_moment_2   float := 0;
@@ -419,7 +419,7 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater(elem1 anyelem
 $$ LANGUAGE plpgsql;
 
 -- Definition of greater or equal element '>'
-CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater_eq(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_centroid_greater_eq(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
     DECLARE
         mass_moment_1   float := 0;
         mass_moment_2   float := 0;

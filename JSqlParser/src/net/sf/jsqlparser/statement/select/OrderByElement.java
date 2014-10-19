@@ -47,6 +47,10 @@ public class OrderByElement {
         return asc;
     }
 
+    public int getOrdering(){
+        return ordering;
+    }
+    
     public void setOrderingType(int o) {
         ordering = o;
     }

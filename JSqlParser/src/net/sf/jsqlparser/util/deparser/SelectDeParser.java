@@ -170,11 +170,19 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
             orderBy.getExpression().accept(expressionVisitor);
         } catch (Exception e) {
         }
-        if (orderBy.isAsc()) {
-            buffer.append(" ASC");
+        
+        if (orderBy.getOrdering() == 1) {
+            buffer.append(" USING CHOQUET");
+        } else if (orderBy.getOrdering() == 2) { 
+            if (orderBy.isAsc()) {
+                buffer.append(" USING &@<");
+            } else {
+                buffer.append(" USING &@>");
+            }
         } else {
-            buffer.append(" DESC");
+            buffer.append(" USING SUGENO");
         }
+        
     }
 
     public void visit(Column column) {
