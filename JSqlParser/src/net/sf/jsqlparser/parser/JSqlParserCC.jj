@@ -243,6 +243,9 @@ TOKEN: /* SQL Keywords. prefixed with K_ to avoid name clashes */
 |   <K_POSSIBILITY:"POSSIBILITY">
 |   <K_DISTRIBUTION:"DISTRIBUTION">
 |   <K_RANGE_SEP:"..">
+|   <K_CHOQUET:"CHOQUET">
+|   <K_SUGENO:"SUGENO">
+|   <K_CENTROID:"CENTROID">
 }
 
 
@@ -876,6 +879,7 @@ List OrderByElements():
 {
     <K_ORDER> <K_BY> orderByElement=OrderByElement() { orderByList.add(orderByElement); }
         ("," orderByElement=OrderByElement() { orderByList.add(orderByElement); } )*
+    [<K_USING> (<K_CHOQUET> | <K_SUGENO> | <K_CENTROID>)]
     {
     	return orderByList;
     }
