@@ -171,16 +171,20 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
         } catch (Exception e) {
         }
         
-        if (orderBy.getOrdering() == 1) {
-            buffer.append(" USING CHOQUET");
-        } else if (orderBy.getOrdering() == 2) { 
-            if (orderBy.isAsc()) {
-                buffer.append(" USING &@<");
-            } else {
-                buffer.append(" USING &@>");
-            }
+        String asc = null;
+        
+        if (orderBy.isAsc()) {
+            asc = "<";
         } else {
-            buffer.append(" USING SUGENO");
+            asc = ">";
+        }
+        
+        if (orderBy.getOrdering() == 1) {
+            buffer.append(" USING &#").append(asc);
+        } else if (orderBy.getOrdering() == 2) { 
+            buffer.append(" USING &@").append(asc);
+        } else {
+            buffer.append(" USING &%").append(asc);
         }
         
     }
