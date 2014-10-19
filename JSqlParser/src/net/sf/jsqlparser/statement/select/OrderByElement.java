@@ -19,51 +19,63 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  */
- 
 package net.sf.jsqlparser.statement.select;
 
 import net.sf.jsqlparser.expression.Expression;
-
 
 /**
  * An element (column reference) in an "ORDER BY" clause.
  */
 public class OrderByElement {
-	private Expression expression;
-	private Expression fuzzyStart;
-	private boolean asc = true; 
-	
 
-	public boolean isAsc() {
-		return asc;
-	}
+    /**
+     * 3 Types of ordering: 
+     *  (1) Order according to CHOQUET 
+     *  (2) Order according to CENTROID 
+     *  (3) Order according to SUGENO
+     *
+     * If no USING clause is specified the resulting order will be according to
+     * SUGENO
+     */
 
-	public void setAsc(boolean b) {
-		asc = b;
-	}
+    private Expression expression;
+    private Expression fuzzyStart;
+    private boolean asc = true;
+    private int ordering = 3;
 
-        public Expression getFuzzyStart() {
-            return fuzzyStart;
-        }
+    public boolean isAsc() {
+        return asc;
+    }
 
-        public void setFuzzyStart(Expression b) {
-            fuzzyStart = b;
-        }
+    public void setOrderingType(int o) {
+        ordering = o;
+    }
 
+    public void setAsc(boolean b) {
+        asc = b;
+    }
 
-	public void accept(OrderByVisitor orderByVisitor) throws Exception{
-		orderByVisitor.visit(this);
-	}
+    public Expression getFuzzyStart() {
+        return fuzzyStart;
+    }
 
-	public Expression getExpression() {
-		return expression;
-	}
+    public void setFuzzyStart(Expression b) {
+        fuzzyStart = b;
+    }
 
-	public void setExpression(Expression expression) {
-		this.expression = expression;
-	}
+    public void accept(OrderByVisitor orderByVisitor) throws Exception {
+        orderByVisitor.visit(this);
+    }
 
-	public String toString() {
-		return ""+expression+((asc)?"":" DESC");
-	}
+    public Expression getExpression() {
+        return expression;
+    }
+
+    public void setExpression(Expression expression) {
+        this.expression = expression;
+    }
+
+    public String toString() {
+        return "" + expression + ((asc) ? "" : " DESC");
+    }
 }

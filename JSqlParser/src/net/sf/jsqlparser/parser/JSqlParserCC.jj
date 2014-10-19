@@ -879,7 +879,9 @@ List OrderByElements():
 {
     <K_ORDER> <K_BY> orderByElement=OrderByElement() { orderByList.add(orderByElement); }
         ("," orderByElement=OrderByElement() { orderByList.add(orderByElement); } )*
-    [<K_USING> (<K_CHOQUET> | <K_SUGENO> | <K_CENTROID>)]
+    [<K_USING> (<K_CHOQUET> { orderByElement.setOrderingType(1); } 
+        | <K_CENTROID> { orderByElement.setOrderingType(2); }
+        | <K_SUGENO> { orderByElement.setOrderingType(3); } )]
     {
     	return orderByList;
     }
