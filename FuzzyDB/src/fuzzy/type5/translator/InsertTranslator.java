@@ -14,10 +14,13 @@ import fuzzy.helpers.Memory;
 import fuzzy.type3.translator.Translator;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import net.sf.jsqlparser.expression.ArrayExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.RowExpression;
+import net.sf.jsqlparser.expression.fuzzy.FuzzyByExtension;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.insert.Insert;
@@ -31,6 +34,54 @@ public class InsertTranslator extends Translator {
     public InsertTranslator(Connector connector, List<Operation> operations){
         super(connector, operations);
     }
+    
+    
+    public class sfuzzy implements Comparable {
+        
+        public Expression e1, e2;
+        
+        sfuzzy(Expression ee1, Expression ee2){
+            e1 = ee1;
+            e2 = ee2;
+        }
+        
+        @Override
+        public int compareTo(Object fruit) {
+            sfuzzy f2 = (sfuzzy)fruit;
+            String s1 = e2.toString();
+            String s2 = f2.e2.toString();
+            return s1.compareTo(s2);
+        }
+        
+    }
+    /*
+     * sort the elements of FuzzyByExtention for making easy the comparations
+     */
+    private void sort(ArrayExpression e1, ArrayExpression e2){
+        List l1 = e1.getExpressions().getExpressions();
+        List l2 = e2.getExpressions().getExpressions();
+        ArrayList<sfuzzy> ve = new ArrayList<sfuzzy>();
+        for(int i = 0; i < l1.size(); i++){
+            sfuzzy f1 = new sfuzzy((Expression)l1.get(i), (Expression)l2.get(i));
+            ve.add(f1);
+        }
+        
+        Collections.sort(ve);
+        l1.clear();
+        l2.clear();
+        for(int i = 0; i < ve.size(); i++){
+            System.out.println(ve.get(i).e1.toString()+ " " + ve.get(i).e2);
+            if(ve.get(i).e1.toString().equals("0.0")){
+                
+                continue;
+            }
+            
+            l1.add(ve.get(i).e1);
+            l2.add(ve.get(i).e2);
+        }
+        
+    }
+    
     
     public void translate(Insert insert) throws SQLException {
         String schemaName;
@@ -94,7 +145,14 @@ public class InsertTranslator extends Translator {
                     fuzzyExt = (RowExpression) values.get(i);
                     List<Expression> le = 
                         fuzzyExt.getExpressions().getExpressions();
+                    
                     le.remove(le.size()-1); // Remove the last boolean
+                    ArrayExpression a1, a2;
+                    a1 = (ArrayExpression)le.get(0);
+                    a2 = (ArrayExpression)le.get(1);
+                    sort(a1, a2);
+                    le.set(0, a1);
+                    le.set(1, a2);
                 }
             }
 

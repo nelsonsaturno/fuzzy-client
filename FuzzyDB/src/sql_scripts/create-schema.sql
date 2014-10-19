@@ -828,6 +828,17 @@ CREATE TABLE IF NOT EXISTS information_schema_fuzzy.columns5 (
     ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+
+
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy5_eq(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
+DECLARE
+
+BEGIN
+return elem1.value = elem2.value and elem1.odd = elem2.odd;
+
+END;
+$$ LANGUAGE plpgsql;
+
 /*
 
 CREATE TABLE IF NOT EXISTS information_schema_fuzzy.domains5 (
