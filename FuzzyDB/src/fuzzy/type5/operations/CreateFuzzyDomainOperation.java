@@ -49,7 +49,30 @@ public class CreateFuzzyDomainOperation extends Operation {
                            + "odd real[], "
                            + "value TEXT ARRAY)";
         
+        
+        String funeq = "CREATE OR REPLACE FUNCTION public.__"
+                       +domainName
+                       +"_eq(elem1 public."
+                       +domainName
+                       +", elem2 public."
+                       +domainName
+                       + ") RETURNS boolean AS $$ BEGIN "
+                       +"return information_schema_fuzzy.fuzzy5_eq(elem1, elem2);"
+                       +"END; $$ LANGUAGE plpgsql;";
+        String opeq = "CREATE OPERATOR = (LEFTARG = public."
+                +domainName
+                +", RIGHTARG = public."
+                +domainName
+                +", PROCEDURE = public.__"
+                +domainName
+                +"_eq)";
+        
+        
+        
+        
         this.connector.executeRaw(insertDomainCatalog);
         this.connector.executeRaw(createType);
+        this.connector.executeRaw(funeq);
+        this.connector.executeRaw(opeq);
     }
 }
