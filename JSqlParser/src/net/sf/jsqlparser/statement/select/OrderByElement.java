@@ -41,7 +41,7 @@ public class OrderByElement {
     private Expression expression;
     private Expression fuzzyStart;
     private boolean asc = true;
-    private int ordering = 3;
+    private int ordering = 0;
 
     public boolean isAsc() {
         return asc;
