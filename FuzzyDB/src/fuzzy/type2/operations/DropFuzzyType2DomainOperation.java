@@ -1,26 +1,85 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package fuzzy.type2.operations;
 
+import java.sql.SQLException;
+/* fuzzy imports*/
 import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
-import fuzzy.helpers.Logger;
-import fuzzy.type3.translator.Translator;
-import java.sql.SQLException;
 
 /**
- *
- * @author bishma-stornelli
+ * Drops a Type-2 Fuzzy type. This includes all the queries and operations
+ * required for the custom ordering of this type.
  */
 public class DropFuzzyType2DomainOperation extends Operation {
 
     private final String domain;
 
+    /**
+     * Creates a new instance.
+     *
+     * @param connector Connector instance used to interface with the database.
+     * @param domain    Domain that has to be dropped.
+     */
     public DropFuzzyType2DomainOperation(Connector connector, String domain) {
         super(connector);
         this.domain = domain;
+    }
+
+    /**
+     * Drops the necessary operators for fuzzy Type II orderings.
+     *
+     * @param operator the defined operator symbol.
+     * @param ordering the ordering which is related to.
+     * @param schemaName the schema name which is related to.
+     * @param typeName the type name of the domain
+     * @throws java.sql.SQLException
+     */
+    public void dropOperatorCatalog(String operator, String ordering,
+            String schemaName, String typeName) throws SQLException {
+
+        String funcNameFormat = schemaName + ".__" + domain + "_%s";
+
+        /*
+         * DROP OPERATOR CLASS IF EXISTS public.__<class> USING btree
+         */
+        String opClassName = String.format(funcNameFormat, ordering + "_class");
+        String dropOpClass = "DROP OPERATOR CLASS IF EXISTS " + opClassName + " USING btree";
+
+        /*
+         * DROP OPERATOR IF EXISTS <op> (public.<domain>,public.<domain>)
+         */
+        String dropOpFormat = "DROP OPERATOR IF EXISTS %s (" + typeName + "," + typeName + ")";
+        String dropLowerOp = String.format(dropOpFormat, operator + "<");
+        String dropLowerEqOp = String.format(dropOpFormat, operator + "<=");
+        String dropEqOp = String.format(dropOpFormat, operator + "=");
+        String dropGreaterEqOp = String.format(dropOpFormat, operator + ">=");
+        String dropGreaterOp = String.format(dropOpFormat, operator + ">");
+
+        /*
+         *  DROP FUNCTION IF EXISTS public.__<function>(public.<domain>, public.<domain>)
+         */
+        String dropFuncFormat = "DROP FUNCTION IF EXISTS " + funcNameFormat + "(" + typeName + ", " + typeName + ")";
+        String dropLowerFunc = String.format(dropFuncFormat, ordering + "_lower");
+        String dropLowerEqFunc = String.format(dropFuncFormat, ordering + "_lower_eq");
+        String dropEqFunc = String.format(dropFuncFormat, ordering + "_eq");
+        String dropGreaterEqFunc = String.format(dropFuncFormat, ordering + "_greater_eq");
+        String dropGreaterFunc = String.format(dropFuncFormat, ordering + "_greater");
+        String dropCmpFunc = String.format(dropFuncFormat, ordering + "_cmp");
+
+        /* Drop operator class */
+        connector.executeRaw(dropOpClass);
+        connector.executeRaw(dropCmpFunc);
+        /* Drop operators */
+        connector.executeRaw(dropLowerOp);
+        connector.executeRaw(dropLowerEqOp);
+        connector.executeRaw(dropEqOp);
+        connector.executeRaw(dropGreaterEqOp);
+        connector.executeRaw(dropGreaterOp);
+        /* Drop ordering functions */
+        connector.executeRaw(dropLowerFunc);
+        connector.executeRaw(dropLowerEqFunc);
+        connector.executeRaw(dropEqFunc);
+        connector.executeRaw(dropGreaterEqFunc);
+        connector.executeRaw(dropGreaterFunc);
     }
 
     @Override
@@ -31,115 +90,14 @@ public class DropFuzzyType2DomainOperation extends Operation {
         String schemaName = this.connector.getSchema();
         String fullTypeName = schemaName + "." + domain;
 
-        String updateCatalog = "DELETE FROM information_schema_fuzzy.domains2 " +
-            "WHERE table_schema = (select current_schema())" + 
-            "AND domain_name = '" + domain + "'";
-
-        String funcNameFormat = schemaName + ".__" + domain + "_%s";
-
-        String opClassName = String.format(funcNameFormat, "centroid_class");
-        String dropOpClass = "DROP OPERATOR CLASS IF EXISTS " + opClassName + " USING btree";
-
-        String dropOpFormat = "DROP OPERATOR IF EXISTS %s (" + fullTypeName + "," + fullTypeName +")";
-        String dropLowerOp = String.format(dropOpFormat, "&@<");
-        String dropLowerEqOp = String.format(dropOpFormat, "&@<=");
-        String dropEqOp = String.format(dropOpFormat, "&@=");
-        String dropGreaterEqOp = String.format(dropOpFormat, "&@>=");
-        String dropGreaterOp = String.format(dropOpFormat, "&@>");
-
-        String dropFuncFormat = "DROP FUNCTION IF EXISTS " + funcNameFormat + "(" + fullTypeName + ", " + fullTypeName + ")";
-        String dropLowerFunc = String.format(dropFuncFormat, "centroid_lower");
-        String dropLowerEqFunc = String.format(dropFuncFormat, "centroid_lower_eq");
-        String dropEqFunc = String.format(dropFuncFormat, "centroid_eq");
-        String dropGreaterEqFunc = String.format(dropFuncFormat, "centroid_greater_eq");
-        String dropGreaterFunc = String.format(dropFuncFormat, "centroid_greater");
-        String dropCmpFunc = String.format(dropFuncFormat, "centroid_cmp");
+        String updateCatalog = "DELETE FROM information_schema_fuzzy.domains2 "
+                + "WHERE table_schema = (select current_schema())"
+                + "AND domain_name = '" + domain + "'";
 
         connector.executeRawUpdate(updateCatalog);
 
-        connector.executeRaw(dropOpClass);
-
-        connector.executeRaw(dropCmpFunc);
-
-        connector.executeRaw(dropLowerOp);
-        connector.executeRaw(dropLowerEqOp);
-        connector.executeRaw(dropEqOp);
-        connector.executeRaw(dropGreaterEqOp);
-        connector.executeRaw(dropGreaterOp);
-
-        connector.executeRaw(dropLowerFunc);
-        connector.executeRaw(dropLowerEqFunc);
-        connector.executeRaw(dropEqFunc);
-        connector.executeRaw(dropGreaterEqFunc);
-        connector.executeRaw(dropGreaterFunc);
-       
-        opClassName = String.format(funcNameFormat, "choquet_class");
-        dropOpClass = "DROP OPERATOR CLASS IF EXISTS " + opClassName + " USING btree";
-
-        dropOpFormat = "DROP OPERATOR IF EXISTS %s (" + fullTypeName + "," + fullTypeName +")";
-        dropLowerOp = String.format(dropOpFormat, "&#<");
-        dropLowerEqOp = String.format(dropOpFormat, "&#<=");
-        dropEqOp = String.format(dropOpFormat, "&#=");
-        dropGreaterEqOp = String.format(dropOpFormat, "&#>=");
-        dropGreaterOp = String.format(dropOpFormat, "&#>");
-
-        dropFuncFormat = "DROP FUNCTION IF EXISTS " + funcNameFormat + "(" + fullTypeName + ", " + fullTypeName + ")";
-        dropLowerFunc = String.format(dropFuncFormat, "choquet_lower");
-        dropLowerEqFunc = String.format(dropFuncFormat, "choquet_lower_eq");
-        dropEqFunc = String.format(dropFuncFormat, "choquet_eq");
-        dropGreaterEqFunc = String.format(dropFuncFormat, "choquet_greater_eq");
-        dropGreaterFunc = String.format(dropFuncFormat, "choquet_greater");
-        dropCmpFunc = String.format(dropFuncFormat, "choquet_cmp");
-
-        connector.executeRaw(dropOpClass);
-        
-        connector.executeRaw(dropCmpFunc);
-
-        connector.executeRaw(dropLowerOp);
-        connector.executeRaw(dropLowerEqOp);
-        connector.executeRaw(dropEqOp);
-        connector.executeRaw(dropGreaterEqOp);
-        connector.executeRaw(dropGreaterOp);
-
-        connector.executeRaw(dropLowerFunc);
-        connector.executeRaw(dropLowerEqFunc);
-        connector.executeRaw(dropEqFunc);
-        connector.executeRaw(dropGreaterEqFunc);
-        connector.executeRaw(dropGreaterFunc);
-        
-        opClassName = String.format(funcNameFormat, "sugeno_class");
-        dropOpClass = "DROP OPERATOR CLASS IF EXISTS " + opClassName + " USING btree";
-
-        dropOpFormat = "DROP OPERATOR IF EXISTS %s (" + fullTypeName + "," + fullTypeName +")";
-        dropLowerOp = String.format(dropOpFormat, "&%<");
-        dropLowerEqOp = String.format(dropOpFormat, "&%<=");
-        dropEqOp = String.format(dropOpFormat, "&%=");
-        dropGreaterEqOp = String.format(dropOpFormat, "&%>=");
-        dropGreaterOp = String.format(dropOpFormat, "&%>");
-
-        dropFuncFormat = "DROP FUNCTION IF EXISTS " + funcNameFormat + "(" + fullTypeName + ", " + fullTypeName + ")";
-        dropLowerFunc = String.format(dropFuncFormat, "sugeno_lower");
-        dropLowerEqFunc = String.format(dropFuncFormat, "sugeno_lower_eq");
-        dropEqFunc = String.format(dropFuncFormat, "sugeno_eq");
-        dropGreaterEqFunc = String.format(dropFuncFormat, "sugeno_greater_eq");
-        dropGreaterFunc = String.format(dropFuncFormat, "sugeno_greater");
-        dropCmpFunc = String.format(dropFuncFormat, "sugeno_cmp");
-
-        connector.executeRaw(dropOpClass);
-        
-        connector.executeRaw(dropCmpFunc);
-
-        connector.executeRaw(dropLowerOp);
-        connector.executeRaw(dropLowerEqOp);
-        connector.executeRaw(dropEqOp);
-        connector.executeRaw(dropGreaterEqOp);
-        connector.executeRaw(dropGreaterOp);
-
-        connector.executeRaw(dropLowerFunc);
-        connector.executeRaw(dropLowerEqFunc);
-        connector.executeRaw(dropEqFunc);
-        connector.executeRaw(dropGreaterEqFunc);
-        connector.executeRaw(dropGreaterFunc);
+        dropOperatorCatalog("&@", "centroid", schemaName, fullTypeName);
+        dropOperatorCatalog("&#", "choquet", schemaName, fullTypeName);
+        dropOperatorCatalog("&%", "sugeno", schemaName, fullTypeName);
     }
-    
 }

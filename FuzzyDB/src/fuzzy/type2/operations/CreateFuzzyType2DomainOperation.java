@@ -1,15 +1,13 @@
 package fuzzy.type2.operations;
 
 import java.sql.SQLException;
-
+/* imports from fuzzy */
 import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 
 /**
- * Setups a new Type-2 Fuzzy type in the schema.
- * 
- * This includes all the queries required for the custom ordering of this type.
- *
+ * Setups a new Type-2 Fuzzy type in the schema. This includes all the queries
+ * required for the custom ordering of this type.
  */
 public class CreateFuzzyType2DomainOperation extends Operation {
 
@@ -20,9 +18,10 @@ public class CreateFuzzyType2DomainOperation extends Operation {
 
     /**
      * Creates a new instance.
+     *
      * @param connector Connector instance used to interface with the database.
-     * @param name name of the new type. Must not contain any periods.
-     * It will be used verbatim in the generated SQL queries.
+     * @param name name of the new type. Must not contain any periods. It will
+     * be used verbatim in the generated SQL queries.
      * @param type type of the underlying subtype. Must be a type that will be
      * understood by Postgres, as it will be used verbatim in the generated
      * queries. It can't be a domain type, since Postgres doesn't support arrays
@@ -35,17 +34,19 @@ public class CreateFuzzyType2DomainOperation extends Operation {
         this.upperBound = null;
         this.lowerBound = null;
     }
-    
+
     /**
      * Sets the bounds for the values for this fuzzy type.
-     * 
-     * <p>The bounds must be a SQL value, as it will be used verbatim in the
-     * CHECK constraints that will be generated. Both bounds can be null,
-     * or both can have a value. If one is null and the other is not, the
-     * behavior is undefined.</p>
-     * 
-     * <p>The bounds are both inclusive.</p>
-     * 
+     *
+     * <p>
+     * The bounds must be a SQL value, as it will be used verbatim in the CHECK
+     * constraints that will be generated. Both bounds can be null, or both can
+     * have a value. If one is null and the other is not, the behavior is
+     * undefined.</p>
+     *
+     * <p>
+     * The bounds are both inclusive.</p>
+     *
      * @param lowerBound lower bound for the subtype.
      * @param upperBound upper bound for the subtype.
      */
@@ -54,353 +55,170 @@ public class CreateFuzzyType2DomainOperation extends Operation {
         this.lowerBound = lowerBound;
     }
 
+    /**
+     * Creates the necessary operators for fuzzy Type II orderings.
+     *
+     * @param operator the defined operator symbol.
+     * @param ordering the ordering which is related to.
+     * @param catalog the catalog which is related to.
+     * @param typeName the type name of the domain
+     * @param defaultOrdering if the ordering is default.
+     * @throws java.sql.SQLException
+     */
+    public void createOperatorCatalog(String operator, String ordering,
+            String catalog, String typeName, String defaultOrdering) throws SQLException {
+        /*
+         * For each operator <, <=, =, >=, >
+         *   CREATE OR REPLACE FUNCTION test_schema.__test__<op>(elem1 test_schema.test, elem2 test_schema.test)
+         *   RETURNS boolean AS $$
+         *   BEGIN
+         *     return <op>(elem1, elem2);
+         *   END;
+         *   $$ LANGUAGE plpgsql;
+         */
+        String funcNameFormat = catalog + ".__" + this.name + "_%s";
+        String lowerFuncName = String.format(funcNameFormat, ordering + "_lower");
+        String lowerEqFuncName = String.format(funcNameFormat, ordering + "_lower_eq");
+        String eqFuncName = String.format(funcNameFormat, ordering + "_eq");
+        String greaterEqFuncName = String.format(funcNameFormat, ordering + "_greater_eq");
+        String greaterFuncName = String.format(funcNameFormat, ordering + "_greater");
+
+        String createFuncFormat = "CREATE OR REPLACE FUNCTION %s(elem1 " + typeName + ", elem2 " + typeName + ") "
+                + "RETURNS boolean AS $$ "
+                + "BEGIN "
+                + "return %s(elem1, elem2); "
+                + "END; "
+                + "$$ LANGUAGE plpgsql;";
+
+        String createLowerFunc = String.format(createFuncFormat, lowerFuncName, "information_schema_fuzzy.fuzzy2_" + ordering + "_lower");
+        String createLowerEqFunc = String.format(createFuncFormat, lowerEqFuncName, "information_schema_fuzzy.fuzzy2_" + ordering + "_eq");
+        String createEqFunc = String.format(createFuncFormat, eqFuncName, "information_schema_fuzzy.fuzzy2_" + ordering + "_eq");
+        String createGreaterEqFunc = String.format(createFuncFormat, greaterEqFuncName, "information_schema_fuzzy.fuzzy2_" + ordering + "_greater_eq");
+        String createGreaterFunc = String.format(createFuncFormat, greaterFuncName, "information_schema_fuzzy.fuzzy2_" + ordering + "_greater");
+
+        /*
+         * For each operator <, <=, =, >=, >
+         *   CREATE OPERATOR <op> 
+         *   (LEFTARG = test_schema.test, RIGHTARG = test_schema.test, 
+         *   PROCEDURE = test_schema.__test__<opname>)
+         */
+        String createOpFormat = "CREATE OPERATOR %s (LEFTARG = " + typeName + ", RIGHTARG = " + typeName + ", PROCEDURE = %s)";
+        String createLowerOp = String.format(createOpFormat, operator + "<", lowerFuncName);
+        String createLowerEqOp = String.format(createOpFormat, operator + "<=", lowerEqFuncName);
+        String createEqOp = String.format(createOpFormat, operator + "=", eqFuncName);
+        String createGreaterEqOp = String.format(createOpFormat, operator + ">=", greaterEqFuncName);
+        String createGreaterOp = String.format(createOpFormat, operator + ">", greaterFuncName);
+
+        /*
+         * CREATE OR REPLACE FUNCTION test_schema.__test__cmp(comp1 test_schema.test, comp2 test_schema.test)
+         * RETURNS integer AS $$
+         * BEGIN
+         *   if comp1 <op>= comp2 then return 0;
+         *   else if comp1 <op>< comp2 then return -1;
+         *   else return 1;
+         *   end if;
+         *   end if;
+         * END;
+         * $$ LANGUAGE plpgsql;
+         */
+        String cmpFuncName = String.format(funcNameFormat, "cmp");
+        String createCmpFunc = "CREATE OR REPLACE FUNCTION " + cmpFuncName + "(comp1 " + typeName + ", comp2 " + typeName + ") "
+                + "RETURNS integer AS $$ "
+                + "BEGIN "
+                + "if comp1 " + operator + "= comp2 then return 0; "
+                + "else if comp1 " + operator + "< comp2 then return -1; "
+                + "else return 1; "
+                + "end if; "
+                + "end if; "
+                + "END; "
+                + "$$ LANGUAGE plpgsql;";
+
+        /*
+         * CREATE OPERATOR CLASS test_schema.__test__choquet_class
+         * DEFAULT FOR TYPE test_schema.test USING btree AS
+         * OPERATOR 1 <op><,
+         * OPERATOR 2 <op><=,
+         * OPERATOR 3 <op>=,
+         * OPERATOR 4 <op>>=,
+         * OPERATOR 5 <op>>,
+         * FUNCTION 1 test_schema.__test__cmp (test_schema.test, test_schema.test);
+         */
+        String opClassName = String.format(funcNameFormat, ordering + "_class");
+        String createOpClass = "CREATE OPERATOR CLASS " + opClassName
+                + defaultOrdering + "FOR TYPE " + typeName + " USING btree AS "
+                + "OPERATOR 1 " + operator + "<, "
+                + "OPERATOR 2 " + operator + "<=, "
+                + "OPERATOR 3 " + operator + "=, "
+                + "OPERATOR 4 " + operator + ">=, "
+                + "OPERATOR 5 " + operator + ">, "
+                + "FUNCTION 1 " + cmpFuncName + " (" + typeName + ", " + typeName + ");";
+
+        /* Create operator functions */
+        this.connector.executeRaw(createLowerFunc);
+        this.connector.executeRaw(createLowerEqFunc);
+        this.connector.executeRaw(createEqFunc);
+        this.connector.executeRaw(createGreaterEqFunc);
+        this.connector.executeRaw(createGreaterFunc);
+        /* Create operators */
+        this.connector.executeRaw(createLowerOp);
+        this.connector.executeRaw(createLowerEqOp);
+        this.connector.executeRaw(createEqOp);
+        this.connector.executeRaw(createGreaterEqOp);
+        this.connector.executeRaw(createGreaterOp);
+        /* Create operator class*/
+        this.connector.executeRaw(createCmpFunc);
+        this.connector.executeRaw(createOpClass);
+    }
+
     @Override
     public void execute() throws SQLException {
 
         if (this.connector.getSchema().equals("")) {
             throw new SQLException("No database selected");
         }
+
         String catalog = this.connector.getSchema();
 
         /*
-        * For example, CREATE FUZZY DOMAIN test AS POSSIBILITY DISTRIBUTION
-        * ON 1..100, and the current schema is 'test_schema'.
-        * The following queries will be generated:
-        */
-
+         * For example, CREATE FUZZY DOMAIN test AS POSSIBILITY DISTRIBUTION
+         * ON 1..100, and the current schema is 'test_schema'.
+         * The following queries will be generated:
+         */
 
         /*
-        * INSERT INTO information_schema_fuzzy.domains2 
-        * VALUES (DEFAULT, 'test_schema', 'test', 'INTEGER', '1', '100')
-        */
+         * INSERT INTO information_schema_fuzzy.domains2 
+         * VALUES (DEFAULT, 'test_schema', 'test', 'INTEGER', '1', '100')
+         */
         String insertDomainCatalog = "INSERT INTO information_schema_fuzzy.domains2 "
-                                   + "VALUES (DEFAULT, "
-                                   + "'" + catalog + "' ,"
-                                   + "'" + this.name + "' ,"
-                                   + "'" + this.type + "', "
-                                   + (null != this.lowerBound ? "'" + this.lowerBound + "'" : "NULL") + ", "
-                                   + (null != this.upperBound ? "'" + this.upperBound + "'" : "NULL") + ")";
+                + "VALUES (DEFAULT, "
+                + "'" + catalog + "' ,"
+                + "'" + this.name + "' ,"
+                + "'" + this.type + "', "
+                + (null != this.lowerBound ? "'" + this.lowerBound + "'" : "NULL") + ", "
+                + (null != this.upperBound ? "'" + this.upperBound + "'" : "NULL") + ")";
 
         String fullTypeName = catalog + "." + this.name;
-        
+
         /*
-        * CREATE TYPE test_schema.test AS (
-        *    odd real[], 
-        *    value integer[],
-        *    type boolean
-        * )
-        */
+         * CREATE TYPE test_schema.test AS (
+         *    odd real[], 
+         *    value integer[],
+         *    type boolean
+         * )
+         */
         String createType = "CREATE TYPE " + fullTypeName + " AS ("
-                           + "odd real[], "
-                           + "value " + this.type + " ARRAY,"
-                           + "type boolean"
-                           + ")";
+                + "odd real[], "
+                + "value " + this.type + " ARRAY,"
+                + "type boolean"
+                + ")";
 
-        /*
-        * For each operator <, <=, =, >=, >
-        * CREATE OR REPLACE FUNCTION test_schema.__test__<opname>(elem1 test_schema.test, elem2 test_schema.test)
-        * RETURNS boolean AS $$
-        * BEGIN
-        * return <actual_fuzzyop>(elem1, elem2);
-        * END;
-        * $$ LANGUAGE plpgsql;
-        */
-        String funcNameFormat = catalog + ".__" + this.name + "_%s";
-        String lowerFuncName = String.format(funcNameFormat, "centroid_lower");
-        String lowerEqFuncName = String.format(funcNameFormat, "centroid_lower_eq");
-        String eqFuncName = String.format(funcNameFormat, "centroid_eq");
-        String greaterEqFuncName = String.format(funcNameFormat, "centroid_greater_eq");
-        String greaterFuncName = String.format(funcNameFormat, "centroid_greater");
-
-        String createFuncFormat = "CREATE OR REPLACE FUNCTION %s(elem1 " + fullTypeName + ", elem2 " + fullTypeName + ") "
-                                + "RETURNS boolean AS $$ "
-                                + "BEGIN "
-                                + "return %s(elem1, elem2); "
-                                + "END; "
-                                + "$$ LANGUAGE plpgsql;";
-
-        String createLowerFunc = String.format(createFuncFormat, lowerFuncName, "information_schema_fuzzy.fuzzy2_centroid_lower");
-        String createLowerEqFunc = String.format(createFuncFormat, lowerEqFuncName, "information_schema_fuzzy.fuzzy2_centroid_lower_eq");
-        String createEqFunc = String.format(createFuncFormat, eqFuncName, "information_schema_fuzzy.fuzzy2_centroid_eq");
-        String createGreaterEqFunc = String.format(createFuncFormat, greaterEqFuncName, "information_schema_fuzzy.fuzzy2_centroid_greater_eq");
-        String createGreaterFunc = String.format(createFuncFormat, greaterFuncName, "information_schema_fuzzy.fuzzy2_centroid_greater");
-
-        /*
-        * For each operator <, <=, =, >=, >
-        * CREATE OPERATOR <op_symbol> (LEFTARG = test_schema.test, 
-        * RIGHTARG = test_schema.test, PROCEDURE = test_schema.__test__<opname>)
-        */
-        String createOpFormat = "CREATE OPERATOR %s (LEFTARG = " + fullTypeName + ", RIGHTARG = " + fullTypeName + ", PROCEDURE = %s)";
-        String createLowerOp = String.format(createOpFormat, "&@<", lowerFuncName);
-        String createLowerEqOp = String.format(createOpFormat, "&@<=", lowerEqFuncName);
-        String createEqOp = String.format(createOpFormat, "&@=", eqFuncName);
-        String createGreaterEqOp = String.format(createOpFormat, "&@>=", greaterEqFuncName);
-        String createGreaterOp = String.format(createOpFormat, "&@>", greaterFuncName);
-
-        /*
-        * CREATE OR REPLACE FUNCTION test_schema.__test__cmp(comp1 test_schema.test, comp2 test_schema.test)
-        * RETURNS integer AS $$
-        * BEGIN
-        * if comp1 = comp2 then return 0;
-        * else if comp1 < comp2 then return -1;
-        * else return 1;
-        * end if;
-        * end if;
-        * END;
-        * $$ LANGUAGE plpgsql;
-        */
-        String cmpFuncName = String.format(funcNameFormat, "cmp");
-        String createCmpFunc = "CREATE OR REPLACE FUNCTION " + cmpFuncName + "(comp1 " + fullTypeName + ", comp2 " + fullTypeName +") "
-                               + "RETURNS integer AS $$ "
-                               + "BEGIN "
-                               + "if comp1 &@= comp2 then return 0; "
-                               + "else if comp1 &@< comp2 then return -1; "
-                               + "else return 1; "
-                               + "end if; "
-                               + "end if; "
-                               + "END; "
-                               + "$$ LANGUAGE plpgsql;";
-
-        /*
-        * CREATE OPERATOR CLASS test_schema.__test__centroid_class
-        * DEFAULT FOR TYPE test_schema.test USING btree AS
-        * OPERATOR 1 <,
-        * OPERATOR 2 <=,
-        * OPERATOR 3 =,
-        * OPERATOR 4 >=,
-        * OPERATOR 5 >,
-        * FUNCTION 1 test_schema.__test__cmp (test_schema.test, test_schema.test);
-        */
-        String opClassName = String.format(funcNameFormat, "centroid_class");
-        String createOpClass = "CREATE OPERATOR CLASS " + opClassName + " "
-                             + "FOR TYPE " + fullTypeName + " USING btree AS "
-                             + "OPERATOR 1 &@<, "
-                             + "OPERATOR 2 &@<=, "
-                             + "OPERATOR 3 &@=, "
-                             + "OPERATOR 4 &@>=, "
-                             + "OPERATOR 5 &@>, "
-                             + "FUNCTION 1 " + cmpFuncName + " (" + fullTypeName + ", " + fullTypeName + ");";
-
-
+        /* Create the previously declarated type */
         this.connector.executeRaw(createType);
         this.connector.executeRaw(insertDomainCatalog);
-        
-        this.connector.executeRaw(createLowerFunc);
-        this.connector.executeRaw(createLowerEqFunc);
-        this.connector.executeRaw(createEqFunc);
-        this.connector.executeRaw(createGreaterEqFunc);
-        this.connector.executeRaw(createGreaterFunc);
 
-        this.connector.executeRaw(createLowerOp);
-        this.connector.executeRaw(createLowerEqOp);
-        this.connector.executeRaw(createEqOp);
-        this.connector.executeRaw(createGreaterEqOp);
-        this.connector.executeRaw(createGreaterOp);
-
-        this.connector.executeRaw(createCmpFunc);
-        this.connector.executeRaw(createOpClass);     
-        
-        
-        /*
-        * For each operator <, <=, =, >=, >
-        * CREATE OR REPLACE FUNCTION test_schema.__test__<opname>(elem1 test_schema.test, elem2 test_schema.test)
-        * RETURNS boolean AS $$
-        * BEGIN
-        * return <actual_fuzzyop>(elem1, elem2);
-        * END;
-        * $$ LANGUAGE plpgsql;
-        */
-        funcNameFormat = catalog + ".__" + this.name + "_%s";
-        lowerFuncName = String.format(funcNameFormat, "choquet_lower");
-        lowerEqFuncName = String.format(funcNameFormat, "choquet_lower_eq");
-        eqFuncName = String.format(funcNameFormat, "choquet_eq");
-        greaterEqFuncName = String.format(funcNameFormat, "choquet_greater_eq");
-        greaterFuncName = String.format(funcNameFormat, "choquet_greater");
-
-        createFuncFormat = "CREATE OR REPLACE FUNCTION %s(elem1 " + fullTypeName + ", elem2 " + fullTypeName + ") "
-                                + "RETURNS boolean AS $$ "
-                                + "BEGIN "
-                                + "return %s(elem1, elem2); "
-                                + "END; "
-                                + "$$ LANGUAGE plpgsql;";
-
-        createLowerFunc = String.format(createFuncFormat, lowerFuncName, "information_schema_fuzzy.fuzzy2_choquet_lower");
-        createLowerEqFunc = String.format(createFuncFormat, lowerEqFuncName, "information_schema_fuzzy.fuzzy2_choquet_lower_eq");
-        createEqFunc = String.format(createFuncFormat, eqFuncName, "information_schema_fuzzy.fuzzy2_choquet_eq");
-        createGreaterEqFunc = String.format(createFuncFormat, greaterEqFuncName, "information_schema_fuzzy.fuzzy2_choquet_greater_eq");
-        createGreaterFunc = String.format(createFuncFormat, greaterFuncName, "information_schema_fuzzy.fuzzy2_choquet_greater");
-
-        /*
-        * For each operator <, <=, =, >=, >
-        * CREATE OPERATOR <op_symbol> (LEFTARG = test_schema.test, 
-        * RIGHTARG = test_schema.test, PROCEDURE = test_schema.__test__<opname>)
-        */
-        createOpFormat = "CREATE OPERATOR %s (LEFTARG = " + fullTypeName + ", RIGHTARG = " + fullTypeName + ", PROCEDURE = %s)";
-        createLowerOp = String.format(createOpFormat, "&#<", lowerFuncName);
-        createLowerEqOp = String.format(createOpFormat, "&#<=", lowerEqFuncName);
-        createEqOp = String.format(createOpFormat, "&#=", eqFuncName);
-        createGreaterEqOp = String.format(createOpFormat, "&#>=", greaterEqFuncName);
-        createGreaterOp = String.format(createOpFormat, "&#>", greaterFuncName);
-
-        /*
-        * CREATE OR REPLACE FUNCTION test_schema.__test__cmp(comp1 test_schema.test, comp2 test_schema.test)
-        * RETURNS integer AS $$
-        * BEGIN
-        * if comp1 = comp2 then return 0;
-        * else if comp1 < comp2 then return -1;
-        * else return 1;
-        * end if;
-        * end if;
-        * END;
-        * $$ LANGUAGE plpgsql;
-        */
-        cmpFuncName = String.format(funcNameFormat, "cmp");
-        createCmpFunc = "CREATE OR REPLACE FUNCTION " + cmpFuncName + "(comp1 " + fullTypeName + ", comp2 " + fullTypeName +") "
-                               + "RETURNS integer AS $$ "
-                               + "BEGIN "
-                               + "if comp1 &#= comp2 then return 0; "
-                               + "else if comp1 &#< comp2 then return -1; "
-                               + "else return 1; "
-                               + "end if; "
-                               + "end if; "
-                               + "END; "
-                               + "$$ LANGUAGE plpgsql;";
-
-        /*
-        * CREATE OPERATOR CLASS test_schema.__test__choquet_class
-        * DEFAULT FOR TYPE test_schema.test USING btree AS
-        * OPERATOR 1 <,
-        * OPERATOR 2 <=,
-        * OPERATOR 3 =,
-        * OPERATOR 4 >=,
-        * OPERATOR 5 >,
-        * FUNCTION 1 test_schema.__test__cmp (test_schema.test, test_schema.test);
-        */
-        opClassName = String.format(funcNameFormat, "choquet_class");
-        createOpClass = "CREATE OPERATOR CLASS " + opClassName + " "
-                             + "FOR TYPE " + fullTypeName + " USING btree AS "
-                             + "OPERATOR 1 &#<, "
-                             + "OPERATOR 2 &#<=, "
-                             + "OPERATOR 3 &#=, "
-                             + "OPERATOR 4 &#>=, "
-                             + "OPERATOR 5 &#>, "
-                             + "FUNCTION 1 " + cmpFuncName + " (" + fullTypeName + ", " + fullTypeName + ");";
-
-
-        this.connector.executeRaw(createLowerFunc);
-        this.connector.executeRaw(createLowerEqFunc);
-        this.connector.executeRaw(createEqFunc);
-        this.connector.executeRaw(createGreaterEqFunc);
-        this.connector.executeRaw(createGreaterFunc);
-
-        this.connector.executeRaw(createLowerOp);
-        this.connector.executeRaw(createLowerEqOp);
-        this.connector.executeRaw(createEqOp);
-        this.connector.executeRaw(createGreaterEqOp);
-        this.connector.executeRaw(createGreaterOp);
-
-        this.connector.executeRaw(createCmpFunc);
-        this.connector.executeRaw(createOpClass);
-        
-       /*
-        * For each operator <, <=, =, >=, >
-        * CREATE OR REPLACE FUNCTION test_schema.__test__<opname>(elem1 test_schema.test, elem2 test_schema.test)
-        * RETURNS boolean AS $$
-        * BEGIN
-        * return <actual_fuzzyop>(elem1, elem2);
-        * END;
-        * $$ LANGUAGE plpgsql;
-        */
-        funcNameFormat = catalog + ".__" + this.name + "_%s";
-        lowerFuncName = String.format(funcNameFormat, "sugeno_lower");
-        lowerEqFuncName = String.format(funcNameFormat, "sugeno_lower_eq");
-        eqFuncName = String.format(funcNameFormat, "sugeno_eq");
-        greaterEqFuncName = String.format(funcNameFormat, "sugeno_greater_eq");
-        greaterFuncName = String.format(funcNameFormat, "sugeno_greater");
-
-        createFuncFormat = "CREATE OR REPLACE FUNCTION %s(elem1 " + fullTypeName + ", elem2 " + fullTypeName + ") "
-                                + "RETURNS boolean AS $$ "
-                                + "BEGIN "
-                                + "return %s(elem1, elem2); "
-                                + "END; "
-                                + "$$ LANGUAGE plpgsql;";
-
-        createLowerFunc = String.format(createFuncFormat, lowerFuncName, "information_schema_fuzzy.fuzzy2_sugeno_lower");
-        createLowerEqFunc = String.format(createFuncFormat, lowerEqFuncName, "information_schema_fuzzy.fuzzy2_sugeno_lower_eq");
-        createEqFunc = String.format(createFuncFormat, eqFuncName, "information_schema_fuzzy.fuzzy2_sugeno_eq");
-        createGreaterEqFunc = String.format(createFuncFormat, greaterEqFuncName, "information_schema_fuzzy.fuzzy2_sugeno_greater_eq");
-        createGreaterFunc = String.format(createFuncFormat, greaterFuncName, "information_schema_fuzzy.fuzzy2_sugeno_greater");
-
-        /*
-        * For each operator <, <=, =, >=, >
-        * CREATE OPERATOR <op_symbol> (LEFTARG = test_schema.test, 
-        * RIGHTARG = test_schema.test, PROCEDURE = test_schema.__test__<opname>)
-        */
-        createOpFormat = "CREATE OPERATOR %s (LEFTARG = " + fullTypeName + ", RIGHTARG = " + fullTypeName + ", PROCEDURE = %s)";
-        createLowerOp = String.format(createOpFormat, "&%<", lowerFuncName);
-        createLowerEqOp = String.format(createOpFormat, "&%<=", lowerEqFuncName);
-        createEqOp = String.format(createOpFormat, "&%=", eqFuncName);
-        createGreaterEqOp = String.format(createOpFormat, "&%>=", greaterEqFuncName);
-        createGreaterOp = String.format(createOpFormat, "&%>", greaterFuncName);
-
-        /*
-        * CREATE OR REPLACE FUNCTION test_schema.__test__cmp(comp1 test_schema.test, comp2 test_schema.test)
-        * RETURNS integer AS $$
-        * BEGIN
-        * if comp1 = comp2 then return 0;
-        * else if comp1 < comp2 then return -1;
-        * else return 1;
-        * end if;
-        * end if;
-        * END;
-        * $$ LANGUAGE plpgsql;
-        */
-        cmpFuncName = String.format(funcNameFormat, "cmp");
-        createCmpFunc = "CREATE OR REPLACE FUNCTION " + cmpFuncName + "(comp1 " + fullTypeName + ", comp2 " + fullTypeName +") "
-                               + "RETURNS integer AS $$ "
-                               + "BEGIN "
-                               + "if comp1 &%= comp2 then return 0; "
-                               + "else if comp1 &%< comp2 then return -1; "
-                               + "else return 1; "
-                               + "end if; "
-                               + "end if; "
-                               + "END; "
-                               + "$$ LANGUAGE plpgsql;";
-
-        /*
-        * CREATE OPERATOR CLASS test_schema.__test__choquet_class
-        * DEFAULT FOR TYPE test_schema.test USING btree AS
-        * OPERATOR 1 <,
-        * OPERATOR 2 <=,
-        * OPERATOR 3 =,
-        * OPERATOR 4 >=,
-        * OPERATOR 5 >,
-        * FUNCTION 1 test_schema.__test__cmp (test_schema.test, test_schema.test);
-        */
-        opClassName = String.format(funcNameFormat, "sugeno_class");
-        createOpClass = "CREATE OPERATOR CLASS " + opClassName + " "
-                             + "DEFAULT FOR TYPE " + fullTypeName + " USING btree AS "
-                             + "OPERATOR 1 &%<, "
-                             + "OPERATOR 2 &%<=, "
-                             + "OPERATOR 3 &%=, "
-                             + "OPERATOR 4 &%>=, "
-                             + "OPERATOR 5 &%>, "
-                             + "FUNCTION 1 " + cmpFuncName + " (" + fullTypeName + ", " + fullTypeName + ");";
-
-
-        this.connector.executeRaw(createLowerFunc);
-        this.connector.executeRaw(createLowerEqFunc);
-        this.connector.executeRaw(createEqFunc);
-        this.connector.executeRaw(createGreaterEqFunc);
-        this.connector.executeRaw(createGreaterFunc);
-
-        this.connector.executeRaw(createLowerOp);
-        this.connector.executeRaw(createLowerEqOp);
-        this.connector.executeRaw(createEqOp);
-        this.connector.executeRaw(createGreaterEqOp);
-        this.connector.executeRaw(createGreaterOp);
-
-        this.connector.executeRaw(createCmpFunc);
-        this.connector.executeRaw(createOpClass);
+        /* Create operator catalog for each ordering operator. */
+        createOperatorCatalog("&@", "centroid", catalog, fullTypeName, " ");
+        createOperatorCatalog("&#", "choquet", catalog, fullTypeName, " ");
+        createOperatorCatalog("&%", "sugeno", catalog, fullTypeName, " DEFAULT ");
     }
 }
