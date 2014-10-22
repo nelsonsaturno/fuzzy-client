@@ -829,6 +829,58 @@ CREATE TABLE IF NOT EXISTS information_schema_fuzzy.columns5 (
 );
 
 
+-- GENERAL FUNCTION
+CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy5_f(elem anyelement, tag TEXT, dom TEXT) RETURNS REAL AS $$
+DECLARE
+de REAL;
+nu REAL;
+po REAL;
+res REAL;
+siz INTEGER;
+e1 TEXT;
+i INTEGER;
+id1 INTEGER;
+id2 INTEGER;
+BEGIN
+siz := array_length(elem.odd,1);
+
+de := 0;
+nu := 0;
+
+
+--t3
+
+id1 = (SELECT label_id FROM information_schema_fuzzy.domains, information_schema_fuzzy.labels WHERE
+    information_schema_fuzzy.domains.domain_name = dom AND
+    information_schema_fuzzy.labels.label_name = tag AND
+    information_schema_fuzzy.labels.domain_id = information_schema_fuzzy.domains.type3_domain_id
+    );
+
+FOR i IN 1..siz LOOP
+    e1 := elem.value[i];
+    
+    
+    id2 = (SELECT label_id FROM information_schema_fuzzy.domains, information_schema_fuzzy.labels WHERE
+        information_schema_fuzzy.domains.domain_name = dom AND
+        information_schema_fuzzy.labels.label_name = e1 AND
+        information_schema_fuzzy.labels.domain_id = information_schema_fuzzy.domains.type3_domain_id
+        );
+        
+    po := (SELECT value FROM information_schema_fuzzy.similarities WHERE
+                    label1_id = id1 AND label2_id = id2 LIMIT 1);
+    
+    RAISE NOTICE 'row = % % %', id1, id2, po;
+    nu := nu + elem.odd[i]*COALESCE(po,0.0);
+    de := de + elem.odd[i];
+END LOOP;
+
+
+res := nu/de;
+
+return res;
+
+END;
+$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy5_eq(elem1 anyelement, elem2 anyelement) RETURNS boolean AS $$
 DECLARE
