@@ -58,15 +58,11 @@ public class CreateFuzzyType2DomainOperation extends Operation {
     /**
      * Creates the necessary operators for fuzzy Type II orderings.
      *
-     * @param operator the defined operator symbol.
-     * @param ordering the ordering which is related to.
      * @param catalog the catalog which is related to.
      * @param typeName the type name of the domain
-     * @param defaultOrdering if the ordering is default.
      * @throws java.sql.SQLException
      */
-    public void createOperatorCatalog(String operator, String ordering,
-            String catalog, String typeName, String defaultOrdering) throws SQLException {
+    public void createOperatorCatalog(String catalog, String typeName) throws SQLException {
         /*
          * For each operator <, <=, =, >=, >
          *   CREATE OR REPLACE FUNCTION test_schema.__test__<op>(elem1 test_schema.test, elem2 test_schema.test)
@@ -77,11 +73,11 @@ public class CreateFuzzyType2DomainOperation extends Operation {
          *   $$ LANGUAGE plpgsql;
          */
         String funcNameFormat = catalog + ".__" + this.name + "_%s";
-        String lowerFuncName = String.format(funcNameFormat, ordering + "_lower");
-        String lowerEqFuncName = String.format(funcNameFormat, ordering + "_lower_eq");
-        String eqFuncName = String.format(funcNameFormat, ordering + "_eq");
-        String greaterEqFuncName = String.format(funcNameFormat, ordering + "_greater_eq");
-        String greaterFuncName = String.format(funcNameFormat, ordering + "_greater");
+        String lowerFuncName = String.format(funcNameFormat, "lower");
+        String lowerEqFuncName = String.format(funcNameFormat, "lower_eq");
+        String eqFuncName = String.format(funcNameFormat, "eq");
+        String greaterEqFuncName = String.format(funcNameFormat, "greater_eq");
+        String greaterFuncName = String.format(funcNameFormat, "greater");
 
         String createFuncFormat = "CREATE OR REPLACE FUNCTION %s(elem1 " + typeName + ", elem2 " + typeName + ") "
                 + "RETURNS boolean AS $$ "
@@ -90,11 +86,11 @@ public class CreateFuzzyType2DomainOperation extends Operation {
                 + "END; "
                 + "$$ LANGUAGE plpgsql;";
 
-        String createLowerFunc = String.format(createFuncFormat, lowerFuncName, "information_schema_fuzzy.fuzzy2_" + ordering + "_lower");
-        String createLowerEqFunc = String.format(createFuncFormat, lowerEqFuncName, "information_schema_fuzzy.fuzzy2_" + ordering + "_eq");
-        String createEqFunc = String.format(createFuncFormat, eqFuncName, "information_schema_fuzzy.fuzzy2_" + ordering + "_eq");
-        String createGreaterEqFunc = String.format(createFuncFormat, greaterEqFuncName, "information_schema_fuzzy.fuzzy2_" + ordering + "_greater_eq");
-        String createGreaterFunc = String.format(createFuncFormat, greaterFuncName, "information_schema_fuzzy.fuzzy2_" + ordering + "_greater");
+        String createLowerFunc = String.format(createFuncFormat, lowerFuncName, "information_schema_fuzzy.fuzzy2_lower");
+        String createLowerEqFunc = String.format(createFuncFormat, lowerEqFuncName, "information_schema_fuzzy.fuzzy2_eq");
+        String createEqFunc = String.format(createFuncFormat, eqFuncName, "information_schema_fuzzy.fuzzy2_eq");
+        String createGreaterEqFunc = String.format(createFuncFormat, greaterEqFuncName, "information_schema_fuzzy.fuzzy2_greater_eq");
+        String createGreaterFunc = String.format(createFuncFormat, greaterFuncName, "information_schema_fuzzy.fuzzy2_greater");
 
         /*
          * For each operator <, <=, =, >=, >
@@ -103,11 +99,11 @@ public class CreateFuzzyType2DomainOperation extends Operation {
          *   PROCEDURE = test_schema.__test__<opname>)
          */
         String createOpFormat = "CREATE OPERATOR %s (LEFTARG = " + typeName + ", RIGHTARG = " + typeName + ", PROCEDURE = %s)";
-        String createLowerOp = String.format(createOpFormat, operator + "<", lowerFuncName);
-        String createLowerEqOp = String.format(createOpFormat, operator + "<=", lowerEqFuncName);
-        String createEqOp = String.format(createOpFormat, operator + "=", eqFuncName);
-        String createGreaterEqOp = String.format(createOpFormat, operator + ">=", greaterEqFuncName);
-        String createGreaterOp = String.format(createOpFormat, operator + ">", greaterFuncName);
+        String createLowerOp = String.format(createOpFormat, "<", lowerFuncName);
+        String createLowerEqOp = String.format(createOpFormat, "<=", lowerEqFuncName);
+        String createEqOp = String.format(createOpFormat, "=", eqFuncName);
+        String createGreaterEqOp = String.format(createOpFormat, ">=", greaterEqFuncName);
+        String createGreaterOp = String.format(createOpFormat, ">", greaterFuncName);
 
         /*
          * CREATE OR REPLACE FUNCTION test_schema.__test__cmp(comp1 test_schema.test, comp2 test_schema.test)
@@ -125,8 +121,8 @@ public class CreateFuzzyType2DomainOperation extends Operation {
         String createCmpFunc = "CREATE OR REPLACE FUNCTION " + cmpFuncName + "(comp1 " + typeName + ", comp2 " + typeName + ") "
                 + "RETURNS integer AS $$ "
                 + "BEGIN "
-                + "if comp1 " + operator + "= comp2 then return 0; "
-                + "else if comp1 " + operator + "< comp2 then return -1; "
+                + "if comp1 = comp2 then return 0; "
+                + "else if comp1 < comp2 then return -1; "
                 + "else return 1; "
                 + "end if; "
                 + "end if; "
@@ -143,15 +139,15 @@ public class CreateFuzzyType2DomainOperation extends Operation {
          * OPERATOR 5 <op>>,
          * FUNCTION 1 test_schema.__test__cmp (test_schema.test, test_schema.test);
          */
-        String opClassName = String.format(funcNameFormat, ordering + "_class");
+        String opClassName = String.format(funcNameFormat, "class");
         String createOpClass = "CREATE OPERATOR CLASS " + opClassName
-                + defaultOrdering + "FOR TYPE " + typeName + " USING btree AS "
-                + "OPERATOR 1 " + operator + "<, "
-                + "OPERATOR 2 " + operator + "<=, "
-                + "OPERATOR 3 " + operator + "=, "
-                + "OPERATOR 4 " + operator + ">=, "
-                + "OPERATOR 5 " + operator + ">, "
-                + "FUNCTION 1 " + cmpFuncName + " (" + typeName + ", " + typeName + ");";
+                + " DEFAULT FOR TYPE " + typeName + " USING btree AS "
+                + "OPERATOR 1 <, "
+                + "OPERATOR 2 <=, "
+                + "OPERATOR 3 =, "
+                + "OPERATOR 4 >=, "
+                + "OPERATOR 5 >, "
+                + "FUNCTION 1 " + cmpFuncName + "(" + typeName + ", " + typeName + ");";
 
         /* Create operator functions */
         this.connector.executeRaw(createLowerFunc);
@@ -211,14 +207,14 @@ public class CreateFuzzyType2DomainOperation extends Operation {
                 + "value " + this.type + " ARRAY,"
                 + "type boolean"
                 + ")";
-
+        
         /* Create the previously declarated type */
         this.connector.executeRaw(createType);
         this.connector.executeRaw(insertDomainCatalog);
 
         /* Create operator catalog for each ordering operator. */
-        createOperatorCatalog("&@", "centroid", catalog, fullTypeName, " ");
-        createOperatorCatalog("&#", "choquet", catalog, fullTypeName, " ");
-        createOperatorCatalog("&%", "sugeno", catalog, fullTypeName, " DEFAULT ");
+        createOperatorCatalog(catalog, fullTypeName);
+//        createOperatorCatalog("&#", "choquet", catalog, fullTypeName, " DEFAULT ");
+//        createOperatorCatalog("&%", "sugeno", catalog, fullTypeName, " DEFAULT ");
     }
 }

@@ -17,7 +17,7 @@ public class DropFuzzyType2DomainOperation extends Operation {
      * Creates a new instance.
      *
      * @param connector Connector instance used to interface with the database.
-     * @param domain    Domain that has to be dropped.
+     * @param domain Domain that has to be dropped.
      */
     public DropFuzzyType2DomainOperation(Connector connector, String domain) {
         super(connector);
@@ -27,43 +27,40 @@ public class DropFuzzyType2DomainOperation extends Operation {
     /**
      * Drops the necessary operators for fuzzy Type II orderings.
      *
-     * @param operator the defined operator symbol.
-     * @param ordering the ordering which is related to.
      * @param schemaName the schema name which is related to.
      * @param typeName the type name of the domain
      * @throws java.sql.SQLException
      */
-    public void dropOperatorCatalog(String operator, String ordering,
-            String schemaName, String typeName) throws SQLException {
+    public void dropOperatorCatalog(String schemaName, String typeName) throws SQLException {
 
         String funcNameFormat = schemaName + ".__" + domain + "_%s";
 
         /*
          * DROP OPERATOR CLASS IF EXISTS public.__<class> USING btree
          */
-        String opClassName = String.format(funcNameFormat, ordering + "_class");
+        String opClassName = String.format(funcNameFormat, "_class");
         String dropOpClass = "DROP OPERATOR CLASS IF EXISTS " + opClassName + " USING btree";
 
         /*
          * DROP OPERATOR IF EXISTS <op> (public.<domain>,public.<domain>)
          */
         String dropOpFormat = "DROP OPERATOR IF EXISTS %s (" + typeName + "," + typeName + ")";
-        String dropLowerOp = String.format(dropOpFormat, operator + "<");
-        String dropLowerEqOp = String.format(dropOpFormat, operator + "<=");
-        String dropEqOp = String.format(dropOpFormat, operator + "=");
-        String dropGreaterEqOp = String.format(dropOpFormat, operator + ">=");
-        String dropGreaterOp = String.format(dropOpFormat, operator + ">");
+        String dropLowerOp = String.format(dropOpFormat, "<");
+        String dropLowerEqOp = String.format(dropOpFormat, "<=");
+        String dropEqOp = String.format(dropOpFormat, "=");
+        String dropGreaterEqOp = String.format(dropOpFormat, ">=");
+        String dropGreaterOp = String.format(dropOpFormat, ">");
 
         /*
          *  DROP FUNCTION IF EXISTS public.__<function>(public.<domain>, public.<domain>)
          */
         String dropFuncFormat = "DROP FUNCTION IF EXISTS " + funcNameFormat + "(" + typeName + ", " + typeName + ")";
-        String dropLowerFunc = String.format(dropFuncFormat, ordering + "_lower");
-        String dropLowerEqFunc = String.format(dropFuncFormat, ordering + "_lower_eq");
-        String dropEqFunc = String.format(dropFuncFormat, ordering + "_eq");
-        String dropGreaterEqFunc = String.format(dropFuncFormat, ordering + "_greater_eq");
-        String dropGreaterFunc = String.format(dropFuncFormat, ordering + "_greater");
-        String dropCmpFunc = String.format(dropFuncFormat, ordering + "_cmp");
+        String dropLowerFunc = String.format(dropFuncFormat, "_lower");
+        String dropLowerEqFunc = String.format(dropFuncFormat, "_lower_eq");
+        String dropEqFunc = String.format(dropFuncFormat, "_eq");
+        String dropGreaterEqFunc = String.format(dropFuncFormat, "_greater_eq");
+        String dropGreaterFunc = String.format(dropFuncFormat, "_greater");
+        String dropCmpFunc = String.format(dropFuncFormat, "_cmp");
 
         /* Drop operator class */
         connector.executeRaw(dropOpClass);
@@ -96,8 +93,6 @@ public class DropFuzzyType2DomainOperation extends Operation {
 
         connector.executeRawUpdate(updateCatalog);
 
-        dropOperatorCatalog("&@", "centroid", schemaName, fullTypeName);
-        dropOperatorCatalog("&#", "choquet", schemaName, fullTypeName);
-        dropOperatorCatalog("&%", "sugeno", schemaName, fullTypeName);
+        dropOperatorCatalog(schemaName, fullTypeName);
     }
 }

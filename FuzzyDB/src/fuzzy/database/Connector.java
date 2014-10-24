@@ -179,8 +179,25 @@ public class Connector {
     public ExecutionResult executeRaw(String sql) throws SQLException {
         Logger.logQuery(sql);
         Statement s = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+        Statement o = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         Printer.printlnInGreen("[CONNECTOR] " + sql);
+        boolean change_ordering = false;
+        if (sql.contains("&@")) {
+            o.execute("UPDATE information_schema_fuzzy.current_orderings2 SET ordering = 2;");
+            sql = sql.replace("&@","");
+            change_ordering = true;
+        } else if (sql.contains("&#")) {
+            o.execute("UPDATE information_schema_fuzzy.current_orderings2 SET ordering = 1;");
+            sql = sql.replace("&#","");
+            change_ordering = true;
+        } else if (sql.contains("&%")) {
+            sql = sql.replace("&%","");
+        }
         s.execute(sql);
+        if (change_ordering) {
+            o = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            o.execute("UPDATE information_schema_fuzzy.current_orderings2 SET ordering = 3;");
+        }
         return new ExecutionResult(s.getResultSet(), s.getUpdateCount());
     }
 

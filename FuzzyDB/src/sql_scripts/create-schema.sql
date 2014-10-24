@@ -64,6 +64,13 @@ CREATE TABLE IF NOT EXISTS information_schema_fuzzy.columns2 (
     ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS information_schema_fuzzy.current_orderings2 (
+  ordering_id       INTEGER NOT NULL,
+  ordering          INTEGER NOT NULL
+);
+
+INSERT INTO information_schema_fuzzy.current_orderings2 VALUES (1,3);
+
 -- toString() function
 CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_tostring(elem anyelement) RETURNS varchar AS $$
     DECLARE
