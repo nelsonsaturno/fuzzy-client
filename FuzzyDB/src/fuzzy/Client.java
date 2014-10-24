@@ -3,8 +3,6 @@ package fuzzy;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -134,19 +132,17 @@ public class Client {
                 System.exit(0);
             }
 
-            // Ugly regex I inherited from the previous developers. Not a single comment about it.
-            // I think it matches valid statements or something.
-            Pattern p = Pattern.compile("(?s)\\s*((?:'(?:\\\\.|[^\\\\']|''|)*'|/\\*.*?\\*/|(?:--|#)[^\r\n]*|[^\\\\'])*?)(?:;|$)");
-            Matcher m = p.matcher(userInput);
+            userInput = userInput.replaceAll("[\t]|(--[^\r\n]*)|(/\\*[\\w\\W]*?(?=\\*/)\\*/)", "");
+            String[] sentences = userInput.split(";");
 
-            // Process each sentence found in the input.
-            // Still no idea how the regex does it though.
-            while (m.find()) {
-                String sentence = m.group(1);
+            // Process each sentence found in the input
+            for (String sentence : sentences ) {
+
+                sentence = sentence.trim();
                 if ("".equals(sentence)) {
                     continue;
                 }
-
+                
                 if (proccessAdministrationCommand(sentence)) {
                     // That method returns True if it was successful detecting
                     // and processing an admin command, so we can skip
