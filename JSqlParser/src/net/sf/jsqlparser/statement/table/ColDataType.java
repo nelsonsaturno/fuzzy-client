@@ -1,6 +1,5 @@
 package net.sf.jsqlparser.statement.table;
 
-import java.util.Iterator;
 import java.util.List;
 
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -24,6 +23,8 @@ public class ColDataType {
 
     public void setDataType(String string) {
         dataType = string;
+        if ( string != null )
+            dataType = string.toLowerCase();
     }
 
     public String toString() {

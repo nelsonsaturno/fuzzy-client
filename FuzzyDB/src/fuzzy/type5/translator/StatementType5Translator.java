@@ -136,5 +136,9 @@ public class StatementType5Translator extends Translator implements StatementVis
     }
 
     @Override
-    public void visit(AlterFuzzyDomain alterFuzzyDomain) throws Exception { }
+    public void visit(AlterFuzzyDomain alterFuzzyDomain) throws Exception {        
+        if ( getFuzzyDomainId(connector.getSchema(), alterFuzzyDomain.getName(), "5") != null ){
+            throw new SQLException(fuzzy.helpers.Error.getError("operationNotDefinedT5"));
+        }
+    }
 }

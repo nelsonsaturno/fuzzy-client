@@ -131,6 +131,15 @@ public class StatementTranslator extends Translator implements StatementVisitor 
     public void visit(AlterFuzzyDomain alterFuzzyDomain) throws Exception {
         String domainName = alterFuzzyDomain.getName();
         
+        if ( Connector.isNativeDataType(domainName) ) {
+            throw new SQLException(fuzzy.helpers.Error.getError("notFuzzyDomain"));
+        }
+        
+        if ( getFuzzyDomainId(connector.getSchema(), alterFuzzyDomain.getName(), "3") == null ){
+            // Dominio no es tipo 3
+            return;
+        }
+        
         if( Helper.isDomainLinked(connector, connector.getSchema(), domainName) ) {
             throw new SQLException(fuzzy.helpers.Error.getError("alterFuzzyDomainLinked"));
         }

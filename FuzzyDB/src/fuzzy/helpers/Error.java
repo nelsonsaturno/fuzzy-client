@@ -28,7 +28,9 @@ public class Error {
             {"noCol", "No column definitions"},
             {"fuzzyNotDefined","Fuzzy Domain not defined."},
             {"dropFuzzyDomainLinked","You Cannot Drop the domain, still exist a Domain linked"},
-            {"alterFuzzyDomainLinked","You Cannot Alter the domain, still exist a Domain linked"}
+            {"alterFuzzyDomainLinked","You Cannot Alter the domain, still exist a Domain linked"},
+            {"operationNotDefinedT5","Operation not defined over Type5"},
+            {"notFuzzyDomain","Domain is not Fuzzy"}
         };
     
     
