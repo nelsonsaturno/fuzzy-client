@@ -4,11 +4,13 @@ import fuzzy.database.Connector;
 import fuzzy.common.operations.Operation;
 import fuzzy.common.operations.RawSQLOperation;
 import fuzzy.helpers.Helper;
+import static fuzzy.helpers.Helper.getDomainType;
+import fuzzy.helpers.Logger;
 import fuzzy.helpers.Memory;
 import fuzzy.type2.operations.CreateFuzzyType2DomainOperation;
 import fuzzy.type2.operations.DropFuzzyType2DomainOperation;
 import fuzzy.type2.operations.RemoveFuzzyType2ColumnsOperation;
-import fuzzy.type3.translator.Translator;
+import fuzzy.common.translator.Translator;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
@@ -110,7 +112,12 @@ public class StatementType2Translator extends Translator implements StatementVis
             String table = drop.getName();
             operations.add(new RemoveFuzzyType2ColumnsOperation(connector, Helper.getSchemaName(connector), table));
         } else if ("FUZZY DOMAIN".equalsIgnoreCase(type)) {
-            /*
+            // LOOK statement translator type 3
+            //this.ignoreAST = true;
+        }
+        // LOOK statement translator type 3
+        /*else if ("FUZZY DOMAIN".equalsIgnoreCase(type)) {
+            
             * Hello, let me explain WTF is this
             * Here a DROP FUZZY DOMAIN is translated into a DROP TYPE IF EXISTS
             * However, I cannot do that directly on the tree because the previous
@@ -122,25 +129,32 @@ public class StatementType2Translator extends Translator implements StatementVis
             * A better way would be for the previous translation to determine
             * if the DROP actually involves a Type 3 type. If not, carry on
             * without marking the statement as ignorable.
-            */
+            *
             
-            drop.setType("TYPE IF EXISTS");
-            StringBuffer sb = new StringBuffer();
-            StatementDeParser sdp = new StatementDeParser(sb);
-            try {
-                drop.accept(sdp);
-            } catch (Exception e) {
-                throw new SQLException("Deparser exception: " + e.getMessage(),
-                                                              "42000", 3019, e);
+            String domain = drop.getName();
+            Integer domainType = getDomainType(connector, domain);
+            if(domainType != null && domainType.equals(2)){
+            // TODO remove fuzzy
+                Logger.debug("Starting DROP Fuzzy 2");
+                
+                drop.setType("TYPE IF EXISTS");
+                StringBuffer sb = new StringBuffer();
+                StatementDeParser sdp = new StatementDeParser(sb);
+                try {
+                    drop.accept(sdp);
+                } catch (Exception e) {
+                    throw new SQLException("Deparser exception: " + e.getMessage(),
+                                                                  "42000", 3019, e);
+                }
+                String sql = sb.toString();
+
+                // If is not a type3 domain we add extra operations
+                if (null == getFuzzyDomainId(connector.getSchema(), drop.getName(), "3"))
+                    operations.add(new DropFuzzyType2DomainOperation(connector, drop.getName()));
+
+                operations.add(new RawSQLOperation(this.connector, sql));
             }
-            String sql = sb.toString();
-            
-            // If is not a type3 domain we add extra operations
-            if (null == getFuzzyDomainId(connector.getSchema(), drop.getName(), "3"))
-                operations.add(new DropFuzzyType2DomainOperation(connector, drop.getName()));
-            
-            operations.add(new RawSQLOperation(this.connector, sql));
-        }
+        }*/
         Memory.wipeMemory();
     }
 

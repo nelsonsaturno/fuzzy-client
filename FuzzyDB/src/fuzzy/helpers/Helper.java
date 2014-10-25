@@ -8,6 +8,7 @@ import net.sf.jsqlparser.schema.Table;
 /**
  *
  * @author bishma-stornelli
+ *         Jose Sanchez
  */
 public class Helper  {
     
@@ -44,6 +45,22 @@ public class Helper  {
         }
         throw new SQLException("Domain name not found for " + schemaName + "." + tableName + "." + columnName, "42000", 3020, e);
     }
+    
+    
+    /*
+     * Returns if exist a domain type 5 linked to the argument domain
+     */
+    public static boolean isDomainLinked(Connector c, String schemaName, String domainName)throws SQLException{
+        String sql = "SELECT D1.domain_id FROM information_schema_fuzzy.domains AS D1, information_schema_fuzzy.domains AS D2 "
+                + "WHERE D2.domain_name = '" + domainName + "' AND D1.type3_domain_id = D2.domain_id";
+                
+        //+ "AND D2.table_schema = '" + schemaName +"'";
+        ResultSet resultSet;
+        resultSet = c.executeRawQuery(sql);
+        return resultSet != null && resultSet.next();
+    }
+    
+    
     /*
      * Funcion que dado un nombre de dominio (domainName) y la tabla
      * a la que pertenece (table), retorna el id del dominio tipo3
@@ -71,6 +88,39 @@ public class Helper  {
             e = ex;
         }
         throw new SQLException("Error getting Type3DomainId related to domain with id " + domainId , "42000", 3020, e);
+    }
+    
+    /*
+     * Return the type of domain in the schema.
+     * If domain is not a fuzzy domain then returns null
+     */
+    public static Integer getDomainType(Connector c, String domain)throws SQLException {
+        String schemaName = c.getSchema();
+        if (c.isNativeDataType(domain)) {
+            return null;
+        }
+        String sql;
+        ResultSet resultSet;
+        sql = "SELECT id "
+            + "FROM information_schema_fuzzy.domains2 "
+            + "WHERE table_schema = '" + schemaName + "' AND domain_name = '"
+            + domain + "' "
+            + "LIMIT 1";
+        resultSet = c.executeRawQuery(sql);
+        if (resultSet != null && resultSet.next()) {
+            return 2; //resultSet.getInt(1);
+        }
+        
+        sql = "SELECT domain_type "
+            + "FROM information_schema_fuzzy.domains "
+            + "WHERE table_schema = '" + schemaName + "' AND domain_name = '"
+            + domain + "' "
+            + "LIMIT 1";
+        resultSet = c.executeRawQuery(sql);
+        if (resultSet != null && resultSet.next()) {
+            return resultSet.getInt(1);
+        }
+        return null;
     }
     
 }

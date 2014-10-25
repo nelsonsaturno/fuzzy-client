@@ -5,6 +5,7 @@
  */
 package fuzzy.type3.translator;
 
+import fuzzy.common.translator.Translator;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Memory;

@@ -4,7 +4,7 @@
  */
 package fuzzy.translator;
 
-import fuzzy.type3.translator.Translator;
+import fuzzy.common.translator.Translator;
 import fuzzy.database.Connector;
 import java.sql.Connection;
 import java.sql.DriverManager;

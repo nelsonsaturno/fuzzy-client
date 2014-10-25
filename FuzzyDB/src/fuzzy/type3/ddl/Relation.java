@@ -3,7 +3,7 @@ package fuzzy.type3.ddl;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
-import fuzzy.type3.translator.Translator;
+import fuzzy.common.translator.Translator;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;

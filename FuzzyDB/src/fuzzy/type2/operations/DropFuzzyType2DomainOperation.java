@@ -53,7 +53,9 @@ public class DropFuzzyType2DomainOperation extends Operation {
         String dropGreaterEqFunc = String.format(dropFuncFormat, "greater_eq");
         String dropGreaterFunc = String.format(dropFuncFormat, "greater");
         String dropCmpFunc = String.format(dropFuncFormat, "cmp");
-
+        
+        String dropType = "DROP TYPE IF EXISTS "+domain+";";
+        
         Savepoint sp = this.beginTransaction();
         try {
             connector.executeRawUpdate(updateCatalog);
@@ -72,7 +74,7 @@ public class DropFuzzyType2DomainOperation extends Operation {
             connector.executeRaw(dropEqFunc);
             connector.executeRaw(dropGreaterEqFunc);
             connector.executeRaw(dropGreaterFunc);
-            
+            connector.executeRaw(dropType);
             this.commitTransaction();
         } catch (SQLException e) {
             this.rollback(sp);

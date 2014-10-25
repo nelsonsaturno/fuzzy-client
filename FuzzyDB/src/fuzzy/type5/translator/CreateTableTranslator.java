@@ -8,7 +8,7 @@ package fuzzy.type5.translator;
 import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
-import fuzzy.type3.translator.Translator;
+import fuzzy.common.translator.Translator;
 import fuzzy.type5.operations.AddFuzzyColumnOperation;
 import java.sql.SQLException;
 import java.util.List;

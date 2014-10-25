@@ -7,7 +7,7 @@ package fuzzy.type3.operations;
 import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Logger;
-import fuzzy.type3.translator.Translator;
+import fuzzy.common.translator.Translator;
 import java.sql.SQLException;
 
 /**
@@ -30,12 +30,13 @@ public class DropFuzzyDomainOperation extends Operation {
         }
         String schemaName = this.connector.getSchema();
 
-        Logger.debug("Starting DROP FUZZY DOMAIN " + domain + " operation");
+        Logger.debug("Starting DROP FUZZY DOMAIN 3 " + domain + " operation");
         String sql = "DELETE FROM information_schema_fuzzy.domains " +
             "WHERE table_schema = (select current_schema())" + 
-            "AND domain_name = '" + domain + "'";
+            "AND domain_name = '" + domain + "' AND domain_type = 3";
         
         int rows = connector.executeRawUpdate(sql);
+        //Logger.debug("ROWs:" + rows);
         /*if (rows == 0) {
             String c = connector.getSchema();
             if (c == null || c.isEmpty()) {

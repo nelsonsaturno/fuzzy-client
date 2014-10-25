@@ -1,5 +1,6 @@
 package fuzzy.type3.translator;
 
+import fuzzy.common.translator.Translator;
 import fuzzy.database.Connector;
 import fuzzy.type3.operations.DropFuzzyDomainOperation;
 import fuzzy.helpers.Helper;
@@ -7,6 +8,9 @@ import fuzzy.type3.operations.AlterFuzzyDomainOperation;
 import fuzzy.type3.operations.CreateFuzzyDomainFromColumnOperation;
 import fuzzy.type3.operations.CreateFuzzyDomainOperation;
 import fuzzy.common.operations.Operation;
+import fuzzy.common.translator.DropFuzzyDomainTranslator;
+import static fuzzy.helpers.Helper.getDomainType;
+import fuzzy.helpers.Logger;
 import fuzzy.type3.operations.RemoveFuzzyColumnsOperation;
 import java.util.List;
 import net.sf.jsqlparser.expression.DoubleValue;
@@ -226,12 +230,22 @@ public class StatementTranslator extends Translator implements StatementVisitor 
             String table = drop.getName();
             operations.add(new RemoveFuzzyColumnsOperation(connector, Helper.getSchemaName(connector), table));
         } else if ("FUZZY DOMAIN".equalsIgnoreCase(type)) {
-            // TODO remove fuzzy
-            operations.add(new DropFuzzyDomainOperation(connector, drop.getName()));
-            // Mark this statement to be ignored by the translation execution.
-            // This means this statement, when deparsed, won't make sense for the
-            // RDBMS.
+            DropFuzzyDomainTranslator t = new DropFuzzyDomainTranslator(connector,operations);
+            t.translate(drop);
             this.ignoreAST = true;
+            /*String domain = drop.getName();
+            Integer domainType = getDomainType(connector, domain);
+            if(domainType != null && domainType.equals(3)){
+            // TODO remove fuzzy
+                Logger.debug("Starting DROP Fuzzy 3");
+                //operations.add(new DropFuzzyDomainOperation(connector, drop.getName()));
+                // Mark this statement to be ignored by the translation execution.
+                // This means this statement, when deparsed, won't make sense for the
+                // RDBMS.
+
+                //this.ignoreAST = true;
+            }*/
+            
         }
     }
 

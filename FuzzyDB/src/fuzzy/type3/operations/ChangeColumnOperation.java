@@ -7,7 +7,7 @@ package fuzzy.type3.operations;
 import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Logger;
-import fuzzy.type3.translator.Translator;
+import fuzzy.common.translator.Translator;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 

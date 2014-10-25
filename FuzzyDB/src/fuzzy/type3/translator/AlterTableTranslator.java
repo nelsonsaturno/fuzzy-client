@@ -1,5 +1,6 @@
 package fuzzy.type3.translator;
 
+import fuzzy.common.translator.Translator;
 import fuzzy.database.Connector;
 import fuzzy.type3.operations.ChangeColumnOperation;
 import fuzzy.common.operations.Operation;

@@ -1,5 +1,6 @@
 package fuzzy.type3.translator;
 
+import fuzzy.common.translator.Translator;
 import fuzzy.common.translator.FuzzyColumnSet;
 import fuzzy.common.translator.FuzzyColumn;
 import fuzzy.common.translator.TableRefList;

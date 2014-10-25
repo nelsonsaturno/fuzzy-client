@@ -50,6 +50,17 @@ public class CreateFuzzyDomainOperation extends Operation {
                            + "value TEXT ARRAY)";
         
         
+        
+        
+        String funf = "CREATE OR REPLACE FUNCTION "
+                + catalog + ".__" + domainName
+                +"_f(elem "
+                + fullTypeName
+                +", tag TEXT) RETURNS REAL AS $$ BEGIN "
+                +"return information_schema_fuzzy.fuzzy5_f(elem, tag,"
+                +domainName + ");"
+                +"END; $$ LANGUAGE plpgsql;";
+        /*
         String funeq = "CREATE OR REPLACE FUNCTION public.__"
                        +domainName
                        +"_eq(elem1 public."
@@ -66,13 +77,14 @@ public class CreateFuzzyDomainOperation extends Operation {
                 +", PROCEDURE = public.__"
                 +domainName
                 +"_eq)";
-        
+        */
         
         
         
         this.connector.executeRaw(insertDomainCatalog);
         this.connector.executeRaw(createType);
-        this.connector.executeRaw(funeq);
-        this.connector.executeRaw(opeq);
+        //this.connector.executeRaw(funeq);
+        //this.connector.executeRaw(opeq);
+        this.connector.executeRaw(funf);
     }
 }

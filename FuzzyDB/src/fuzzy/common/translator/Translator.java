@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.type3.translator;
+package fuzzy.common.translator;
 
 import fuzzy.database.Connector;
 import fuzzy.common.operations.Operation;
@@ -83,7 +83,8 @@ public class Translator {
         return this.ignoreAST;
     }
 
-
+    
+    
     public Integer getFuzzyDomainId(String schemaName, String domainName, String domain_type)
         throws SQLException {
         if (Connector.isNativeDataType(domainName)) {

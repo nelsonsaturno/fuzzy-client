@@ -25,7 +25,9 @@ public class Error {
             {"colValSiz","Columns size and Values size are differents"},
             {"fuzzyColQuery","Error querying if column is fuzzy"},
             {"notImplemented", "Operation is not suported yet."},
-            {"noCol", "No column definitions"}
+            {"noCol", "No column definitions"},
+            {"fuzzyNotDefined","Fuzzy Domain not defined."},
+            {"fuzzyDomainLinked","You Cannot Drop the domain, still exist a Domain linked"}
         };
     
     
@@ -39,7 +41,8 @@ public class Error {
      * Get the Error string using the key 
      */
     public static String getError(String key){
-        if(messages.isEmpty()){
+        if(messages == null){
+            messages = new TreeMap();
             Error.fill();
         }
         return messages.get(key);

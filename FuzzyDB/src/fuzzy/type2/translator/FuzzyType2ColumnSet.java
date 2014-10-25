@@ -8,7 +8,7 @@ import fuzzy.type3.translator.ExpressionColumnVisitor;
 import fuzzy.common.translator.FuzzyColumn;
 import fuzzy.common.translator.TableRef;
 import fuzzy.common.translator.TableRefList;
-import fuzzy.type3.translator.Translator;
+import fuzzy.common.translator.Translator;
 import java.sql.SQLException;
 import java.util.AbstractSet;
 import java.util.HashMap;

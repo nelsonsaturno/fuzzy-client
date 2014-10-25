@@ -9,10 +9,12 @@ import fuzzy.helpers.Error;
 import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
+import static fuzzy.helpers.Helper.getDomainType;
 import fuzzy.helpers.Logger;
 import fuzzy.helpers.Memory;
-import fuzzy.type3.translator.Translator;
+import fuzzy.common.translator.Translator;
 import fuzzy.type5.operations.CreateFuzzyDomainOperation;
+import fuzzy.type5.operations.DropFuzzyType5DomainOperation;
 import fuzzy.type5.operations.RemoveFuzzyColumnsOperation;
 import java.sql.SQLException;
 import java.util.List;
@@ -70,9 +72,10 @@ public class StatementType5Translator extends Translator implements StatementVis
             String table = drop.getName();
             operations.add(new RemoveFuzzyColumnsOperation(connector, Helper.getSchemaName(connector), table));
         } else if ("FUZZY DOMAIN".equalsIgnoreCase(type)) {
-            // This case has been handled by type2 drop
+            // LOOK statement translator type 3
+            //this.ignoreAST = true;
         }
-        Memory.wipeMemory();
+        
     }
 
     @Override

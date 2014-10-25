@@ -9,7 +9,6 @@ import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
 import fuzzy.helpers.Memory;
 import fuzzy.type3.translator.ExpressionColumnVisitor;
-import fuzzy.type3.translator.Translator;
 import java.sql.SQLException;
 import java.util.AbstractSet;
 import java.util.HashMap;

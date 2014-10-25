@@ -11,7 +11,7 @@ import fuzzy.helpers.Error;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
 import fuzzy.helpers.Memory;
-import fuzzy.type3.translator.Translator;
+import fuzzy.common.translator.Translator;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
