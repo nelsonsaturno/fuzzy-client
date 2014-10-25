@@ -38,7 +38,7 @@ public class DropFuzzyType2DomainOperation extends Operation {
         /*
          * DROP OPERATOR CLASS IF EXISTS public.__<class> USING btree
          */
-        String opClassName = String.format(funcNameFormat, "_class");
+        String opClassName = String.format(funcNameFormat, "class");
         String dropOpClass = "DROP OPERATOR CLASS IF EXISTS " + opClassName + " USING btree";
 
         /*
