@@ -27,7 +27,8 @@ public class Error {
             {"notImplemented", "Operation is not suported yet."},
             {"noCol", "No column definitions"},
             {"fuzzyNotDefined","Fuzzy Domain not defined."},
-            {"fuzzyDomainLinked","You Cannot Drop the domain, still exist a Domain linked"}
+            {"dropFuzzyDomainLinked","You Cannot Drop the domain, still exist a Domain linked"},
+            {"alterFuzzyDomainLinked","You Cannot Alter the domain, still exist a Domain linked"}
         };
     
     

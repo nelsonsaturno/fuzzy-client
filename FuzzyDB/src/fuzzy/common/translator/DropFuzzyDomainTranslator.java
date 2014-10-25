@@ -62,7 +62,7 @@ public class DropFuzzyDomainTranslator extends Translator {
         }else if(domainType.equals(3)){
             Logger.debug("Starting DROP Fuzzy 3");
             if(Helper.isDomainLinked(connector, schemaName,domain)){
-                throw new SQLException(Error.getError("fuzzyDomainLinked"));
+                throw new SQLException(Error.getError("dropFuzzyDomainLinked"));
             }
             operations.add(new DropFuzzyDomainOperation(connector, drop.getName()));
         }else if(domainType.equals(5)){

@@ -2,16 +2,14 @@ package fuzzy.type3.translator;
 
 import fuzzy.common.translator.Translator;
 import fuzzy.database.Connector;
-import fuzzy.type3.operations.DropFuzzyDomainOperation;
 import fuzzy.helpers.Helper;
 import fuzzy.type3.operations.AlterFuzzyDomainOperation;
 import fuzzy.type3.operations.CreateFuzzyDomainFromColumnOperation;
 import fuzzy.type3.operations.CreateFuzzyDomainOperation;
 import fuzzy.common.operations.Operation;
 import fuzzy.common.translator.DropFuzzyDomainTranslator;
-import static fuzzy.helpers.Helper.getDomainType;
-import fuzzy.helpers.Logger;
 import fuzzy.type3.operations.RemoveFuzzyColumnsOperation;
+import java.sql.SQLException;
 import java.util.List;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
@@ -39,7 +37,6 @@ public class StatementTranslator extends Translator implements StatementVisitor 
         super(connector, operations);
     }
     
-
     //Este el visit de create table, se debe hacer algo parecido con el de select 
     @Override
     public void visit(CreateTable createTable) throws Exception {
@@ -47,8 +44,6 @@ public class StatementTranslator extends Translator implements StatementVisitor 
         createTableTranslator.translate(createTable);
     }
     
-
-    //Este el visit de create table, se debe hacer algo parecido con el de select 
     @Override
     public void visit(AlterTable alterTable) throws Exception {
         AlterTableTranslator alterTableTranslator = new AlterTableTranslator(connector, operations);
@@ -134,8 +129,13 @@ public class StatementTranslator extends Translator implements StatementVisitor 
 
     @Override
     public void visit(AlterFuzzyDomain alterFuzzyDomain) throws Exception {
-        String name = alterFuzzyDomain.getName();
-        AlterFuzzyDomainOperation afdo = new AlterFuzzyDomainOperation(connector, name);
+        String domainName = alterFuzzyDomain.getName();
+        
+        if( Helper.isDomainLinked(connector, connector.getSchema(), domainName) ) {
+            throw new SQLException(fuzzy.helpers.Error.getError("alterFuzzyDomainLinked"));
+        }
+            
+        AlterFuzzyDomainOperation afdo = new AlterFuzzyDomainOperation(connector, domainName);
         
         // add labels
         if (alterFuzzyDomain.getAddValues() != null) {
@@ -282,8 +282,5 @@ public class StatementTranslator extends Translator implements StatementVisitor 
     }
 
     @Override
-    public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception {
-
-
-    }
+    public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception { }
 }
