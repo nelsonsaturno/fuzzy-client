@@ -38,7 +38,7 @@ public class Translator {
     }
 
     public static SQLException FR_DUPLICATE_DOMAIN_NAME(String domainName) {
-        return new SQLException("Can't create domain '" + domainName + "'; domain exists", "HY000", 3004);
+        return new SQLException("Can't create domain '" + domainName + "'; domain already exists", "HY000", 3004);
     }
     
     public static SQLException FR_LABEL_DO_NOT_EXISTS(String label) {
@@ -58,7 +58,7 @@ public class Translator {
     }
 
     public static SQLException FR_EMPTY_VALUES_LIST(String schemaName, String tableName, String columnName) {
-        return new SQLException("Can't create domain without labels; non-null values in '" + (schemaName != null ? schemaName + "." : "") + tableName + "." + columnName + "' not found", "42000", 3011);
+        return new SQLException("Can't create domain without labels; not found non-null values in '" + (schemaName != null ? schemaName + "." : "") + tableName + "." + columnName + "'", "42000", 3011);
     }
 
 
