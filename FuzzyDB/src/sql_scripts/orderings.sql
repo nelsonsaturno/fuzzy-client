@@ -174,6 +174,7 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
 
             -- One number is a trapezoid and the other one is by extension
             IF (elem1.type = False) and (elem2.type = True) THEN
+                RAISE NOTICE 'elem1 trapezoid, elem2 extension';
                 -- elem2 is a right shoulder trapezoid type
                 IF (elem1.value[2] IS NULL) THEN
                     RETURN TRUE;
@@ -204,13 +205,14 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
 
             -- One number is a trapezoid and the other one is by extension
             IF (elem1.type = True) and (elem2.type = False) THEN
+                RAISE NOTICE 'elem2 trapezoid, elem1 extension';
                 -- elem2 is a right shoulder trapezoid type
                 IF (elem2.value[2] IS NULL) THEN
-                    RETURN TRUE;
+                    RETURN FALSE;
                 END IF;
                 -- elem2 is a left shoulder trapezoid type
                 IF (elem2.value[3] IS NULL) THEN
-                    RETURN FALSE;
+                    RETURN TRUE;
                 END IF;
 
                 FOR j IN 1..size1 LOOP
@@ -649,13 +651,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower_eq(elem1 anyele
 
             -- One number is a trapezoid and the other one is by extension
             IF (elem1.type = True) and (elem2.type = False) THEN
-                -- elem2 is a right shoulder trapezoid type
                 IF (elem2.value[2] IS NULL) THEN
-                    RETURN TRUE;
+                    RETURN FALSE;
                 END IF;
                 -- elem2 is a left shoulder trapezoid type
                 IF (elem2.value[3] IS NULL) THEN
-                    RETURN FALSE;
+                    RETURN TRUE;
                 END IF;
 
                 FOR j IN 1..size1 LOOP
@@ -1590,11 +1591,11 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater(elem1 anyelem
             IF (elem1.type = True) and (elem2.type = False) THEN
                 -- elem2 is a right shoulder trapezoid type
                 IF (elem2.value[2] IS NULL) THEN
-                    RETURN FALSE;
+                    RETURN TRUE;
                 END IF;
                 -- elem2 is a left shoulder trapezoid type
                 IF (elem2.value[3] IS NULL) THEN
-                    RETURN TRUE;
+                    RETURN FALSE;
                 END IF;
 
                 FOR j IN 1..size1 LOOP
@@ -2038,11 +2039,11 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater_eq(elem1 anye
             IF (elem1.type = True) and (elem2.type = False) THEN
                 -- elem2 is a right shoulder trapezoid type
                 IF (elem2.value[2] IS NULL) THEN
-                    RETURN FALSE;
+                    RETURN TRUE;
                 END IF;
                 -- elem2 is a left shoulder trapezoid type
                 IF (elem2.value[3] IS NULL) THEN
-                    RETURN TRUE;
+                    RETURN FALSE;
                 END IF;
 
                 FOR j IN 1..size1 LOOP

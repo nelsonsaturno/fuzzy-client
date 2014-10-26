@@ -128,7 +128,6 @@ public class AddFuzzyType2ColumnOperation extends Operation {
                 + "AND ((" + this.columnName + ").value[1] < (" + this.columnName + ").value[2] OR (" + this.columnName + ").value[1] = (" + this.columnName + ").value[2]) "
                 + "AND ((" + this.columnName + ").value[2] < (" + this.columnName + ").value[3] OR (" + this.columnName + ").value[2] = (" + this.columnName + ").value[3]) "
                 + "AND ((" + this.columnName + ").value[3] < (" + this.columnName + ").value[4] OR (" + this.columnName + ").value[3] = (" + this.columnName + ").value[4]) "
-                + "AND NOT ((" + this.columnName + ").value[1] = (" + this.columnName + ").value[2] AND (" + this.columnName + ").value[2] = (" + this.columnName + ").value[3] AND (" + this.columnName + ").value[3] = (" + this.columnName + ").value[4])"
                 + ")"
                 + "OR"
                 + "("
