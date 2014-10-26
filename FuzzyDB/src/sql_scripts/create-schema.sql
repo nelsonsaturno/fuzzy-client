@@ -869,7 +869,7 @@ FOR i IN 1..siz LOOP
     po := (SELECT value FROM information_schema_fuzzy.similarities WHERE
                     label1_id = id1 AND label2_id = id2 LIMIT 1);
     
-    RAISE NOTICE 'row = % % %', id1, id2, po;
+    --RAISE NOTICE 'row = % % %', id1, id2, po;
     nu := nu + elem.odd[i]*COALESCE(po,0.0);
     de := de + elem.odd[i];
 END LOOP;

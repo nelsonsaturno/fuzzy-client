@@ -40,7 +40,14 @@ public class SelectTranslator implements SelectVisitor {
         for (SelectItem item : (List<SelectItem>) plainSelect.getSelectItems()) {
             item.accept(translator);
         }
-
+        
+        /*List<OrderByElement> orderByElements = (List<OrderByElement>) plainSelect.getOrderByElements();
+        for (OrderByElement elem : orderByElements) {
+            System.out.println(elem.toString());
+        }*/
+        
+        
+        
         translator.setMainselect(false);
         Expression where = plainSelect.getWhere();
         if (null != where) {

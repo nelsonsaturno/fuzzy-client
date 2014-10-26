@@ -57,8 +57,8 @@ public class CreateFuzzyDomainOperation extends Operation {
                 +"_f(elem "
                 + fullTypeName
                 +", tag TEXT) RETURNS REAL AS $$ BEGIN "
-                +"return information_schema_fuzzy.fuzzy5_f(elem, tag,"
-                +domainName + ");"
+                +"return information_schema_fuzzy.fuzzy5_f(elem, tag, \'"
+                +domainName + "\' );"
                 +"END; $$ LANGUAGE plpgsql;";
         /*
         String funeq = "CREATE OR REPLACE FUNCTION public.__"
