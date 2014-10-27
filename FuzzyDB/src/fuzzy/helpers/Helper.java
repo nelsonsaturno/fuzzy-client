@@ -47,6 +47,55 @@ public class Helper  {
     }
     
     
+    
+    /*
+     * Returns the domain name of the column of the table if the domain is type 5
+     * Otherwise returns null
+     */
+    public static String getDomainNameForColumn5(Connector c,
+                           Table table, String columnName) throws SQLException {
+        String schemaName = Helper.getSchemaName(c, table);
+        String tableName = table.getName();
+        String sql = "SELECT domain_name "
+                + "FROM information_schema_fuzzy.domains AS D JOIN "
+                + "information_schema_fuzzy.columns5 AS C ON (D.domain_id = C.domain_id) "
+                + "WHERE C.table_schema = '" + schemaName + "' "
+                + "AND C.table_name = '" + tableName + "' "
+                + "AND C.column_name = '" + columnName +"'";
+        
+        Logger.debug("Looking for domain name with query:\n" + sql);
+        
+        ResultSet rs = c.executeRawQuery(sql);
+        if(rs == null) return null;
+        if (rs.first()) {
+            return rs.getString("domain_name");
+        }
+        return null;
+        
+    }
+    
+    /*
+     * Returns if the label specified is from the domain type 5
+     */
+    public static boolean isLabelOfDomain5(Connector c, String domainName, String labelName) throws SQLException{
+        String schemaName = c.getSchema();
+        String sql = "SELECT label_id "
+                + "FROM information_schema_fuzzy.domains AS D5, "
+                + "information_schema_fuzzy.labels AS L "
+                + "WHERE D5.table_schema = '" + schemaName + "' AND "
+                + "D5.type3_domain_id = L.domain_id AND "
+                + "D5.domain_name = '" +domainName+ "' AND "
+                + "L.label_name = " + labelName + ";";
+        
+        ResultSet rs = c.executeRawQuery(sql);
+        if(rs == null) return false;
+        if (rs.first()) {
+            return true;
+        }
+        return false;
+    }
+    
+    
     /*
      * Returns if exist a domain type 5 linked to the argument domain
      */

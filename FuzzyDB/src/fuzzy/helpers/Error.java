@@ -30,7 +30,10 @@ public class Error {
             {"dropFuzzyDomainLinked","You Cannot Drop the domain, still exist a Domain linked"},
             {"alterFuzzyDomainLinked","You Cannot Alter the domain, still exist a Domain linked"},
             {"operationNotDefinedT5","Operation not defined over Type5"},
-            {"notFuzzyDomain","Domain is not Fuzzy"}
+            {"notFuzzyDomain","Domain is not Fuzzy"},
+            {"notStartingFrom","Not starting from element specified"},
+            {"notLabelOfDomain", "The label does not belong to the fuzzy domain"}
+            
         };
     
     

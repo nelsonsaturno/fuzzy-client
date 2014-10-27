@@ -77,6 +77,9 @@ public class SelectTranslator implements SelectVisitor, OrderByVisitor, SelectIt
         Logger.debug("Explorando tablas y columnas difusas");
         //tableRefSet.debugDump();
         // used variables
+        
+        
+        
         this.selectItems = (List<SelectItem>) plainSelect.getSelectItems();
         Expression where = plainSelect.getWhere();
         List<Expression> groupByColumnReferences = (List<Expression>) plainSelect.getGroupByColumnReferences();
@@ -218,7 +221,7 @@ public class SelectTranslator implements SelectVisitor, OrderByVisitor, SelectIt
             FuzzyColumn fuzzyColumn = this.fuzzyColumnSet.get(column);
 
             if (fuzzyColumn == null) {
-                throw Translator.FR_NO_FUZZY_COLUMN;
+                return;// exception in type 5
             }
 
             Expression orderByExpression = joinWithFuzzySimilarities(fuzzyColumn, fuzzyStart);
