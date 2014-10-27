@@ -356,7 +356,7 @@ public class Connector {
         // Fuzzy Type 5 extensions translator
         StatementType5Translator st5 = new StatementType5Translator(this, operations);
         try {
-            //s.accept(st5);
+            s.accept(st5);
         } catch (Exception e) {
             throw new SQLException("Type 5 Translator exception: " + e.getMessage(), "42000", 3119, e);
         }

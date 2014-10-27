@@ -46,6 +46,8 @@ public class SelectTranslator implements SelectVisitor {
         Expression expression = elem.getExpression();
         Expression fuzzyStart = elem.getFuzzyStart();
         Column column = (Column) expression;
+        
+        if (!(expression instanceof Column)) return; // Was type3
 
         if(fuzzyColumnSet == null) return; // not fuzzy set
         

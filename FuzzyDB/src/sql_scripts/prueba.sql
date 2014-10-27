@@ -1,7 +1,9 @@
 create fuzzy domain dominio_tipo3 as values('A', 'B', 'C', 'D') similarity{('A', 'B')/1.0, ('C', 'A')/0.5, ('C', 'D')/0.3}
 CREATE FUZZY DOMAIN dominio_tipo5 AS POSSIBILITY DISTRIBUTION ON dominio_tipo3;
 create table tabla_tipo5(a1 integer, a2 dominio_tipo5)
+create table tabla_tipo3(att1 integer, att2 dominio_tipo3)
 insert into tabla_tipo5 values (45322, {f 0.5/'A', 1.0/'B'})
+insert into tabla_tipo3 values (12345, 'A')
 
 -- Ejemplo de Pokemon del otro grupo
 CREATE FUZZY DOMAIN tipos_pokemon AS VALUES ('Planta','Fuego','Agua','Electrico') SIMILARITY {('Planta','Fuego')/0.4,('Planta','Agua')/0.7,('Fuego','Electrico')/0.8,('Agua','Electrico')/0.6};
