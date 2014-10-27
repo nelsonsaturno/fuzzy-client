@@ -15,6 +15,7 @@ import static fuzzy.common.translator.TableRef.ParentType.PLAIN_SELECT;
 import static fuzzy.common.translator.TableRef.ParentType.SUB_JOIN;
 import static fuzzy.common.translator.TableRef.TableType.SUB_SELECT;
 import java.io.StringReader;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -370,22 +371,36 @@ public class SelectTranslator implements SelectVisitor, OrderByVisitor, SelectIt
     }
 
     protected Expression joinWithFuzzySimilarities(FuzzyColumn fuzzyColumn, Expression fuzzyExpression) throws Exception {
-        String domainAlias = this.aliasGenerator.getNewDomainAlias();
-        String labelAlias = this.aliasGenerator.getNewLabelAlias();
+        String domainAlias     = this.aliasGenerator.getNewDomainAlias();
+        String labelAlias      = this.aliasGenerator.getNewLabelAlias();
         String similarityAlias = this.aliasGenerator.getNewSimilarityAlias();
-        String domainName = Helper.getDomainNameForColumn(connector, fuzzyColumn.getTableRef().getTable(), fuzzyColumn.getPublicName());
-        String sql = "SELECT nothing "
-                + "FROM nothing "
-                + "LEFT JOIN "
-                + "information_schema_fuzzy.similarities AS " + similarityAlias + " "
-                + "ON (" + similarityAlias + ".label1_id = " 
-                + "(SELECT label_id FROM information_schema_fuzzy.labels AS " + labelAlias + " "
+        
+        String domainName      = Helper.getDomainNameForColumn(connector,
+                                                              fuzzyColumn.getTableRef().getTable(),
+                                                              fuzzyColumn.getPublicName());
+        
+        String queryLabelId =
+                "(SELECT label_id FROM information_schema_fuzzy.labels AS " + labelAlias + " "
                 + "WHERE " + labelAlias + ".label_name = " + fuzzyExpression.toString() + " "
                 + "AND " + labelAlias + ".domain_id = ("
                 + "SELECT " + domainAlias + ".domain_id FROM "
                 + "information_schema_fuzzy.domains AS " + domainAlias + " "
                 + "WHERE " + domainAlias + ".domain_name = '" + domainName + "'"
-                + ")) "
+                + ")) ";
+
+        ResultSet result = connector.executeRawQuery(queryLabelId);
+        
+        if ( !result.next() ) {
+            throw Translator.FR_LABEL_DO_NOT_EXISTS(fuzzyExpression.toString());
+        }
+        
+        int labelId = result.getInt(1);
+        
+        String sql = "SELECT nothing "
+                + "FROM nothing "
+                + "LEFT JOIN "
+                + "information_schema_fuzzy.similarities AS " + similarityAlias + " "
+                + "ON (" + similarityAlias + ".label1_id = " + labelId
                 + "AND " + similarityAlias + ".label2_id = " 
                 + fuzzyColumn.getJoinForOrderBy()
                 + ") "

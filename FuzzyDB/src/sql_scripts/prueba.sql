@@ -36,12 +36,32 @@ SELECT tipo, nombre, count(*) FROM pokemon GROUP BY SIMILAR tipo, nombre; -- ???
 
 SELECT tipo, count(*) FROM pokemon GROUP BY SIMILAR tipo ORDER BY tipo STARTING FROM 'Electrico'; -- ???????
 
+create fuzzy domain Color as values('Rojo', 'Rosado', 'Amarillo') similarity{('Rojo', 'Rosado')/0.8, ('Rosado', 'Rojo')/0.8}
+create table flores(Flor TEXT, Color Color);
+-- insert into flores (Flor, Color) values ('Rosa', 'Rojo');
+insert into flores (Flor, Color) values ('Rosa', 'Rojo'), ('Geranio', 'Rosado'), ('Cayena', 'Rosado'), ('Girasol', NULL); -- NO funciona lista de values: da error de sintaxis
+
 -- Query Mixto
 SELECT nombre, altura, tipo FROM pokemon ORDER BY tipo STARTING FROM 'Electrico';
 
 -- Create fuzzy domain tipo 3:
 
--- Sintaxis alterna 1:
+---- Sintaxis alterna 1: ** OJO: ver lo que sucede y cuidar este caso en tipo 5 **
 create table tabla_prueba_tipo3_1(id integer, etiquetas TEXT);
 insert into tabla_prueba_tipo3_1 values (1, 'A'); insert into tabla_prueba_tipo3_1 values (2, 'B'); insert into tabla_prueba_tipo3_1 values (3, 'C');
 create fuzzy domain dominio_prueba_tipo3_1 as values from tabla_prueba_tipo3_1.etiquetas; -- no funciona, null en deparser --> arreglado
+
+---- Sintaxis alterna 2:
+create table tabla_prueba_tipo3_2(id integer, etiquetas TEXT);
+insert into tabla_prueba_tipo3_2 values (1, 'A'); insert into tabla_prueba_tipo3_1 values (2, 'B'); insert into tabla_prueba_tipo3_1 values (3, 'C');
+create fuzzy domain dominio_prueba_tipo3_2 as select etiquetas from tabla_prueba_tipo3_2; -- no implementado. Implementarlo?
+
+-- Alter Fuzzy Domain tipo 3:
+create fuzzy domain dominio_prueba_alter_tipo3 as values('A', 'B', 'C', 'D');
+alter fuzzy domain dominio_prueba_alter_tipo3 add similarity {('A', 'B')/1.0, ('C', 'A')/0.5, ('C', 'D')/0.3}
+alter fuzzy domain dominio_prueba_alter_tipo3 drop values('A');
+alter fuzzy domain dominio_prueba_alter_tipo3 add values('E');
+alter fuzzy domain dominio_prueba_alter_tipo3 drop values('E');
+alter fuzzy domain dominio_prueba_alter_tipo3 add values('E');
+alter fuzzy domain dominio_prueba_alter_tipo3 add similarity {('D', 'E')/1.0} -- la inserta como derivada :o
+alter fuzzy domain dominio_prueba_alter_tipo3 drop similarity {('D', 'E')}
