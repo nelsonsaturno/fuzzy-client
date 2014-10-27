@@ -169,6 +169,8 @@ INSERT INTO test_repuestos.repuestos(
     +--------------------------------+--------------+
     9 rows in set
 
+    ARREGLADO ! :)
+
     y ademas AMBOS dan distinto que en el informe. El ultimo, se acerca mas al
     informe salvo en Annarys que aparece de ultimo.
 
