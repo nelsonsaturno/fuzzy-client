@@ -75,15 +75,32 @@ public class StatementTranslator extends Translator implements StatementVisitor 
 
     @Override
     public void visit(CreateFuzzyDomain createFuzzyDomain) throws Exception {
-        if (createFuzzyDomain.isFromColumn()) {
-            CreateFuzzyDomainFromColumnOperation o = new CreateFuzzyDomainFromColumnOperation(connector);
-            o.setDomainName(createFuzzyDomain.getName());
-            o.setSchemaName(createFuzzyDomain.getFromColumn().getTable().getSchemaName());
-            o.setTableName(createFuzzyDomain.getFromColumn().getTable().getName());
-            o.setColumnName(createFuzzyDomain.getFromColumn().getColumnName());
+        
+        // Sintaxis alterna 1:
+        if ( createFuzzyDomain.isFromColumn() ) {
+            
+            String domainName = createFuzzyDomain.getName();
+            String schemaName = createFuzzyDomain.getFromColumn().getTable().getSchemaName();
+            String tableName  = createFuzzyDomain.getFromColumn().getTable().getName();
+            String columnName = createFuzzyDomain.getFromColumn().getColumnName();
+            
+            if ( schemaName == null ) {
+                schemaName = connector.getSchema();
+            }
+            
+            CreateFuzzyDomainFromColumnOperation o;
+            o = new CreateFuzzyDomainFromColumnOperation(connector, 
+                                                         domainName, 
+                                                         schemaName, 
+                                                         tableName, 
+                                                         columnName);
             operations.add(o);
+            
+            this.ignoreAST = true;
+            
             return;
         }
+        
         String name = createFuzzyDomain.getName();
         CreateFuzzyDomainOperation cfdo = new CreateFuzzyDomainOperation(connector, name);
         

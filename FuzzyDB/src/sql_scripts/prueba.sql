@@ -20,9 +20,28 @@ INSERT INTO pokemon(nombre, altura, tipo) VALUES ('Charizard', {f(100,130,170,20
 SELECT nombre, altura FROM pokemon ORDER BY altura;
 SELECT altura, count(*) FROM pokemon GROUP BY altura ORDER BY altura;
 
--- ORDER BY, GROUP BY tipo3
+-- ORDER BY tipo3
 SELECT nombre, tipo FROM pokemon ORDER BY tipo STARTING FROM 'Electrico';
+SELECT nombre, tipo FROM pokemon ORDER BY tipo STARTING FROM 'Electrico', nombre;
+SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo STARTING FROM 'Electrico'; -- SIN FROM, informe dice que es con FROM
+SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo STARTING 'Electrico', nombre;
+SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo START 'Electrico';
+SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo START 'Electrico', nombre;
+-- GROUP BY tipo3
+SELECT nombre, count(*) FROM pokemon GROUP BY nombre;
 SELECT tipo, count(*) FROM pokemon GROUP BY SIMILAR tipo;
+SELECT tipo, count(*) FROM pokemon GROUP BY tipo;
+SELECT tipo, nombre, count(*) FROM pokemon GROUP BY nombre, tipo;
+SELECT tipo, nombre, count(*) FROM pokemon GROUP BY SIMILAR tipo, nombre; -- ??????? =S
+
+SELECT tipo, count(*) FROM pokemon GROUP BY SIMILAR tipo ORDER BY tipo STARTING FROM 'Electrico'; -- ???????
 
 -- Query Mixto
 SELECT nombre, altura, tipo FROM pokemon ORDER BY tipo STARTING FROM 'Electrico';
+
+-- Create fuzzy domain tipo 3:
+
+-- Sintaxis alterna 1:
+create table tabla_prueba_tipo3_1(id integer, etiquetas TEXT);
+insert into tabla_prueba_tipo3_1 values (1, 'A'); insert into tabla_prueba_tipo3_1 values (2, 'B'); insert into tabla_prueba_tipo3_1 values (3, 'C');
+create fuzzy domain dominio_prueba_tipo3_1 as values from tabla_prueba_tipo3_1.etiquetas; -- no funciona, null en deparser --> arreglado
