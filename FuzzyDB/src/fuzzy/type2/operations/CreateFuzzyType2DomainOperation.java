@@ -212,9 +212,6 @@ public class CreateFuzzyType2DomainOperation extends Operation {
         this.connector.executeRaw(createType);
         this.connector.executeRaw(insertDomainCatalog);
 
-        /* Create operator catalog for each ordering operator. */
         createOperatorCatalog(catalog, fullTypeName);
-//        createOperatorCatalog("&#", "choquet", catalog, fullTypeName, " DEFAULT ");
-//        createOperatorCatalog("&%", "sugeno", catalog, fullTypeName, " DEFAULT ");
     }
 }

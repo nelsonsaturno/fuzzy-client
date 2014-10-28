@@ -1,32 +1,17 @@
 package net.sf.jsqlparser.statement.fuzzy.constant;
 
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
-import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.StatementVisitor;
 
 /**
- * A "CREATE FUZZY DOMAIN" statement
+ * A "CREATE FUZZY CONSTANT" statement
  */
 public class CreateFuzzyConstant implements Statement {
 
     private String name;
     private String domain;
-    private String value;
-
-
-//    public CreateFuzzyConstant(String name, String domain,
-//            String value) {
-//        this.name = name;
-//        this.domain = domain;
-//        this.value = value;
-//    }
-//
-//    public CreateFuzzyConstant(String name, Column column) {
-//        this.name = name;
-////        this.column = column;
-//    }
+    private ItemsList itemsList;
 
     @Override
     public void accept(StatementVisitor statementVisitor) throws Exception {
@@ -35,7 +20,8 @@ public class CreateFuzzyConstant implements Statement {
 
     /**
      * The name of the fuzzy domain to be created
-     * @return 
+     *
+     * @return
      */
     public String getName() {
         return name;
@@ -46,15 +32,16 @@ public class CreateFuzzyConstant implements Statement {
     }
 
     /**
-     * A list of {@link Expression}s of this fuzzy domain. Only strings not
-     * validated by the parser
+     * Get the values := VALUE
+     *
+     * @return the value of the constant
      */
-    public String getValue() {
-        return value;
+    public ItemsList getItemsList() {
+        return itemsList;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setItemsList(ItemsList list) {
+        itemsList = list;
     }
 
     public String getDomain() {
@@ -67,18 +54,7 @@ public class CreateFuzzyConstant implements Statement {
 
     @Override
     public String toString() {
-        String sql = "CREATE FUZZY CONSTANT " + name + " " + domain + ":= " + value + ";";
-//        if (similarityList.getExpressions().size() > 0) {
-//            sql += " SIMILARITY {" + similarityList.toString(false) + "}";
-//        }
+        String sql = "CREATE FUZZY CONSTANT " + name + " " + domain + ":= " + itemsList.toString() + ";";
         return sql;
     }
-
-//    public boolean isFromColumn() {
-//        return null != column;
-//    }
-//
-//    public Column getFromColumn() {
-//        return this.column;
-//    }
 }

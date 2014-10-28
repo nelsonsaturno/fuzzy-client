@@ -17,7 +17,6 @@ public class FuzzyTrapezoid implements Expression {
         this.exp4 = exp4;
     }
 
-    // Ugh, esto al menos lo resuelve rápidamente.
     public Expression getExp1() {
         return this.exp1;
     }
@@ -33,7 +32,7 @@ public class FuzzyTrapezoid implements Expression {
     public Expression getExp4() {
         return this.exp4;
     }
-    
+
     public void accept(ExpressionVisitor expressionVisitor) throws Exception {
         expressionVisitor.visit(this);
     }

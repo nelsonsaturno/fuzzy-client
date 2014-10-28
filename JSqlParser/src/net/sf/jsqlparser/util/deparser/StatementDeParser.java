@@ -123,7 +123,12 @@ public class StatementDeParser implements StatementVisitor {
     }
     
     public void visit(CreateFuzzyConstant createFuzzyConstant) {
-        CreateFuzzyConstantDeParser createFuzzyConstantDeParser = new CreateFuzzyConstantDeParser(buffer);
+        SelectDeParser selectDeParser = new SelectDeParser();
+        selectDeParser.setBuffer(buffer);
+        ExpressionDeParser expressionDeParser = new ExpressionDeParser(selectDeParser, buffer);
+        selectDeParser.setExpressionVisitor(expressionDeParser);
+        CreateFuzzyConstantDeParser createFuzzyConstantDeParser = new CreateFuzzyConstantDeParser(expressionDeParser, selectDeParser, buffer);
+        createFuzzyConstantDeParser.setBuffer(buffer);
         createFuzzyConstantDeParser.deParse(createFuzzyConstant);
     }
 

@@ -5,9 +5,11 @@ import fuzzy.common.operations.Operation;
 import fuzzy.common.operations.RawSQLOperation;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Memory;
+import fuzzy.helpers.Printer;
 import fuzzy.type2.operations.CreateFuzzyType2DomainOperation;
 import fuzzy.type2.operations.DropFuzzyType2DomainOperation;
 import fuzzy.type2.operations.RemoveFuzzyType2ColumnsOperation;
+import fuzzy.type2.operations.CreateFuzzyType2Constant;
 import fuzzy.type3.translator.AlterTableTranslator;
 import fuzzy.type3.translator.Translator;
 import java.sql.SQLException;
@@ -33,18 +35,15 @@ import net.sf.jsqlparser.util.deparser.StatementDeParser;
 
 public class StatementType2Translator extends Translator implements StatementVisitor {
 
-
     public StatementType2Translator(Connector connector, List<Operation> operations) {
         super(connector, operations);
     }
-  
 
     @Override
     public void visit(CreateTable createTable) throws Exception {
         CreateTableType2Translator translator = new CreateTableType2Translator(connector, operations);
         translator.translate(createTable);
     }
-    
 
     @Override
     public void visit(AlterTable alterTable) throws Exception {
@@ -53,7 +52,6 @@ public class StatementType2Translator extends Translator implements StatementVis
         Memory.wipeMemory();
     }
 
-
     @Override
     public void visit(Select select) throws Exception {
         SelectType2Translator translator = new SelectType2Translator(connector, !this.connector.getLibraryMode());
@@ -61,20 +59,17 @@ public class StatementType2Translator extends Translator implements StatementVis
         selectBody.accept(translator);
     }
 
-
     @Override
     public void visit(CreateFuzzyDomain createFuzzyDomain) throws Exception {
         // Nada, el otro translator es encargado de traducir esto.
         Memory.wipeMemory();
     }
 
-
     @Override
     public void visit(AlterFuzzyDomain alterFuzzyDomain) throws Exception {
         // Nada, el otro translator es encargado de traducir esto.
         Memory.wipeMemory();
     }
-
 
     @Override
     public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception {
@@ -93,11 +88,9 @@ public class StatementType2Translator extends Translator implements StatementVis
         Memory.wipeMemory();
     }
 
-
     @Override
     public void visit(Delete delete) throws Exception {
     }
-
 
     @Override
     public void visit(Drop drop) throws Exception {
@@ -107,19 +100,19 @@ public class StatementType2Translator extends Translator implements StatementVis
             operations.add(new RemoveFuzzyType2ColumnsOperation(connector, Helper.getSchemaName(connector), table));
         } else if ("FUZZY DOMAIN".equalsIgnoreCase(type)) {
             /*
-            * Hello, let me explain WTF is this
-            * Here a DROP FUZZY DOMAIN is translated into a DROP TYPE IF EXISTS
-            * However, I cannot do that directly on the tree because the previous
-            * translations (Type 3) will turn on the 'ignoreAST' flag on this
-            * statement.
-            * The easy hack here is to just change the type of the DROP, deparse
-            * it and add it as an additional operation.
-            *
-            * A better way would be for the previous translation to determine
-            * if the DROP actually involves a Type 3 type. If not, carry on
-            * without marking the statement as ignorable.
-            */
-            
+             * Hello, let me explain WTF is this
+             * Here a DROP FUZZY DOMAIN is translated into a DROP TYPE IF EXISTS
+             * However, I cannot do that directly on the tree because the previous
+             * translations (Type 3) will turn on the 'ignoreAST' flag on this
+             * statement.
+             * The easy hack here is to just change the type of the DROP, deparse
+             * it and add it as an additional operation.
+             *
+             * A better way would be for the previous translation to determine
+             * if the DROP actually involves a Type 3 type. If not, carry on
+             * without marking the statement as ignorable.
+             */
+
             drop.setType("TYPE IF EXISTS");
             StringBuffer sb = new StringBuffer();
             StatementDeParser sdp = new StatementDeParser(sb);
@@ -127,7 +120,7 @@ public class StatementType2Translator extends Translator implements StatementVis
                 drop.accept(sdp);
             } catch (Exception e) {
                 throw new SQLException("Deparser exception: " + e.getMessage(),
-                                                              "42000", 3019, e);
+                        "42000", 3019, e);
             }
             String sql = sb.toString();
             operations.add(new DropFuzzyType2DomainOperation(connector, drop.getName()));
@@ -136,23 +129,20 @@ public class StatementType2Translator extends Translator implements StatementVis
         Memory.wipeMemory();
     }
 
-
     @Override
     public void visit(Insert insert) throws Exception {
         FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(connector);
         insert.getItemsList().accept(translator);
+        Printer.printInWhite("INSERT");
     }
-
 
     @Override
     public void visit(Replace replace) throws Exception {
     }
 
-
     @Override
     public void visit(Truncate truncate) throws Exception {
     }
-
 
     @Override
     public void visit(Update update) throws Exception {
@@ -174,11 +164,20 @@ public class StatementType2Translator extends Translator implements StatementVis
             }
         }
     }
-    
+
     @Override
     public void visit(CreateFuzzyConstant createFuzzyConstant) throws Exception {
-        // Nada, el otro translator es encargado de traducir esto.
-        Memory.wipeMemory();
+        /* Checks if the constant was already defined or the domain does not exist. */
+        CreateFuzzyType2Constant op = new CreateFuzzyType2Constant(connector, 
+                createFuzzyConstant.getName(),createFuzzyConstant.getDomain(), false);
+        operations.add(op);
+        /* Execute. */
+        FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(connector);
+        createFuzzyConstant.getItemsList().accept(translator);
+        /* Inserts the name of the schema where the constant is.*/
+        op = new CreateFuzzyType2Constant(connector, createFuzzyConstant.getName(),
+                createFuzzyConstant.getDomain(), true);
+        operations.add(op);
     }
 
 }

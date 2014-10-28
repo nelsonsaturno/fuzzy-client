@@ -278,7 +278,7 @@ public class StatementTranslator extends Translator implements StatementVisitor 
     public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception {
     }
     
-        @Override
+    @Override
     public void visit(CreateFuzzyConstant createFuzzyConstant) throws Exception {
     }
 }
