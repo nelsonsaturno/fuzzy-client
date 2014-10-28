@@ -7,6 +7,7 @@ import fuzzy.type3.operations.AlterFuzzyDomainOperation;
 import fuzzy.type3.operations.CreateFuzzyDomainFromColumnOperation;
 import fuzzy.type3.operations.CreateFuzzyDomainOperation;
 import fuzzy.common.operations.Operation;
+import fuzzy.helpers.Memory;
 import fuzzy.type3.operations.RemoveFuzzyColumnsOperation;
 import java.util.List;
 import net.sf.jsqlparser.expression.DoubleValue;
@@ -17,6 +18,7 @@ import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
+import net.sf.jsqlparser.statement.fuzzy.constant.CreateFuzzyConstant;
 import net.sf.jsqlparser.statement.fuzzy.domain.AlterFuzzyDomain;
 import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyDomain;
 import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyType2Domain;
@@ -274,7 +276,9 @@ public class StatementTranslator extends Translator implements StatementVisitor 
 
     @Override
     public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception {
-
-
+    }
+    
+        @Override
+    public void visit(CreateFuzzyConstant createFuzzyConstant) throws Exception {
     }
 }

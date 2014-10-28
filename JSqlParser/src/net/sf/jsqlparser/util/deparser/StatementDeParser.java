@@ -9,6 +9,7 @@ import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyType2Domain;
 import net.sf.jsqlparser.statement.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
+import net.sf.jsqlparser.statement.fuzzy.constant.CreateFuzzyConstant;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.replace.Replace;
 import net.sf.jsqlparser.statement.select.Select;
@@ -119,6 +120,11 @@ public class StatementDeParser implements StatementVisitor {
         selectDeParser.setExpressionVisitor(expressionDeParser);
         updateDeParser.deParse(update);
 
+    }
+    
+    public void visit(CreateFuzzyConstant createFuzzyConstant) {
+        CreateFuzzyConstantDeParser createFuzzyConstantDeParser = new CreateFuzzyConstantDeParser(buffer);
+        createFuzzyConstantDeParser.deParse(createFuzzyConstant);
     }
 
     public StringBuffer getBuffer() {

@@ -71,6 +71,17 @@ CREATE TABLE IF NOT EXISTS information_schema_fuzzy.current_orderings2 (
 
 INSERT INTO information_schema_fuzzy.current_orderings2 VALUES (1,3);
 
+CREATE TABLE IF NOT EXISTS information_schema_fuzzy.constants2 (
+  id SERIAL       PRIMARY KEY,
+  constant_schema VARCHAR(64) NOT NULL,
+  domain_name     VARCHAR(64) NOT NULL,
+  constant_name   VARCHAR(64) NOT NULL,
+  start           VARCHAR(64) NULL,
+  finish          VARCHAR(64) NULL,
+
+  UNIQUE (constant_schema, domain_name, constant_name)
+);
+
 -- toString() function
 CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_tostring(elem anyelement) RETURNS varchar AS $$
     DECLARE

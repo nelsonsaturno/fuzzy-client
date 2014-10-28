@@ -25,6 +25,7 @@ package net.sf.jsqlparser.statement;
 import net.sf.jsqlparser.statement.fuzzy.domain.AlterFuzzyDomain;
 import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyDomain;
 import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyType2Domain;
+import net.sf.jsqlparser.statement.fuzzy.constant.CreateFuzzyConstant;
 import net.sf.jsqlparser.statement.table.CreateTable;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
@@ -48,5 +49,5 @@ public interface StatementVisitor {
 	public void visit(CreateFuzzyDomain fuzzyDomain) throws Exception;
 	public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception;
 	public void visit(AlterFuzzyDomain alterFuzzyDomain) throws Exception;
-
+        public void visit(CreateFuzzyConstant fuzzyDomain) throws Exception;
 }

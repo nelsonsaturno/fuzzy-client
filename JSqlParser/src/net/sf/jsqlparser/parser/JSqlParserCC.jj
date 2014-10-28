@@ -116,6 +116,7 @@ import net.sf.jsqlparser.statement.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.table.CreateTable;
 import net.sf.jsqlparser.statement.table.Index;
 import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyDomain;
+import net.sf.jsqlparser.statement.fuzzy.constant.CreateFuzzyConstant;
 import net.sf.jsqlparser.statement.fuzzy.domain.AlterFuzzyDomain;
 import net.sf.jsqlparser.statement.fuzzy.domain.CreateFuzzyType2Domain;
 import net.sf.jsqlparser.statement.fuzzy.domain.BoundedOrderedDomain;
@@ -246,6 +247,7 @@ TOKEN: /* SQL Keywords. prefixed with K_ to avoid name clashes */
 |   <K_CHOQUET:"CHOQUET">
 |   <K_SUGENO:"SUGENO">
 |   <K_CENTROID:"CENTROID">
+|   <K_CONSTANT:"CONSTANT">
 }
 
 
@@ -276,6 +278,7 @@ TOKEN:
 |   < #SPECIAL_CHARS: "$" | "_">
 |   < S_CHAR_LITERAL: "'" (~["'"])* "'" ("'" (~["'"])* "'")*>
 |   < S_QUOTED_IDENTIFIER: "\"" (~["\n","\r","\""])* "\"" | ("`" (~["\n","\r","`"])* "`") >
+|   <S_ASSIGN: ":=">
 }
 
 
@@ -292,6 +295,8 @@ Statement Statement() :
     stm = Delete()
     |
     stm =  Replace()
+    |
+    stm = CreateFuzzyConstant()
     |
     LOOKAHEAD(6, CreateFuzzyDomain())
     stm = CreateFuzzyDomain()
@@ -315,6 +320,22 @@ Statement Statement() :
     { return stm; }
 }
 
+CreateFuzzyConstant CreateFuzzyConstant():
+{
+    CreateFuzzyConstant createFuzzyConstant = new CreateFuzzyConstant();
+    Token name = null;
+    Token domain = null;
+    Token value = null;
+}
+{
+    <K_CREATE> <K_FUZZY> <K_CONSTANT> name=<S_IDENTIFIER> domain=<S_IDENTIFIER> <S_ASSIGN> value=<S_IDENTIFIER>
+    {
+        createFuzzyConstant.setName(name.image);
+        createFuzzyConstant.setDomain(domain.image);
+        createFuzzyConstant.setValue(value.image);
+        return createFuzzyConstant;
+    }
+}
 
 Update Update():
 {
