@@ -2084,7 +2084,7 @@ Drop Drop():
 		|
 		tk=<K_INDEX>
 		|
-		tk=<K_FUZZY> tk2=<K_DOMAIN>
+		tk=<K_FUZZY> (tk2=<K_DOMAIN> | tk2=<K_CONSTANT> {drop.setType("CONSTANT");})
 	)
     { drop.setType(tk.image + (null != tk2 ? " " + tk2.image : "")); }
 	tk=<S_IDENTIFIER> { drop.setName(tk.image); }

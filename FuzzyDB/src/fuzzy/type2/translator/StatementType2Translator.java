@@ -9,7 +9,8 @@ import fuzzy.helpers.Printer;
 import fuzzy.type2.operations.CreateFuzzyType2DomainOperation;
 import fuzzy.type2.operations.DropFuzzyType2DomainOperation;
 import fuzzy.type2.operations.RemoveFuzzyType2ColumnsOperation;
-import fuzzy.type2.operations.CreateFuzzyType2Constant;
+import fuzzy.type2.operations.CreateFuzzyType2ConstantOperation;
+import fuzzy.type2.operations.DropFuzzyType2ConstantOperation;
 import fuzzy.type3.translator.AlterTableTranslator;
 import fuzzy.type3.translator.Translator;
 import java.sql.SQLException;
@@ -125,6 +126,11 @@ public class StatementType2Translator extends Translator implements StatementVis
             String sql = sb.toString();
             operations.add(new DropFuzzyType2DomainOperation(connector, drop.getName()));
             operations.add(new RawSQLOperation(this.connector, sql));
+        } else if ("FUZZY CONSTANT".equalsIgnoreCase(type)) {
+            DropFuzzyType2ConstantOperation op = new DropFuzzyType2ConstantOperation(
+                    connector, drop.getParameters().get(0).toString(), drop.getName());
+            operations.add(op);
+            this.ignoreAST = true;
         }
         Memory.wipeMemory();
     }
@@ -168,14 +174,14 @@ public class StatementType2Translator extends Translator implements StatementVis
     @Override
     public void visit(CreateFuzzyConstant createFuzzyConstant) throws Exception {
         /* Checks if the constant was already defined or the domain does not exist. */
-        CreateFuzzyType2Constant op = new CreateFuzzyType2Constant(connector, 
+        CreateFuzzyType2ConstantOperation op = new CreateFuzzyType2ConstantOperation(connector, 
                 createFuzzyConstant.getName(),createFuzzyConstant.getDomain(), false);
         operations.add(op);
         /* Execute. */
         FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(connector);
         createFuzzyConstant.getItemsList().accept(translator);
         /* Inserts the name of the schema where the constant is.*/
-        op = new CreateFuzzyType2Constant(connector, createFuzzyConstant.getName(),
+        op = new CreateFuzzyType2ConstantOperation(connector, createFuzzyConstant.getName(),
                 createFuzzyConstant.getDomain(), true);
         operations.add(op);
     }

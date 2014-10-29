@@ -63,7 +63,12 @@ public class StatementDeParser implements StatementVisitor {
     }
 
     public void visit(Drop drop) {
-        buffer.append(drop.toString());
+        if ("FUZZY CONSTANT".equalsIgnoreCase(drop.getType())) {
+            DropFuzzyConstantDeParser dropFuzzyConstantDeParser = new DropFuzzyConstantDeParser(buffer);
+            dropFuzzyConstantDeParser.deParse(drop);
+        } else {
+            buffer.append(drop.toString());
+        }
     }
 
     public void visit(Insert insert) {

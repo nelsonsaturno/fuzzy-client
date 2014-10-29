@@ -12,7 +12,7 @@ import net.sf.jsqlparser.expression.operators.relational.ItemsList;
  * Setups a new Type-2 Fuzzy type in the schema. This includes all the queries
  * required for the custom ordering of this type.
  */
-public class CreateFuzzyType2Constant extends Operation {
+public class CreateFuzzyType2ConstantOperation extends Operation {
 
     private final String name;
     private final String domain;
@@ -27,7 +27,7 @@ public class CreateFuzzyType2Constant extends Operation {
      * @param domain domain name
      * @param setSchema
      */
-    public CreateFuzzyType2Constant(Connector connector, String name, 
+    public CreateFuzzyType2ConstantOperation(Connector connector, String name, 
             String domain, boolean setSchema) {
         super(connector);
         this.name = name;
