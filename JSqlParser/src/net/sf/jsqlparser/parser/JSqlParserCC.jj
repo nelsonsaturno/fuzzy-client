@@ -333,8 +333,6 @@ CreateFuzzyConstant CreateFuzzyConstant():
 {
     <K_CREATE> <K_FUZZY> <K_CONSTANT> name=<S_IDENTIFIER> domain=<S_IDENTIFIER> 
     <S_ASSIGN> value=SimpleExpression() { primaryExpList.add(value); itemsList = new ExpressionList(primaryExpList);}
-// { primaryExpList.add(exp); }
-// ("," value=SimpleExpression()  { primaryExpList.add(exp); } )* { itemsList = new ExpressionList(primaryExpList); }
     {
         createFuzzyConstant.setName(name.image);
         createFuzzyConstant.setDomain(domain.image);
@@ -616,8 +614,8 @@ PlainSelect PlainSelect():
     [ where=WhereClause() { plainSelect.setWhere(where); }]
     [ groupByColumnReferences=GroupByColumnReferences() { plainSelect.setGroupByColumnReferences(groupByColumnReferences); }]
     [ having=Having() { plainSelect.setHaving(having); }]
-	[ 	orderByElements = OrderByElements()	{ 		 plainSelect.setOrderByElements(orderByElements);	}   ]
-    [ 	limit = Limit() { plainSelect.setLimit(limit);	} ]
+    [ orderByElements = OrderByElements() { plainSelect.setOrderByElements(orderByElements); }]
+    [ limit = Limit() { plainSelect.setLimit(limit);}]
 
 	{
 		plainSelect.setSelectItems(selectItems);
@@ -908,7 +906,7 @@ List OrderByElements():
         ("," orderByElement=OrderByElement() { orderByList.add(orderByElement); } )*
     [<K_USING> (<K_CHOQUET> { orderByElement.setOrderingType(1); } 
         | <K_CENTROID> { orderByElement.setOrderingType(2); }
-        | <K_SUGENO> { orderByElement.setOrderingType(3); } )]
+        | <K_SUGENO> { orderByElement.setOrderingType(3); })]
     {
     	return orderByList;
     }

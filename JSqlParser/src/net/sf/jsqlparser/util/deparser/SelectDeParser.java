@@ -26,8 +26,8 @@ import net.sf.jsqlparser.statement.select.Top;
 import net.sf.jsqlparser.statement.select.Union;
 
 /**
- * A class to de-parse (that is, tranform from JSqlParser hierarchy into a string)
- * a {@link net.sf.jsqlparser.statement.select.Select}
+ * A class to de-parse (that is, transform from JSqlParser hierarchy into a
+ * string) a {@link net.sf.jsqlparser.statement.select.Select}
  */
 public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItemVisitor, FromItemVisitor {
 
@@ -38,7 +38,8 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
     }
 
     /**
-     * @param expressionVisitor a {@link ExpressionVisitor} to de-parse expressions. It has to share the same<br>
+     * @param expressionVisitor a {@link ExpressionVisitor} to de-parse
+     * expressions. It has to share the same<br>
      * StringBuffer (buffer parameter) as this object in order to work
      * @param buffer the buffer that will be filled with the select
      */
@@ -170,32 +171,14 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
             orderBy.getExpression().accept(expressionVisitor);
         } catch (Exception e) {
         }
-        
+
         String asc = null;
-        
-        if (orderBy.getOrdering() == 0) { 
-            
-            if (orderBy.isAsc()) {
-                buffer.append(" ASC");
-            } else {
-                buffer.append(" DESC");
-            }
+
+        if (orderBy.isAsc()) {
+            buffer.append(" ASC");
         } else {
-            if (orderBy.isAsc()) {
-                asc = "<";
-            } else {
-                asc = ">";
-            }
-            
-            if (orderBy.getOrdering() == 1) {
-                buffer.append(" USING &#").append(asc);
-            } else if (orderBy.getOrdering() == 2) { 
-                buffer.append(" USING &@").append(asc);
-            } else {
-                buffer.append(" USING &%").append(asc);
-            }
+            buffer.append(" DESC");
         }
-        
     }
 
     public void visit(Column column) {
@@ -261,10 +244,10 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
             buffer.append(limit.getRowCount());
         } else {
             /*
-            from mysql docs:
-            For compatibility with PostgreSQL, MySQL also supports the LIMIT row_count OFFSET offset syntax.
-            To retrieve all rows from a certain offset up to the end of the result set, you can use some large number
-            for the second parameter. 
+             from mysql docs:
+             For compatibility with PostgreSQL, MySQL also supports the LIMIT row_count OFFSET offset syntax.
+             To retrieve all rows from a certain offset up to the end of the result set, you can use some large number
+             for the second parameter. 
              */
             buffer.append("18446744073709551615");
         }
@@ -305,11 +288,11 @@ public class SelectDeParser implements SelectVisitor, OrderByVisitor, SelectItem
     }
 
     public void deparseJoin(Join join) {
-        
+
         if (join.isSimple()) {
             buffer.append(", ");
         } else {
-            
+
             if (buffer.charAt(buffer.length() - 1) != ' ') {
                 buffer.append(" ");
             }

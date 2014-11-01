@@ -11,7 +11,6 @@ import fuzzy.type2.operations.DropFuzzyType2DomainOperation;
 import fuzzy.type2.operations.RemoveFuzzyType2ColumnsOperation;
 import fuzzy.type2.operations.CreateFuzzyType2ConstantOperation;
 import fuzzy.type2.operations.DropFuzzyType2ConstantOperation;
-import fuzzy.type3.translator.AlterTableTranslator;
 import fuzzy.type3.translator.Translator;
 import java.sql.SQLException;
 import java.util.List;
@@ -58,6 +57,7 @@ public class StatementType2Translator extends Translator implements StatementVis
         SelectType2Translator translator = new SelectType2Translator(connector, !this.connector.getLibraryMode());
         SelectBody selectBody = select.getSelectBody();
         selectBody.accept(translator);
+        connector.setRestoreState(true);
     }
 
     @Override
@@ -113,7 +113,6 @@ public class StatementType2Translator extends Translator implements StatementVis
              * if the DROP actually involves a Type 3 type. If not, carry on
              * without marking the statement as ignorable.
              */
-
             drop.setType("TYPE IF EXISTS");
             StringBuffer sb = new StringBuffer();
             StatementDeParser sdp = new StatementDeParser(sb);
@@ -139,7 +138,6 @@ public class StatementType2Translator extends Translator implements StatementVis
     public void visit(Insert insert) throws Exception {
         FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(connector);
         insert.getItemsList().accept(translator);
-        Printer.printInWhite("INSERT");
     }
 
     @Override

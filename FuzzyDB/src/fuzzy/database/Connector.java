@@ -26,7 +26,6 @@ import fuzzy.common.operations.Operation;
 import fuzzy.type3.translator.StatementTranslator;
 import fuzzy.type2.translator.StatementType2Translator;
 
-
 public class Connector {
 
     /**
@@ -37,50 +36,58 @@ public class Connector {
      * updated with Postgres' types, or better yet, query the database and
      * populate this list at setup time.
      */
-    private static final String [] DATA_TYPES = {"TINYINT​", "BOOLEAN​", "SMALLINT​",
+    private static final String[] DATA_TYPES = {"TINYINT​", "BOOLEAN​", "SMALLINT​",
         "MEDIUMINT​", "INT​", "INTEGER​", "BIGINT​", "DECIMAL​", "DEC, NUMERIC, FIXED​",
         "FLOAT​", "DOUBLE​", "DOUBLE PRECISION​", "BIT​", "CHAR​", "VARCHAR​", "BINARY​",
         "CHAR BYTE​", "VARBINARY​", "TINYBLOB​", "BLOB​", "BLOB DATA TYPE​", "MEDIUMBLOB​",
         "LONGBLOB​", "TINYTEXT​", "TEXT​", "MEDIUMTEXT​", "LONGTEXT​", "ENUM​", "SET", "DATE​",
         "TIME​", "DATETIME​", "TIMESTAMP​", "YEAR​", "POINT", "LINESTRING", "POLYGON",
         "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON", "GEOMETRYCOLLECTION", "GEOMETRY"};
-    
+
     /**
      * Check if @dataType is a native data type of the RDBMS.
-     * 
+     *
      * @param dataType the data type to be tested.
      * @return true if it's a native data type of the RDBMS.
      */
     public static boolean isNativeDataType(String dataType) {
         return Arrays.asList(DATA_TYPES).contains(dataType.toLowerCase());
     }
-    
+
     // Driver module used by java.sql
     private static final String driver = "org.postgresql.Driver";
-    
+
     // Driver protocol used to connect to the database
     private static final String driverProtocol = "jdbc:postgresql";
-    
+
     private Connection connection;
     private ResultSet resultSet;
     private Integer updateCount;
     private String schema = "";
     private boolean libraryMode = false;
+    private boolean restoreState = false;
+
+    public boolean isRestoreState() {
+        return restoreState;
+    }
+
+    public void setRestoreState(boolean restoreState) {
+        this.restoreState = restoreState;
+    }
 
     /**
      * Creates a Connector with default parameters, namely:
      * <ul>
-     *  <li>host: 127.0.0.1 </li>
-     *  <li>username: fuzzy</li>
-     *  <li>password: fuzzy</li>
-     *  <li>databaseName: fuzzy</li>
+     * <li>host: 127.0.0.1 </li>
+     * <li>username: fuzzy</li>
+     * <li>password: fuzzy</li>
+     * <li>databaseName: fuzzy</li>
      * </ul>
-     * 
-     * DEPRECATED:
-     * Its only purpose is to avoid breaking existing unittests.
-     * Once the tests are updated to specify explicitly the Connector parameters,
-     * this constructor can be removed.
-     * 
+     *
+     * DEPRECATED: Its only purpose is to avoid breaking existing unittests.
+     * Once the tests are updated to specify explicitly the Connector
+     * parameters, this constructor can be removed.
+     *
      * @throws SQLException
      */
     public Connector() throws SQLException {
@@ -89,33 +96,35 @@ public class Connector {
     }
 
     /**
-     * Creates a Connector with the parameters that will be used to connect
-     * to the RDBMS.
-     * 
-     * <p>The initial schema will be internally set as "" (the empty string),
-     * and the RDBMS will use whatever default it uses. Use setSchema() to
-     * override this.</p>
-     * 
-     * @param host the hostname, of the form name[:port]. The name might
-     * be an IP address.
+     * Creates a Connector with the parameters that will be used to connect to
+     * the RDBMS.
+     *
+     * <p>
+     * The initial schema will be internally set as "" (the empty string), and
+     * the RDBMS will use whatever default it uses. Use setSchema() to override
+     * this.</p>
+     *
+     * @param host the hostname, of the form name[:port]. The name might be an
+     * IP address.
      * @param username the username as registere din the RDBMS.
      * @param password the password of the user.
      * @param databaseName the name of the database.
      * @throws SQLException
      */
-    public Connector(String host, String username, String password, String databaseName) 
-        throws SQLException {
+    public Connector(String host, String username, String password, String databaseName)
+            throws SQLException {
         try {
             Class.forName(driver);
         } catch (ClassNotFoundException e) {
             Logger.severe(null, e);
         }
-        String url  = driverProtocol + "://" + host + "/" + databaseName;
+        String url = driverProtocol + "://" + host + "/" + databaseName;
         connection = DriverManager.getConnection(url, username, password);
     }
-    
+
     /**
      * Return the current default schema.
+     *
      * @return the current selected schema.
      * @throws SQLException
      */
@@ -125,14 +134,14 @@ public class Connector {
 
     /**
      * Attempt to change the default schema.
-     * 
+     *
      * @param schemaName Newer schema name
      * @throws java.sql.SQLException
      */
     public void setSchema(String schemaName) throws SQLException {
         // Set the schema, and test if it was really set
         // If not, revert the schema and throw an exception.
-        this.executeRaw("SET search_path TO "+schemaName);
+        this.executeRaw("SET search_path TO " + schemaName);
         ExecutionResult r = this.executeRaw("SELECT current_schema()");
         r.result.next();
         if (r.result.getObject(1) == null) {
@@ -153,25 +162,24 @@ public class Connector {
     public boolean getLibraryMode() {
         return this.libraryMode;
     }
-    
+
     // Methods to execute raw queries, that is, without translation
     // These are essentially wrappers for the corresponding Connection methods.
-    
     public class ExecutionResult {
+
         public ResultSet result;
         public Integer updateCount;
-        
+
         public ExecutionResult(ResultSet r, Integer u) {
             this.result = r;
             this.updateCount = u;
-        }        
+        }
     }
 
     /**
-     * Executes the given query directly in the RDBMS, without translation.
-     * The results can be later retrieved with getResultSet() and
-     * getUpdatecount().
-     * 
+     * Executes the given query directly in the RDBMS, without translation. The
+     * results can be later retrieved with getResultSet() and getUpdatecount().
+     *
      * @param sql the query to execute.
      * @return ExecutionResult instance with the JDBC result set.
      * @throws SQLException
@@ -179,32 +187,29 @@ public class Connector {
     public ExecutionResult executeRaw(String sql) throws SQLException {
         Logger.logQuery(sql);
         Statement s = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-        Statement o = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         Printer.printlnInGreen("[CONNECTOR] " + sql);
-        boolean change_ordering = false;
-        if (sql.contains("&@")) {
-            o.execute("UPDATE information_schema_fuzzy.current_orderings2 SET ordering = 2;");
-            sql = sql.replace("&@","");
-            change_ordering = true;
-        } else if (sql.contains("&#")) {
-            o.execute("UPDATE information_schema_fuzzy.current_orderings2 SET ordering = 1;");
-            sql = sql.replace("&#","");
-            change_ordering = true;
-        } else if (sql.contains("&%")) {
-            sql = sql.replace("&%","");
-        }
         s.execute(sql);
-        if (change_ordering) {
-            o = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            o.execute("UPDATE information_schema_fuzzy.current_orderings2 SET ordering = 3;");
-        }
+        restoreState();
         return new ExecutionResult(s.getResultSet(), s.getUpdateCount());
     }
 
     /**
-     * Shortcut method equivalent to executeRaw(), but directly returns
-     * the ResultSet.
-     * 
+     * Executes database restore given a type2 ordering execution
+     * @throws SQLException 
+     */
+    public void restoreState() throws SQLException {
+        if (this.restoreState) {
+            Statement s = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            String restoreSugenoOrdering = "UPDATE information_schema_fuzzy.current_orderings2 SET ordering = 3;";
+            s.execute(restoreSugenoOrdering);
+            this.restoreState = false;
+        }
+    }
+
+    /**
+     * Shortcut method equivalent to executeRaw(), but directly returns the
+     * ResultSet.
+     *
      * @param sql the query to execute.
      * @return ResultSet query result.
      * @throws SQLException
@@ -215,11 +220,11 @@ public class Connector {
         this.updateCount = -1;
         return this.resultSet;
     }
-    
+
     /**
-     * Shortcut method equivalent to executeRaw(), but directly returns 
-     * the number of affected rows.
-     * 
+     * Shortcut method equivalent to executeRaw(), but directly returns the
+     * number of affected rows.
+     *
      * @param sql the query to execute.
      * @return the number of updated rows or null if there was a problem during
      * the execution of the query.
@@ -231,15 +236,16 @@ public class Connector {
         this.resultSet = null;
         return this.updateCount;
     }
-    
+
     /**
      * Executes an INSERT statement directly in the RDBMS, without translation.
      * Then it returns the generated primary key of the first row added.
-     * 
-     * <p>Note: I inherited this from the previous developer. I don't know why
-     * this method would be defined like this. It didn't even have a javadoc
-     * when I found it.<p/>
-     * 
+     *
+     * <p>
+     * Note: I inherited this from the previous developer. I don't know why this
+     * method would be defined like this. It didn't even have a javadoc when I
+     * found it.<p/>
+     *
      * @param sql the query to execute.
      * @return the generated key of the first row inserted.
      * @throws SQLException
@@ -258,17 +264,18 @@ public class Connector {
 
     /**
      * Represents the result of a successful fuzzy SQL translation.
-     * 
-     * <p>A translation consists of the translated SQL statement
-     * and a list of additional operations that
-     * must be executed together with the translated query.</p>
-     * 
-     * <p>An Operation is an object that executes one or more additional
-     * SQL statements.
-     * It is important that the final executer of the query and operations
-     * wrap it all within a transaction to avoid any Operation failing and
-     * leaving the fuzzy representation in an incosistent state.</p>
-     * 
+     *
+     * <p>
+     * A translation consists of the translated SQL statement and a list of
+     * additional operations that must be executed together with the translated
+     * query.</p>
+     *
+     * <p>
+     * An Operation is an object that executes one or more additional SQL
+     * statements. It is important that the final executer of the query and
+     * operations wrap it all within a transaction to avoid any Operation
+     * failing and leaving the fuzzy representation in an incosistent state.</p>
+     *
      */
     public class TranslationResult {
 
@@ -280,24 +287,25 @@ public class Connector {
             this.operations = operations;
         }
     }
-    
+
     /**
-     * Translates the given SQL statement. 
-     * 
-     * <p>The process might involve querying the fuzzy representation in
-     * the RDBMS. It also requires the database to have been preloaded with
-     * the fuzzy representation schemas and functions.</p>
-     * 
+     * Translates the given SQL statement.
+     *
+     * <p>
+     * The process might involve querying the fuzzy representation in the RDBMS.
+     * It also requires the database to have been preloaded with the fuzzy
+     * representation schemas and functions.</p>
+     *
      * @param sql the statement to translate.
      * @return a TranslationResult object, which contains everything necessary
      * to execute que translation query and any changes to the fuzzy schemas.
      * @throws SQLException
      */
     public TranslationResult translate(String sql) throws SQLException {
-        
+
         // PARSER
         CCJSqlParserManager pa = new CCJSqlParserManager();
-        
+
         net.sf.jsqlparser.statement.Statement s = null;
         try {
             s = pa.parse(new StringReader(sql));
@@ -320,13 +328,13 @@ public class Connector {
                     throw new SQLException("Unknown JsqlParser runtime exception: " + c.getMessage(), "42000", 3016, c);
                 }
             } else if (c instanceof ParseException) {
-                ParseException d = (ParseException)c;
+                ParseException d = (ParseException) c;
                 int line = d.currentToken.beginLine,
-                    column = d.currentToken.beginColumn;
+                        column = d.currentToken.beginColumn;
                 line = 0 == line ? 0 : line - 1;
                 column = 0 == column ? 0 : column - 1;
                 String rest = sql.split("\\r?\\n|\\r")[line]
-                                  .substring(column);
+                        .substring(column);
                 throw new SQLException(
                         "You have an error in your fuzzy SQL syntax; check the manual that corresponds to your FuzzyDB server version for the right syntax to use near '" + rest + "' at line " + (line + 1) + " (JSP)",
                         "42000",
@@ -337,16 +345,15 @@ public class Connector {
         }
 
         /*
-        * Note for future refactors:
-        * StatementType2Translator relies on the fact that StatementTranslator
-        * will expand any * in a SELECT into the corresponding columns.
-        * It was necessary to do it that way to avoid breaking the code I
-        * inherited from the previous developer.
-        *
-        * A better way would be to refactor that (and perhaps other analysis
-        * and general AST decorating) into a preprocessing pass.
-        */
-
+         * Note for future refactors:
+         * StatementType2Translator relies on the fact that StatementTranslator
+         * will expand any * in a SELECT into the corresponding columns.
+         * It was necessary to do it that way to avoid breaking the code I
+         * inherited from the previous developer.
+         *
+         * A better way would be to refactor that (and perhaps other analysis
+         * and general AST decorating) into a preprocessing pass.
+         */
         // TRANSLATOR
         List<Operation> operations = new ArrayList<Operation>();
         StatementTranslator st = new StatementTranslator(this, operations);
@@ -356,7 +363,7 @@ public class Connector {
             throw e;
         } catch (Exception e) {
             throw new SQLException("Translator exception: " + e.getMessage(),
-                                                              "42000", 3018, e);
+                    "42000", 3018, e);
         }
 
         // Fuzzy Type 2 extensions translator
@@ -384,7 +391,7 @@ public class Connector {
                 s.accept(sdp);
             } catch (Exception e) {
                 throw new SQLException("Deparser exception: " + e.getMessage(),
-                                                              "42000", 3019, e);
+                        "42000", 3019, e);
             }
             res = sb.toString();
         }
@@ -393,9 +400,9 @@ public class Connector {
     }
 
     /**
-     * Translates the fuzzy SQL statement and then executes it. The results
-     * can be retrieved with getResultSet() and getUpdateCount().
-     * 
+     * Translates the fuzzy SQL statement and then executes it. The results can
+     * be retrieved with getResultSet() and getUpdateCount().
+     *
      * @param sql the fuzzy SQL to be translated and executed.
      * @throws SQLException
      */
@@ -431,6 +438,7 @@ public class Connector {
 
     /**
      * Returns the result of the last query executed by the Connector.
+     *
      * @return ResultSet the result of the last query executed by this
      * Connector. It might be null.
      */
@@ -439,8 +447,9 @@ public class Connector {
     }
 
     /**
-     * Returns the number of affected rows during the last query executed by
-     * the Connector.
+     * Returns the number of affected rows during the last query executed by the
+     * Connector.
+     *
      * @return Integer number of affected rows.
      */
     public Integer getUpdateCount() {
