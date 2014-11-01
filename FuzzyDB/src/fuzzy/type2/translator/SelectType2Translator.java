@@ -7,6 +7,7 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.*;
 import fuzzy.common.translator.FuzzyColumnSet;
 import fuzzy.common.translator.TableRefList;
+import fuzzy.helpers.Printer;
 import fuzzy.type2.operations.OrderByType2Operation;
 
 public class SelectType2Translator implements SelectVisitor {
@@ -41,13 +42,16 @@ public class SelectType2Translator implements SelectVisitor {
             where.accept(translator);
         }
 
-        /* Save into database the current ordering */
-        List orderBy = plainSelect.getOrderByElements();
-        Iterator iterator = orderBy.iterator();
-        while (iterator.hasNext()) {
-            OrderByElement orderByElement = (OrderByElement) iterator.next();
-            OrderByType2Operation orderBType2Operation = new OrderByType2Operation(this.connector, orderByElement.getOrdering());
-            orderBType2Operation.execute();
+        /* Save into database the current ordering if ORDER BY CLAUSE IS
+         * SPECIFIED in the SELECT STAMENT */
+        if (plainSelect.getOrderByElements() != null) {
+            List orderBy = plainSelect.getOrderByElements();
+            Iterator iterator = orderBy.iterator();
+            while (iterator.hasNext()) {
+                OrderByElement orderByElement = (OrderByElement) iterator.next();
+                OrderByType2Operation orderBType2Operation = new OrderByType2Operation(this.connector, orderByElement.getOrdering());
+                orderBType2Operation.execute();
+            }
         }
     }
 
