@@ -19,42 +19,47 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  */
- 
 package net.sf.jsqlparser.expression.operators.relational;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 
-
 public class ExistsExpression implements Expression {
-	private Expression rightExpression;
-	private boolean not = false;
 
-	public Expression getRightExpression() {
-		return rightExpression;
-	}
+    private Expression rightExpression;
+    private boolean not = false;
+    private final String expressionType = "exists";
 
-	public void setRightExpression(Expression expression) {
-		rightExpression = expression;
-	}
+    public Expression getRightExpression() {
+        return rightExpression;
+    }
 
-	public boolean isNot() {
-		return not;
-	}
+    public void setRightExpression(Expression expression) {
+        rightExpression = expression;
+    }
 
-	public void setNot(boolean b) {
-		not = b;
-	}
+    public boolean isNot() {
+        return not;
+    }
 
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
+    public void setNot(boolean b) {
+        not = b;
+    }
 
-	public String getStringExpression() {
-		return ((not)?"NOT ":"")+"EXISTS";
-	}
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
 
-	public String toString() {
-		return getStringExpression() + " " + rightExpression.toString();
-	}
+    public String getStringExpression() {
+        return ((not) ? "NOT " : "") + "EXISTS";
+    }
+
+    public String toString() {
+        return getStringExpression() + " " + rightExpression.toString();
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 }

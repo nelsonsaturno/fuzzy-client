@@ -19,24 +19,31 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  */
- 
 package net.sf.jsqlparser.expression.operators.conditional;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 
-
 public class OrExpression extends BinaryExpression {
-	public OrExpression(Expression leftExpression, Expression rightExpression) {
-		setLeftExpression(leftExpression);
-		setRightExpression(rightExpression);
-	}
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
 
-	public String getStringExpression() {
-		return "OR";
-	}
+    private final String expressionType = "or";
+
+    public OrExpression(Expression leftExpression, Expression rightExpression) {
+        setLeftExpression(leftExpression);
+        setRightExpression(rightExpression);
+    }
+
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
+
+    public String getStringExpression() {
+        return "OR";
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 }

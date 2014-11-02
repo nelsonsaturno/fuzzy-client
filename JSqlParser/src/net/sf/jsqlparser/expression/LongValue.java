@@ -19,45 +19,51 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  */
- 
 package net.sf.jsqlparser.expression;
 
 /**
  * Every number without a point or an exponential format is a LongValue
  */
 public class LongValue implements Expression {
-	private long value;
-	private String stringValue;
 
-	public LongValue(String value) {
-	    if (value.charAt(0) == '+') {
-	        value = value.substring(1);
-	    }
-		this.value = Long.parseLong(value);
-		setStringValue(value);
-	}
+    private long value;
+    private String stringValue;
+    private final String expressionType = "long";
 
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
+    public LongValue(String value) {
+        if (value.charAt(0) == '+') {
+            value = value.substring(1);
+        }
+        this.value = Long.parseLong(value);
+        setStringValue(value);
+    }
 
-	public long getValue() {
-		return value;
-	}
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
 
-	public void setValue(long d) {
-		value = d;
-	}
+    public long getValue() {
+        return value;
+    }
 
-	public String getStringValue() {
-		return stringValue;
-	}
+    public void setValue(long d) {
+        value = d;
+    }
 
-	public void setStringValue(String string) {
-		stringValue = string;
-	}
+    public String getStringValue() {
+        return stringValue;
+    }
 
-	public String toString() {
-		return getStringValue();
-	}
+    public void setStringValue(String string) {
+        stringValue = string;
+    }
+
+    public String toString() {
+        return getStringValue();
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 }

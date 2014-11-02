@@ -23,32 +23,36 @@ package net.sf.jsqlparser.expression;
 
 import java.sql.Timestamp;
 
-
-
 /**
  * A Timestamp in the form {ts 'yyyy-mm-dd hh:mm:ss.f . . .'}
  */
 public class TimestampValue implements Expression {
-	private Timestamp value;
 
-	public TimestampValue(String value) {
-		this.value = Timestamp.valueOf(value.substring(1, value.length()-1));
-	}
-	
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
+    private Timestamp value;
+    private final String expressionType = "timestamp";
 
+    public TimestampValue(String value) {
+        this.value = Timestamp.valueOf(value.substring(1, value.length() - 1));
+    }
 
-	public Timestamp getValue() {
-		return value;
-	}
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
 
-	public void setValue(Timestamp d) {
-		value = d;
-	}
+    public Timestamp getValue() {
+        return value;
+    }
 
-	public String toString() {
-		return "{ts '"+value+"'}";
-	}
+    public void setValue(Timestamp d) {
+        value = d;
+    }
+
+    public String toString() {
+        return "{ts '" + value + "'}";
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 }

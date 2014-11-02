@@ -24,29 +24,32 @@ package net.sf.jsqlparser.expression;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 
-
 /**
  * A Date in the form {d 'yyyy-mm-dd'}
  */
 public class DateValue implements Expression {
-	private Date value;
 
-	public DateValue(String value) {
-		this.value = Date.valueOf(value.substring(1, value.length()-1));
-	}
-	
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
+    private Date value;
+    private final String expressionType = "date";
 
+    public DateValue(String value) {
+        this.value = Date.valueOf(value.substring(1, value.length() - 1));
+    }
 
-	public Date getValue() {
-		return value;
-	}
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
 
-	public void setValue(Date d) {
-		value = d;
-	}
+    public Date getValue() {
+        return value;
+    }
 
+    public void setValue(Date d) {
+        value = d;
+    }
 
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 }

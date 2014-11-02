@@ -19,18 +19,25 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  */
- 
 package net.sf.jsqlparser.expression;
 
 /**
- *  A "NULL" in a sql statement
+ * A "NULL" in a sql statement
  */
 public class NullValue implements Expression {
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
 
-	public String toString() {
-		return "NULL";
-	}
+    private final String expressionType = "null";
+
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
+
+    public String toString() {
+        return "NULL";
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 }

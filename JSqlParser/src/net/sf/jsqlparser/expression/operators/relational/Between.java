@@ -19,60 +19,65 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  */
- 
 package net.sf.jsqlparser.expression.operators.relational;
 
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 
-
 /**
  * A "BETWEEN" expr1 expr2 statement
  */
 public class Between implements Expression {
-	private Expression leftExpression;
-	private boolean not = false;
-	private Expression betweenExpressionStart;
-	private Expression betweenExpressionEnd;
 
-	public Expression getBetweenExpressionEnd() {
-		return betweenExpressionEnd;
-	}
+    private Expression leftExpression;
+    private boolean not = false;
+    private Expression betweenExpressionStart;
+    private Expression betweenExpressionEnd;
+    private final String expressionType = "between";
 
-	public Expression getBetweenExpressionStart() {
-		return betweenExpressionStart;
-	}
+    public Expression getBetweenExpressionEnd() {
+        return betweenExpressionEnd;
+    }
 
-	public Expression getLeftExpression() {
-		return leftExpression;
-	}
+    public Expression getBetweenExpressionStart() {
+        return betweenExpressionStart;
+    }
 
-	public boolean isNot() {
-		return not;
-	}
+    public Expression getLeftExpression() {
+        return leftExpression;
+    }
 
-	public void setBetweenExpressionEnd(Expression expression) {
-		betweenExpressionEnd = expression;
-	}
+    public boolean isNot() {
+        return not;
+    }
 
-	public void setBetweenExpressionStart(Expression expression) {
-		betweenExpressionStart = expression;
-	}
+    public void setBetweenExpressionEnd(Expression expression) {
+        betweenExpressionEnd = expression;
+    }
 
-	public void setLeftExpression(Expression expression) {
-		leftExpression = expression;
-	}
+    public void setBetweenExpressionStart(Expression expression) {
+        betweenExpressionStart = expression;
+    }
 
-	public void setNot(boolean b) {
-		not = b;
-	}
+    public void setLeftExpression(Expression expression) {
+        leftExpression = expression;
+    }
 
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
+    public void setNot(boolean b) {
+        not = b;
+    }
 
-	public String toString() {
-		return leftExpression + " " + (not?"NOT ":"") + "BETWEEN "+
-		betweenExpressionStart+" AND "+betweenExpressionEnd;
-	}
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
+
+    public String toString() {
+        return leftExpression + " " + (not ? "NOT " : "") + "BETWEEN "
+                + betweenExpressionStart + " AND " + betweenExpressionEnd;
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 }

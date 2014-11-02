@@ -1,18 +1,21 @@
 package net.sf.jsqlparser.expression;
+
 import net.sf.jsqlparser.statement.table.ColDataType;
 
 /**
  * CAST expression AS type
  */
 public class CastAsExpression implements Expression {
+
     private Expression expression;
     private ColDataType type;
+    private final String expressionType = "castas";
 
     public CastAsExpression(Expression expression, ColDataType type) {
         this.expression = expression;
         this.type = type;
     }
-    
+
     public Expression getExpression() {
         return expression;
     }
@@ -34,6 +37,11 @@ public class CastAsExpression implements Expression {
     }
 
     public String toString() {
-        return "CAST "+expression+" AS "+type;
+        return "CAST " + expression + " AS " + type;
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
     }
 }

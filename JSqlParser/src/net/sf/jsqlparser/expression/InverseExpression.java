@@ -19,32 +19,38 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  */
- 
 package net.sf.jsqlparser.expression;
 
 /**
- * It represents a "-" before an expression 
+ * It represents a "-" before an expression
  */
 public class InverseExpression implements Expression {
-	private Expression expression;
-	
-	public InverseExpression() {
-	}
 
-	public InverseExpression(Expression expression) {
-		setExpression(expression);
-	}
+    private Expression expression;
+    private final String expressionType = "inverse";
 
-	public Expression getExpression() {
-		return expression;
-	}
+    public InverseExpression() {
+    }
 
-	public void setExpression(Expression expression) {
-		this.expression = expression;
-	}
+    public InverseExpression(Expression expression) {
+        setExpression(expression);
+    }
 
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
+    public Expression getExpression() {
+        return expression;
+    }
+
+    public void setExpression(Expression expression) {
+        this.expression = expression;
+    }
+
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 
 }

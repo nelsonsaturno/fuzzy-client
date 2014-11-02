@@ -24,15 +24,16 @@ package net.sf.jsqlparser.expression;
 import net.sf.jsqlparser.schema.Column;
 
 /**
- * A SIMILAR column tipically found in the GROUP BY
+ * A SIMILAR column typically found in the GROUP BY
  */
 public class SimilarColumn implements Expression {
 
     private Column column;
+    private final String expressionType = "similar";
 
     public SimilarColumn(Column column) {
         this.column = column;
-    };
+    }
 
     public void accept(ExpressionVisitor expressionVisitor) throws Exception {
         expressionVisitor.visit(this);
@@ -48,5 +49,10 @@ public class SimilarColumn implements Expression {
 
     public String toString() {
         return column.toString();
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
     }
 }

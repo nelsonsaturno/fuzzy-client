@@ -19,7 +19,6 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-
 package net.sf.jsqlparser.statement.select;
 
 import net.sf.jsqlparser.expression.Expression;
@@ -27,43 +26,49 @@ import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitor;
 
-
 /**
  * A subselect followed by an optional alias.
  */
 public class SubSelect implements FromItem, Expression, ItemsList {
-	private SelectBody selectBody;
-	private String alias;
 
-	public void accept(FromItemVisitor fromItemVisitor) throws Exception {
-		fromItemVisitor.visit(this);
-	}
+    private SelectBody selectBody;
+    private String alias;
+    private final String expressionType = "subselect";
 
-	public SelectBody getSelectBody() {
-		return selectBody;
-	}
+    public void accept(FromItemVisitor fromItemVisitor) throws Exception {
+        fromItemVisitor.visit(this);
+    }
 
-	public void setSelectBody(SelectBody body) {
-		selectBody = body;
-	}
+    public SelectBody getSelectBody() {
+        return selectBody;
+    }
 
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
+    public void setSelectBody(SelectBody body) {
+        selectBody = body;
+    }
 
-	public String getAlias() {
-		return alias;
-	}
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
 
-	public void setAlias(String string) {
-		alias = string;
-	}
+    public String getAlias() {
+        return alias;
+    }
 
-	public void accept(ItemsListVisitor itemsListVisitor) throws Exception {
-		itemsListVisitor.visit(this);
-	}
+    public void setAlias(String string) {
+        alias = string;
+    }
 
-	public String toString () {
-		return "("+selectBody+")"+((alias!=null)?" AS "+alias:"");
-	}
+    public void accept(ItemsListVisitor itemsListVisitor) throws Exception {
+        itemsListVisitor.visit(this);
+    }
+
+    public String toString() {
+        return "(" + selectBody + ")" + ((alias != null) ? " AS " + alias : "");
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 }

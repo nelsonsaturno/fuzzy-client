@@ -28,6 +28,7 @@ public class Relation implements Expression {
 
     private Expression label1;
     private Expression label2;
+    private final String expressionType = "relation";
 
     public Relation(Expression label1, Expression label2) {
         this.label1 = label1;
@@ -52,5 +53,10 @@ public class Relation implements Expression {
 
     public void accept(ExpressionVisitor expressionVisitor) throws Exception {
         expressionVisitor.visit(this);
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
     }
 }

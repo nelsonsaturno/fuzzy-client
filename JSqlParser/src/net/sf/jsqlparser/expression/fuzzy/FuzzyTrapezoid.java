@@ -9,6 +9,7 @@ public class FuzzyTrapezoid implements Expression {
     private Expression exp2;
     private Expression exp3;
     private Expression exp4;
+    private final String expressionType = "fuzzytrapezoid";
 
     public FuzzyTrapezoid(Expression exp1, Expression exp2, Expression exp3, Expression exp4) {
         this.exp1 = exp1;
@@ -35,5 +36,10 @@ public class FuzzyTrapezoid implements Expression {
 
     public void accept(ExpressionVisitor expressionVisitor) throws Exception {
         expressionVisitor.visit(this);
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
     }
 }

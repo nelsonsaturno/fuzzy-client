@@ -19,49 +19,52 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  */
- 
 package net.sf.jsqlparser.expression.operators.relational;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 
-
 public class LikeExpression extends BinaryExpression {
-	private boolean not = false;
-	private String escape = null;
 
-	public boolean isNot() {
-		return not;
-	}
+    private boolean not = false;
+    private String escape = null;
+    private final String expressionType = "like";
 
-	public void setNot(boolean b) {
-		not = b;
-	}
+    public boolean isNot() {
+        return not;
+    }
 
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
+    public void setNot(boolean b) {
+        not = b;
+    }
 
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
 
-	public String getStringExpression() {
-		return ((not)?"NOT ":"")+"LIKE";
-	}
-	
+    public String getStringExpression() {
+        return ((not) ? "NOT " : "") + "LIKE";
+    }
 
-	public String toString() {
-	    String retval = super.toString();
-	    if (escape != null) {
-	        retval += " ESCAPE " + "'" + escape + "'";
-	    }
-	    
-	    return retval;
-	}
+    public String toString() {
+        String retval = super.toString();
+        if (escape != null) {
+            retval += " ESCAPE " + "'" + escape + "'";
+        }
 
-	public String getEscape() {
+        return retval;
+    }
+
+    public String getEscape() {
         return escape;
     }
-    
+
     public void setEscape(String escape) {
         this.escape = escape;
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
     }
 }

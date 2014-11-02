@@ -8,7 +8,15 @@ import net.sf.jsqlparser.expression.ExpressionVisitor;
 
 public class FuzzyByExtension implements Expression {
 
+    private final String expressionType = "fuzzyextension";
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
+
     public class Element {
+
         public Double possibility;
         public Expression expression;
 
@@ -45,4 +53,3 @@ public class FuzzyByExtension implements Expression {
         expressionVisitor.visit(this);
     }
 }
-    

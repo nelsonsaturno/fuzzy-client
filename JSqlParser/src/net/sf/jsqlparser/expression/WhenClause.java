@@ -19,54 +19,61 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-
 package net.sf.jsqlparser.expression;
 
 /**
- * A clause of following syntax: 
- * WHEN condition THEN expression.
- * Which is part of a CaseExpression.
- * 
+ * A clause of following syntax: WHEN condition THEN expression. Which is part
+ * of a CaseExpression.
+ *
  * @author Havard Rast Blok
  */
 public class WhenClause implements Expression {
 
-	private Expression whenExpression;
-	private Expression thenExpression;
-	
-	/* (non-Javadoc)
-	 * @see net.sf.jsqlparser.expression.Expression#accept(net.sf.jsqlparser.expression.ExpressionVisitor)
-	 */
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
+    private Expression whenExpression;
+    private Expression thenExpression;
+    private final String expressionType = "when";
 
-	/**
-	 * @return Returns the thenExpression.
-	 */
-	public Expression getThenExpression() {
-		return thenExpression;
-	}
-	/**
-	 * @param thenExpression The thenExpression to set.
-	 */
-	public void setThenExpression(Expression thenExpression) {
-		this.thenExpression = thenExpression;
-	}
-	/**
-	 * @return Returns the whenExpression.
-	 */
-	public Expression getWhenExpression() {
-		return whenExpression;
-	}
-	/**
-	 * @param whenExpression The whenExpression to set.
-	 */
-	public void setWhenExpression(Expression whenExpression) {
-		this.whenExpression = whenExpression;
-	}
-	
-	public String toString() {
-		return "WHEN "+whenExpression+" THEN "+thenExpression;
-	}
+    /* (non-Javadoc)
+     * @see net.sf.jsqlparser.expression.Expression#accept(net.sf.jsqlparser.expression.ExpressionVisitor)
+     */
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
+
+    /**
+     * @return Returns the thenExpression.
+     */
+    public Expression getThenExpression() {
+        return thenExpression;
+    }
+
+    /**
+     * @param thenExpression The thenExpression to set.
+     */
+    public void setThenExpression(Expression thenExpression) {
+        this.thenExpression = thenExpression;
+    }
+
+    /**
+     * @return Returns the whenExpression.
+     */
+    public Expression getWhenExpression() {
+        return whenExpression;
+    }
+
+    /**
+     * @param whenExpression The whenExpression to set.
+     */
+    public void setWhenExpression(Expression whenExpression) {
+        this.whenExpression = whenExpression;
+    }
+
+    public String toString() {
+        return "WHEN " + whenExpression + " THEN " + thenExpression;
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 }

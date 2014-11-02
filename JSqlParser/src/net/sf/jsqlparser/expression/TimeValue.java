@@ -23,33 +23,36 @@ package net.sf.jsqlparser.expression;
 
 import java.sql.Time;
 
-
-
 /**
  * A Time in the form {t 'hh:mm:ss'}
  */
 public class TimeValue implements Expression {
-	private Time value;
 
-	public TimeValue(String value) {
-		this.value = Time.valueOf(value.substring(1, value.length()-1));
-	}
-	
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
+    private Time value;
+    private final String expressionType = "time";
 
+    public TimeValue(String value) {
+        this.value = Time.valueOf(value.substring(1, value.length() - 1));
+    }
 
-	public Time getValue() {
-		return value;
-	}
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
 
-	public void setValue(Time d) {
-		value = d;
-	}
+    public Time getValue() {
+        return value;
+    }
 
-	public String toString() {
-		return "{t '"+value+"'}";
-	}
+    public void setValue(Time d) {
+        value = d;
+    }
 
+    public String toString() {
+        return "{t '" + value + "'}";
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 }

@@ -7,6 +7,7 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 public class ArrayExpression implements Expression {
 
     private ExpressionList expressions;
+    private final String expressionType = "array";
 
     public ArrayExpression(List<Expression> expressions) {
         this.expressions = new ExpressionList(expressions);
@@ -20,4 +21,8 @@ public class ArrayExpression implements Expression {
         expressionVisitor.visit(this);
     }
 
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 }

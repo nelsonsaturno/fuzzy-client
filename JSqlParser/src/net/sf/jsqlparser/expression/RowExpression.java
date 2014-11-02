@@ -7,6 +7,7 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 public class RowExpression implements Expression {
 
     private ExpressionList expressions;
+    private final String expressionType = "row";
 
     public RowExpression(List<Expression> expressions) {
         this.expressions = new ExpressionList(expressions);
@@ -18,6 +19,11 @@ public class RowExpression implements Expression {
 
     public void accept(ExpressionVisitor expressionVisitor) throws Exception {
         expressionVisitor.visit(this);
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
     }
 
 }

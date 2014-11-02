@@ -5,12 +5,18 @@ import net.sf.jsqlparser.expression.ExpressionVisitor;
 
 public class Concat extends BinaryExpression {
 
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
-	
-	public String getStringExpression() {
-		return "||";
-	}
+    private final String expressionType = "concat";
 
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
+
+    public String getStringExpression() {
+        return "||";
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 }

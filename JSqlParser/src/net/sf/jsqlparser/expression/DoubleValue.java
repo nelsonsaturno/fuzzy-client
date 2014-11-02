@@ -21,36 +21,41 @@
  */
 package net.sf.jsqlparser.expression;
 
-
 /**
  * Every number with a point or a exponential format is a DoubleValue
  */
 public class DoubleValue implements Expression {
-	private double value;
-	private String stringValue;
 
-	public DoubleValue(String value) {
-	    if (value.charAt(0) == '+') {
-	        value = value.substring(1);
-	    }
-		this.value = Double.parseDouble(value);
-		this.stringValue = value;
-	}
-	
-	public void accept(ExpressionVisitor expressionVisitor) throws Exception {
-		expressionVisitor.visit(this);
-	}
+    private double value;
+    private String stringValue;
+    private final String expressionType = "double";
 
+    public DoubleValue(String value) {
+        if (value.charAt(0) == '+') {
+            value = value.substring(1);
+        }
+        this.value = Double.parseDouble(value);
+        this.stringValue = value;
+    }
 
-	public double getValue() {
-		return value;
-	}
+    public void accept(ExpressionVisitor expressionVisitor) throws Exception {
+        expressionVisitor.visit(this);
+    }
 
-	public void setValue(double d) {
-		value = d;
-	}
+    public double getValue() {
+        return value;
+    }
 
-	public String toString() {
-		return stringValue;
-	}
+    public void setValue(double d) {
+        value = d;
+    }
+
+    public String toString() {
+        return stringValue;
+    }
+
+    @Override
+    public String getExpressionType() {
+        return expressionType;
+    }
 }
