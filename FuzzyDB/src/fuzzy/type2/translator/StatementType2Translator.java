@@ -178,8 +178,8 @@ public class StatementType2Translator extends Translator implements StatementVis
     @Override
     public void visit(CreateFuzzyConstant createFuzzyConstant) throws Exception {
         /* Checks if the constant was already defined or the domain does not exist. */
-        CreateFuzzyType2ConstantOperation op = new CreateFuzzyType2ConstantOperation(connector, 
-                createFuzzyConstant.getName(),createFuzzyConstant.getDomain(), 
+        CreateFuzzyType2ConstantOperation op = new CreateFuzzyType2ConstantOperation(connector,
+                createFuzzyConstant.getName(), createFuzzyConstant.getDomain(),
                 false, null);
         operations.add(op);
         /* Execute. */

@@ -34,7 +34,6 @@ public class OrderByType2Operation extends Operation {
         /* Get te current schema name */
         String catalog = this.connector.getSchema();
 
-        Printer.printInWhite("[OrderByType2Operation] ");
         if (this.ordering == 2) {
             String orderByCentroid = "UPDATE information_schema_fuzzy.current_orderings2 SET ordering = 2;";
             this.connector.executeRaw(orderByCentroid);

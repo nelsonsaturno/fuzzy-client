@@ -39,7 +39,6 @@ public class CreateFuzzyType2ConstantOperation extends Operation {
         this.setSchema = setSchema;
         if (setSchema) {
             this.expression = expression;
-            Printer.printlnInWhite("[EXPRESSION] " +this.expression.toString());
         }
     }
 

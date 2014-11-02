@@ -13,13 +13,12 @@ import java.util.Iterator;
 import java.util.List;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.NullValue;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.expression.fuzzy.FuzzyByExtension;
 import net.sf.jsqlparser.expression.fuzzy.FuzzyTrapezoid;
-
-;
 
 /**
  *
@@ -94,14 +93,19 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
 
     /**
      * Casts possibilities to Trapezoid Expression
+     *
      * @param possibilitiesString string of possibilities
      * @return Expression
      */
     public Expression parseTrapezoidPossibilities(String possibilitiesString) {
         String[] possibilitiesToParse = possibilitiesString.split(",");
-        DoubleValue[] trapezoidValues = new DoubleValue[4];
+        Expression[] trapezoidValues = new Expression[4];
         for (int i = 0; i < possibilitiesToParse.length; i++) {
-            trapezoidValues[i] = new DoubleValue(possibilitiesToParse[i]);
+            if ("NULL".equalsIgnoreCase(possibilitiesToParse[i])) {
+                    trapezoidValues[i] = new NullValue();
+            } else {
+                trapezoidValues[i] = new DoubleValue(possibilitiesToParse[i]);
+            }
         }
         return new FuzzyTrapezoid(trapezoidValues[0], trapezoidValues[1],
                 trapezoidValues[2], trapezoidValues[3]);
@@ -109,6 +113,7 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
 
     /**
      * Casts possibilities to Extension Expression
+     *
      * @param possibilitiesString string of possibilities
      * @param valuesString string of values
      * @return Expression
@@ -127,9 +132,42 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
         return extension;
     }
 
+    public void iterateSelectedColumns(String schemaName) throws SQLException {
+        Iterator iterator = this.columns.iterator();
+        int counter = 0;
+        while (iterator.hasNext()) {
+            String attribute = iterator.next().toString();
+            /* Replace the expression if needed. */
+            Expression expression = replaceConstantIfExists(schemaName, this.table.getName(),
+                    attribute, (Expression) this.expressions.get(counter));
+            if (expression != null) {
+                this.expressions.set(counter, expression);
+            }
+            counter++;
+        }
+    }
+
+    public void iterateColumns(String schemaName) throws SQLException {
+        String getColumns = "SELECT column_name "
+                + "FROM information_schema.columns "
+                + "WHERE table_schema = '" + schemaName + "' "
+                + "AND table_name = '" + this.table.getName() + "'";
+        Connector.ExecutionResult queryResult = this.connector.executeRaw(getColumns);
+        String column;
+        int counter = 0;
+        while (queryResult.result.next()) {
+            column = queryResult.result.getString(1);
+            Expression expression = replaceConstantIfExists(schemaName, this.table.getName(),
+                    column, (Expression) this.expressions.get(counter));
+            if (expression != null) {
+                this.expressions.set(counter, expression);
+            }
+            counter++;
+        }
+    }
+
     @Override
     public void execute() throws SQLException {
-
         if (this.connector.getSchema().equals("")) {
             throw new SQLException("No database selected");
         }
@@ -137,24 +175,9 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
 
         /* If the columns are listed */
         if (this.columns != null) {
-            Iterator iterator = this.columns.iterator();
-            int counter = 0;
-            while (iterator.hasNext()) {
-                String attribute = iterator.next().toString();
-                /* Replace the expression if needed. */
-                Expression expression = replaceConstantIfExists(schemaName, this.table.getName(),
-                        attribute, (Expression) this.expressions.get(counter));
-                if (expression != null) {
-                    this.expressions.set(counter, expression);
-                }
-                counter++;
-            }
+            iterateSelectedColumns(schemaName);
         } else {
-            //PODRIAMOS SOLUCIONARLO CON ESTO
-            //    SELECT column_name
-            //    FROM information_schema.columns
-            //    WHERE table_schema = 'public'
-            //    AND table_name   = 'testing';
+            iterateColumns(schemaName);
         }
     }
 }
