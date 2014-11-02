@@ -11,11 +11,15 @@ import fuzzy.type2.operations.DropFuzzyType2DomainOperation;
 import fuzzy.type2.operations.RemoveFuzzyType2ColumnsOperation;
 import fuzzy.type2.operations.CreateFuzzyType2ConstantOperation;
 import fuzzy.type2.operations.DropFuzzyType2ConstantOperation;
+import fuzzy.type2.operations.ReplaceFuzzyType2ConstantOperation;
 import fuzzy.type3.translator.Translator;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
@@ -137,6 +141,8 @@ public class StatementType2Translator extends Translator implements StatementVis
     @Override
     public void visit(Insert insert) throws Exception {
         FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(connector);
+        ReplaceFuzzyType2ConstantOperation tmp = new ReplaceFuzzyType2ConstantOperation(connector, insert);
+        tmp.execute();
         insert.getItemsList().accept(translator);
     }
 
@@ -173,14 +179,18 @@ public class StatementType2Translator extends Translator implements StatementVis
     public void visit(CreateFuzzyConstant createFuzzyConstant) throws Exception {
         /* Checks if the constant was already defined or the domain does not exist. */
         CreateFuzzyType2ConstantOperation op = new CreateFuzzyType2ConstantOperation(connector, 
-                createFuzzyConstant.getName(),createFuzzyConstant.getDomain(), false);
+                createFuzzyConstant.getName(),createFuzzyConstant.getDomain(), 
+                false, null);
         operations.add(op);
         /* Execute. */
+        Expression expression = (Expression) ((ExpressionList) createFuzzyConstant.getItemsList()).
+                getExpressions().iterator().next();
+        String expressionType = expression.getExpressionType();
         FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(connector);
         createFuzzyConstant.getItemsList().accept(translator);
         /* Inserts the name of the schema where the constant is.*/
         op = new CreateFuzzyType2ConstantOperation(connector, createFuzzyConstant.getName(),
-                createFuzzyConstant.getDomain(), true);
+                createFuzzyConstant.getDomain(), true, expressionType);
         operations.add(op);
     }
 
