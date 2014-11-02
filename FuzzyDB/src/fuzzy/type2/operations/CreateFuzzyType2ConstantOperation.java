@@ -6,6 +6,8 @@ import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Printer;
 import fuzzy.type2.translator.FuzzyType2ExpTranslator;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 
 /**
@@ -17,6 +19,7 @@ public class CreateFuzzyType2ConstantOperation extends Operation {
     private final String name;
     private final String domain;
     private final boolean setSchema;
+    private String expression = null;
 
     /**
      * Creates a new instance.
@@ -26,13 +29,18 @@ public class CreateFuzzyType2ConstantOperation extends Operation {
      * be used verbatim in the generated SQL queries.
      * @param domain domain name
      * @param setSchema
+     * @param expression
      */
     public CreateFuzzyType2ConstantOperation(Connector connector, String name, 
-            String domain, boolean setSchema) {
+            String domain, boolean setSchema, String expression) {
         super(connector);
         this.name = name;
         this.domain = domain;
         this.setSchema = setSchema;
+        if (setSchema) {
+            this.expression = expression;
+            Printer.printlnInWhite("[EXPRESSION] " +this.expression.toString());
+        }
     }
 
     /**
@@ -44,7 +52,8 @@ public class CreateFuzzyType2ConstantOperation extends Operation {
     public void update(String catalog) throws SQLException {
 
         String insertIntoCatalog = "UPDATE information_schema_fuzzy.constants2 "
-                + "SET constant_schema = '" + catalog + "' "
+                + "SET constant_schema = '" + catalog + "', "
+                + "fuzzy_type = '" + this.expression + "' "
                 + "WHERE constant_schema = 'NULL';";
         this.connector.executeRaw(insertIntoCatalog);
     }

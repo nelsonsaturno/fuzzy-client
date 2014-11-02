@@ -27,7 +27,7 @@ public class CreateFuzzyConstantDeParser implements ItemsListVisitor {
 
     public void deParse(CreateFuzzyConstant createFuzzyConstant) {
         buffer.append("INSERT INTO information_schema_fuzzy.constants2 ")
-                .append("(constant_schema, domain_name, constant_name, value)")
+                .append("(constant_schema, domain_name, constant_name, value, fuzzy_type)")
                 .append(" VALUES (")
                 .append("'NULL', '")
                 .append(createFuzzyConstant.getDomain())
@@ -47,6 +47,9 @@ public class CreateFuzzyConstantDeParser implements ItemsListVisitor {
                 expression.accept(expressionVisitor);
             } catch (Exception e) {
             }
+            buffer.append(", '")
+                    .append("NULL")
+                    .append("'");
         }
         buffer.append(")");
     }

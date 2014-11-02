@@ -76,7 +76,8 @@ CREATE TABLE IF NOT EXISTS information_schema_fuzzy.constants2 (
   constant_schema VARCHAR(64) NULL,
   domain_name     VARCHAR(64) NOT NULL,
   constant_name   VARCHAR(64) NOT NULL,
-  value           VARCHAR(64) NOT NULL
+  value           VARCHAR(64) NOT NULL,
+  fuzzy_type      VARCHAR(64) NOT NULL
 );
 
 -- toString() function
