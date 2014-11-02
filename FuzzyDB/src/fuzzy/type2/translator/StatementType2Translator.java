@@ -20,6 +20,7 @@ import java.util.Iterator;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.ItemsList;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
@@ -141,8 +142,11 @@ public class StatementType2Translator extends Translator implements StatementVis
     @Override
     public void visit(Insert insert) throws Exception {
         FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(connector);
-        ReplaceFuzzyType2ConstantOperation tmp = new ReplaceFuzzyType2ConstantOperation(connector, insert);
-        tmp.execute();
+        ReplaceFuzzyType2ConstantOperation replaceFuzzyType2ConstantOperation = 
+                new ReplaceFuzzyType2ConstantOperation(
+                        connector, insert.getTable(), insert.getColumns(),
+                        ((ExpressionList) insert.getItemsList()).getExpressions());
+        replaceFuzzyType2ConstantOperation.execute();
         insert.getItemsList().accept(translator);
     }
 
@@ -157,7 +161,10 @@ public class StatementType2Translator extends Translator implements StatementVis
     @Override
     public void visit(Update update) throws Exception {
         FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(connector);
-
+        ReplaceFuzzyType2ConstantOperation replaceFuzzyType2ConstantOperation =
+                new ReplaceFuzzyType2ConstantOperation(connector, update.getTable(),
+                        update.getColumns(), update.getExpressions());
+        replaceFuzzyType2ConstantOperation.execute();
         List<Expression> new_exps = new ArrayList<Expression>();
         for (Expression exp : (List<Expression>) update.getExpressions()) {
             translator.setReplacement(null);

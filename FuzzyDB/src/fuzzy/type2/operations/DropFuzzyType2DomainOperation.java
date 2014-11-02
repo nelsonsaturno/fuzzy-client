@@ -79,6 +79,13 @@ public class DropFuzzyType2DomainOperation extends Operation {
         connector.executeRaw(dropGreaterFunc);
     }
 
+    public void deleteConstants(String schemaName) throws SQLException {
+        String deleteConstant = "DELETE FROM information_schema_fuzzy.constants2 "
+                + "WHERE constant_schema = '" + schemaName + "' "
+                + "AND domain_name = '" + domain + "';";
+        connector.executeRaw(deleteConstant);
+    }
+    
     @Override
     public void execute() throws SQLException {
         if (this.connector.getSchema().equals("")) {
@@ -93,6 +100,7 @@ public class DropFuzzyType2DomainOperation extends Operation {
 
         connector.executeRawUpdate(updateCatalog);
 
+        deleteConstants(schemaName);
         dropOperatorCatalog(schemaName, fullTypeName);
     }
 }

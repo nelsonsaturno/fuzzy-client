@@ -30,11 +30,12 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
     private final List columns;
     private final List expressions;
 
-    public ReplaceFuzzyType2ConstantOperation(Connector connector, Insert insert) {
+    public ReplaceFuzzyType2ConstantOperation(Connector connector, Table table,
+            List columns, List expressions) {
         super(connector);
-        this.table = insert.getTable();
-        this.columns = insert.getColumns();
-        this.expressions = ((ExpressionList) insert.getItemsList()).getExpressions();
+        this.table = table;
+        this.columns = columns;
+        this.expressions = expressions;
     }
 
     /**
@@ -107,6 +108,8 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
                 trapezoidValues[i] = new DoubleValue(possibilitiesToParse[i]);
             }
         }
+        FuzzyTrapezoid f = new FuzzyTrapezoid(trapezoidValues[0], trapezoidValues[1],
+                trapezoidValues[2], trapezoidValues[3]);
         return new FuzzyTrapezoid(trapezoidValues[0], trapezoidValues[1],
                 trapezoidValues[2], trapezoidValues[3]);
     }
