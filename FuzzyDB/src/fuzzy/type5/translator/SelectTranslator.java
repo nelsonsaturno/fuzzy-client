@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
-import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.schema.Column;
 
 import fuzzy.helpers.Error;
@@ -44,10 +43,10 @@ public class SelectTranslator implements SelectVisitor {
     public void translateob(OrderByElement elem, FuzzyColumnSet fuzzyColumnSet) throws SQLException{
         
         Expression expression = elem.getExpression();
-        Expression fuzzyStart = elem.getFuzzyStart();
-        Column column = (Column) expression;
         
         if (!(expression instanceof Column)) return; // Was type3
+        
+        Column column = (Column) expression;
 
         if(fuzzyColumnSet == null) return; // not fuzzy set
         
@@ -66,9 +65,6 @@ public class SelectTranslator implements SelectVisitor {
         
         if(domain == null) return; // Domain not type 5
         
-        
-        
-        
         if(s == null) throw new SQLException(Error.getError("notStartingFrom"));
         if(!Helper.isLabelOfDomain5(this.connector,domain,s.toString())) 
             throw new SQLException(Error.getError("notLabelOfDomain"));
@@ -81,21 +77,8 @@ public class SelectTranslator implements SelectVisitor {
         args.add(s);
         f.setParameters(new ExpressionList(args));
         
-        
-        //this.replacement = f;
-        //this.alias = column.getColumnName() + "_human_readable";
-
-
         elem.setExpression(f);
-        //Expression s = elem.getFuzzyStart();
-
-        //elem.setExpression(e);
-        /*
-        if(s != null){
-
-            System.out.println("START: "+s.toString());
-        }*/
-        
+        elem.setAsc(false);
     }
     
     

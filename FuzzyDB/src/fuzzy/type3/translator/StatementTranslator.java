@@ -8,6 +8,7 @@ import fuzzy.type3.operations.CreateFuzzyDomainFromColumnOperation;
 import fuzzy.type3.operations.CreateFuzzyDomainOperation;
 import fuzzy.common.operations.Operation;
 import fuzzy.common.translator.DropFuzzyDomainTranslator;
+import fuzzy.type3.operations.CreateFuzzyDomainFromSelectOperation;
 import fuzzy.type3.operations.RemoveFuzzyColumnsOperation;
 import java.sql.SQLException;
 import java.util.List;
@@ -98,6 +99,21 @@ public class StatementTranslator extends Translator implements StatementVisitor 
             
             this.ignoreAST = true;
             
+            return;
+        }
+        
+        // Sintaxis alterna 2:
+        if ( createFuzzyDomain.isFromSelect() ) {
+            String domainName = createFuzzyDomain.getName();
+            Select selectStatement = createFuzzyDomain.getSelect();
+            
+            CreateFuzzyDomainFromSelectOperation o;
+            o = new CreateFuzzyDomainFromSelectOperation(connector, 
+                                                         domainName, 
+                                                         selectStatement);
+            operations.add(o);
+
+            this.ignoreAST = true;
             return;
         }
         

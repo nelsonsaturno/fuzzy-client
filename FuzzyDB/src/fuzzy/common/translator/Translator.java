@@ -60,6 +60,10 @@ public class Translator {
     public static SQLException FR_EMPTY_VALUES_LIST(String schemaName, String tableName, String columnName) {
         return new SQLException("Can't create domain without labels; not found non-null values in '" + (schemaName != null ? schemaName + "." : "") + tableName + "." + columnName + "'", "42000", 3011);
     }
+    
+    public static SQLException FR_EMPTY_SELECT_RESULT(String select) {
+        return new SQLException("Can't create domain; not found a valid result in: " + select , "42000", 3011);
+    }
 
 
     protected String failureMessage = "";

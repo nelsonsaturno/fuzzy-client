@@ -5,6 +5,7 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.StatementVisitor;
+import net.sf.jsqlparser.statement.select.Select;
 
 /**
  * A "CREATE FUZZY DOMAIN" statement
@@ -15,6 +16,7 @@ public class CreateFuzzyDomain implements Statement {
     private ExpressionList values;
     private ExpressionList similarityList;
     private Column column;
+    private Select select;
 
     public CreateFuzzyDomain(String name, ExpressionList values,
             ExpressionList similarityList) {
@@ -28,8 +30,21 @@ public class CreateFuzzyDomain implements Statement {
     }
 
     public CreateFuzzyDomain(String name, Column column) {
-        this.name = name;
+        
+        if ( name != null ) {
+            this.name = name.toLowerCase();
+        }
+        
         this.column = column;
+    }
+    
+    public CreateFuzzyDomain(String name, Select select) {
+        
+        if ( name != null ) {
+            this.name = name.toLowerCase();
+        }
+        
+        this.select = select;
     }
 
     public void accept(StatementVisitor statementVisitor) throws Exception {
@@ -79,10 +94,24 @@ public class CreateFuzzyDomain implements Statement {
     }
 
     public boolean isFromColumn() {
-        return null != column;
+        return column != null && 
+                select == null && values == null && similarityList == null;
     }
 
     public Column getFromColumn() {
         return this.column;
+    }
+
+    public Select getSelect() {
+        return select;
+    }
+
+    public void setSelect(Select select) {
+        this.select = select;
+    }
+    
+    public boolean isFromSelect(){
+        return select != null && 
+                column == null && values == null && similarityList == null;
     }
 }
