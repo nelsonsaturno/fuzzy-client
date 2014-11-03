@@ -123,7 +123,7 @@ public class Client {
                 catalogName = "(none)";
             }
 
-            userInput = keybrd.nextLine("FuzzyDB [" + catalogName + "]> ");
+            userInput = keybrd.nextLine("FuzzydoDB [" + catalogName + "]> ");
 
             // Detect EOF, such as when you use Ctrl+D on a console.
             if (null == userInput) {
