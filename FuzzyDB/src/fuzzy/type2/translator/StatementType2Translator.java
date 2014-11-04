@@ -197,7 +197,7 @@ public class StatementType2Translator extends Translator implements StatementVis
         createFuzzyConstant.getItemsList().accept(translator);
         /* Inserts the name of the schema where the constant is.*/
         op = new CreateFuzzyType2ConstantOperation(connector, createFuzzyConstant.getName(),
-                createFuzzyConstant.getDomain(), true, expressionType);
+                createFuzzyConstant.getDomain(), true, expression);
         operations.add(op);
     }
 

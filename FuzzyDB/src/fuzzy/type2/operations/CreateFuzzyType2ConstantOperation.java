@@ -19,7 +19,7 @@ public class CreateFuzzyType2ConstantOperation extends Operation {
     private final String name;
     private final String domain;
     private final boolean setSchema;
-    private String expression = null;
+    private Expression expression = null;
 
     /**
      * Creates a new instance.
@@ -31,8 +31,8 @@ public class CreateFuzzyType2ConstantOperation extends Operation {
      * @param setSchema
      * @param expression
      */
-    public CreateFuzzyType2ConstantOperation(Connector connector, String name, 
-            String domain, boolean setSchema, String expression) {
+    public CreateFuzzyType2ConstantOperation(Connector connector, String name,
+            String domain, boolean setSchema, Expression expression) {
         super(connector);
         this.name = name;
         this.domain = domain;
@@ -50,11 +50,54 @@ public class CreateFuzzyType2ConstantOperation extends Operation {
      */
     public void update(String catalog) throws SQLException {
 
-        String insertIntoCatalog = "UPDATE information_schema_fuzzy.constants2 "
-                + "SET constant_schema = '" + catalog + "', "
-                + "fuzzy_type = '" + this.expression + "' "
-                + "WHERE constant_schema = 'NULL';";
-        this.connector.executeRaw(insertIntoCatalog);
+        String expressionType = this.expression.getExpressionType();
+
+        if ("fuzzytrapezoid".equals(expressionType) || "fuzzyextension".equals(expressionType)) {
+            String insertIntoCatalog = "UPDATE information_schema_fuzzy.constants2 "
+                    + "SET constant_schema = '" + catalog + "', "
+                    + "fuzzy_type = '" + expressionType + "' "
+                    + "WHERE constant_schema = 'NULL';";
+            this.connector.executeRaw(insertIntoCatalog);
+        } else if ("string".equals(expressionType)) {
+            String constantValue = replaceConstantValue(catalog);
+            String insertConstantValue = "UPDATE information_schema_fuzzy.constants2 "
+                    + "SET constant_schema = '" + catalog + "', "
+                    + "fuzzy_type = '" + expressionType + "',  "
+                    + "value = " + constantValue + " "
+                    + "WHERE constant_schema = 'NULL';";
+            this.connector.executeRaw(insertConstantValue);
+        } else {
+            throw new SQLException("Constant value must be fuzzy trapezoid, "
+                    + "fuzzy by extension or another fuzzy constant.", "42000", 3020, null);
+        }
+    }
+
+    public String replaceConstantValue(String catalog) throws SQLException {
+        String getConstantValue = "SELECT constant_name, value, fuzzy_type "
+                + "FROM information_schema_fuzzy.constants2 "
+                + "WHERE constant_schema = '" + catalog + "' "
+                + "AND constant_name = " + this.expression.toString() + " "
+                + "AND domain_name = '" + this.domain + "';";
+        Connector.ExecutionResult query = this.connector.executeRaw(getConstantValue);
+        if (query.result.next()) {
+        String value = query.result.getString(2);
+        /* Parse the expression */
+        String possibilities = value.substring(value.indexOf("{") + 1, value.indexOf("}"));
+        value = value.substring(value.indexOf("}") + 1, value.length());
+        String values = value.substring(value.indexOf("{") + 1, value.indexOf("}"));
+        String insertValue = "ROW(ARRAY[" + possibilities + "], ARRAY[" + values + "]";
+        if ("fuzzyextension".equals(query.result.getString(3))) {
+            /* Fuzzy by extension */
+            insertValue += ",'1')";
+        } else {
+            /* Fuzzy by trapezoid */
+            insertValue += ",'0')";
+        }
+        return insertValue;
+        } else {
+            throw new SQLException("Constant " + this.expression.toString() + 
+                    " does not exist.", "42000", 3020, null);
+        }
     }
 
     /**
@@ -100,12 +143,12 @@ public class CreateFuzzyType2ConstantOperation extends Operation {
         String catalog = this.connector.getSchema();
         /* Is the domain does not exists or the constant is already 
          defined is not inserted and throws and exception */
-        
+
         if (!this.setSchema) {
             if (constantExists(catalog)) {
-                    throw new SQLException("Constant '" + this.name + "' "
-                            + "already exists for schema " + catalog + ", "
-                            + "domain " + this.domain + ".", "42000", 3020, null);
+                throw new SQLException("Constant '" + this.name + "' "
+                        + "already exists for schema " + catalog + ", "
+                        + "domain " + this.domain + ".", "42000", 3020, null);
             }
 
             if (!domainExists()) {

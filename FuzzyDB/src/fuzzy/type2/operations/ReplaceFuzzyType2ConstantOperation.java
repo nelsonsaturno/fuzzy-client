@@ -98,7 +98,7 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
      * @param possibilitiesString string of possibilities
      * @return Expression
      */
-    public Expression parseTrapezoidPossibilities(String possibilitiesString) {
+    public static Expression parseTrapezoidPossibilities(String possibilitiesString) {
         String[] possibilitiesToParse = possibilitiesString.split(",");
         Expression[] trapezoidValues = new Expression[4];
         for (int i = 0; i < possibilitiesToParse.length; i++) {
@@ -121,7 +121,7 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
      * @param valuesString string of values
      * @return Expression
      */
-    public Expression parseExtensionPossibilities(String possibilitiesString, String valuesString) {
+    public static Expression parseExtensionPossibilities(String possibilitiesString, String valuesString) {
         String[] possibilitiesToParse = possibilitiesString.split(",");
         String[] valuesToParse = valuesString.split(",");
         FuzzyByExtension extension = null;
