@@ -7,13 +7,14 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.*;
 import fuzzy.common.translator.FuzzyColumnSet;
 import fuzzy.common.translator.TableRefList;
-import fuzzy.helpers.Printer;
 import fuzzy.type2.operations.OrderByType2Operation;
 
 public class SelectType2Translator implements SelectVisitor {
 
     protected Connector connector;
     private boolean mainselect;
+    private Expression leftExpression;
+    private Expression rightExpression;
 
     public SelectType2Translator(Connector connector) {
         this.connector = connector;
@@ -28,9 +29,10 @@ public class SelectType2Translator implements SelectVisitor {
     @Override
     public void visit(PlainSelect plainSelect) throws Exception {
         TableRefList tableRefSet = new TableRefList(connector, plainSelect);
+        Iterator it = tableRefSet.getList().iterator();
         FuzzyColumnSet fuzzyColumnSet = new FuzzyColumnSet(connector, tableRefSet, plainSelect, 2);
 
-        FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(this.connector, this.mainselect, fuzzyColumnSet);
+        FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(this.connector, this.mainselect, fuzzyColumnSet, tableRefSet);
 
         for (SelectItem item : (List<SelectItem>) plainSelect.getSelectItems()) {
             item.accept(translator);

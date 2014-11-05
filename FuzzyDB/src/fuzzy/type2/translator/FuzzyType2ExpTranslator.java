@@ -1,7 +1,12 @@
 package fuzzy.type2.translator;
 
+import fuzzy.common.translator.FuzzyColumn;
 import fuzzy.database.Connector;
 import fuzzy.common.translator.FuzzyColumnSet;
+import fuzzy.common.translator.TableRef;
+import fuzzy.common.translator.TableRefList;
+import fuzzy.helpers.Printer;
+import fuzzy.type2.operations.ReplaceFuzzyType2ConstantOperation;
 import net.sf.jsqlparser.schema.Column;
 
 import java.util.Iterator;
@@ -58,6 +63,7 @@ import net.sf.jsqlparser.expression.operators.relational.Matches;
 import net.sf.jsqlparser.expression.operators.relational.MinorThan;
 import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
 import net.sf.jsqlparser.statement.select.AllTableColumns;
 import net.sf.jsqlparser.statement.select.SelectBody;
@@ -66,7 +72,7 @@ import net.sf.jsqlparser.statement.select.SelectItemVisitor;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
 /**
- * 
+ *
  */
 public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
 
@@ -74,6 +80,7 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
     protected Expression replacement = null;
     protected String alias = null;
     protected FuzzyColumnSet fuzzyColumnSet;
+    protected TableRefList tableRefSet;
     private boolean mainselect;
 
     public FuzzyType2ExpTranslator(Connector connector) {
@@ -82,10 +89,12 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
         this.fuzzyColumnSet = null;
     }
 
-    public FuzzyType2ExpTranslator(Connector connector, boolean mainselect, FuzzyColumnSet fuzzyColumnSet) {
+    public FuzzyType2ExpTranslator(Connector connector, boolean mainselect,
+            FuzzyColumnSet fuzzyColumnSet, TableRefList tableRefSet) {
         this.connector = connector;
         this.mainselect = mainselect;
         this.fuzzyColumnSet = fuzzyColumnSet;
+        this.tableRefSet = tableRefSet;
     }
 
     public Expression getReplacement() {
@@ -117,7 +126,7 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
         sei.getExpression().accept(this);
         Expression replacement = this.getReplacement();
         if (null != replacement) {
-            sei.setExpression(replacement);            
+            sei.setExpression(replacement);
         }
         this.replacement = null;
 
@@ -152,10 +161,10 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
     @Override
     public void visit(Column column) throws Exception {
         /*
-        * Si la columna es difusa tipo 2, y es parte de las columnas que
-        * van a aparecer directo en el resultado, se envuelve en un Function
-        * para generar su representación en String.
-        */ 
+         * Si la columna es difusa tipo 2, y es parte de las columnas que
+         * van a aparecer directo en el resultado, se envuelve en un Function
+         * para generar su representación en String.
+         */
         if (!this.mainselect) {
             this.replacement = null;
             return;
@@ -172,8 +181,7 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
         }
     }
 
-
-   @Override
+    @Override
     public void visit(Addition addition) throws Exception {
         visitBinaryExpression(addition);
     }
@@ -190,7 +198,7 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
         if (null != this.replacement) {
             between.setBetweenExpressionStart(this.replacement);
         }
-        
+
         this.replacement = null;
         between.getBetweenExpressionEnd().accept(this);
         if (null != this.replacement) {
@@ -210,16 +218,28 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
 
     @Override
     public void visit(EqualsTo equalsTo) throws Exception {
+        ReplaceFuzzyType2ConstantOperation replaceFuzzyType2ConstantOperation
+                = new ReplaceFuzzyType2ConstantOperation(this.connector,
+                        null, equalsTo);
+        replaceFuzzyType2ConstantOperation.execute();
         visitBinaryExpression(equalsTo);
     }
 
     @Override
     public void visit(GreaterThan greaterThan) throws Exception {
+        ReplaceFuzzyType2ConstantOperation replaceFuzzyType2ConstantOperation
+                = new ReplaceFuzzyType2ConstantOperation(this.connector,
+                        null, greaterThan);
+        replaceFuzzyType2ConstantOperation.execute();
         visitBinaryExpression(greaterThan);
     }
 
     @Override
     public void visit(GreaterThanEquals greaterThanEquals) throws Exception {
+        ReplaceFuzzyType2ConstantOperation replaceFuzzyType2ConstantOperation
+                = new ReplaceFuzzyType2ConstantOperation(this.connector,
+                        null, greaterThanEquals);
+        replaceFuzzyType2ConstantOperation.execute();
         visitBinaryExpression(greaterThanEquals);
     }
 
@@ -273,12 +293,20 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
 
     @Override
     public void visit(MinorThan minorThan) throws Exception {
+        ReplaceFuzzyType2ConstantOperation replaceFuzzyType2ConstantOperation
+                = new ReplaceFuzzyType2ConstantOperation(this.connector,
+                        null, minorThan);
+        replaceFuzzyType2ConstantOperation.execute();
         visitBinaryExpression(minorThan);
 
     }
 
     @Override
     public void visit(MinorThanEquals minorThanEquals) throws Exception {
+        ReplaceFuzzyType2ConstantOperation replaceFuzzyType2ConstantOperation
+                = new ReplaceFuzzyType2ConstantOperation(this.connector,
+                        null, minorThanEquals);
+        replaceFuzzyType2ConstantOperation.execute();
         visitBinaryExpression(minorThanEquals);
     }
 
@@ -289,6 +317,10 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
 
     @Override
     public void visit(NotEqualsTo notEqualsTo) throws Exception {
+        ReplaceFuzzyType2ConstantOperation replaceFuzzyType2ConstantOperation
+                = new ReplaceFuzzyType2ConstantOperation(this.connector,
+                        null, notEqualsTo);
+        replaceFuzzyType2ConstantOperation.execute();
         visitBinaryExpression(notEqualsTo);
     }
 
@@ -364,18 +396,18 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
     @Override
     public void visit(CaseExpression caseExpression) throws Exception {
         Expression switchExp = caseExpression.getSwitchExpression();
-        if( switchExp != null ) {
+        if (switchExp != null) {
             switchExp.accept(this);
         }
-        
+
         List clauses = caseExpression.getWhenClauses();
         for (Iterator iter = clauses.iterator(); iter.hasNext();) {
             Expression exp = (Expression) iter.next();
             exp.accept(this);
         }
-        
+
         Expression elseExp = caseExpression.getElseExpression();
-        if( elseExp != null ) {
+        if (elseExp != null) {
             elseExp.accept(this);
         }
     }
@@ -397,12 +429,12 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
 
     @Override
     public void visit(AllComparisonExpression allComparisonExpression) throws Exception {
-        allComparisonExpression.GetSubSelect().accept((ExpressionVisitor)this);
+        allComparisonExpression.GetSubSelect().accept((ExpressionVisitor) this);
     }
 
     @Override
     public void visit(AnyComparisonExpression anyComparisonExpression) throws Exception {
-        anyComparisonExpression.GetSubSelect().accept((ExpressionVisitor)this);
+        anyComparisonExpression.GetSubSelect().accept((ExpressionVisitor) this);
     }
 
     @Override
@@ -457,33 +489,33 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
     @Override
     public void visit(FuzzyByExtension fuzzy) throws Exception {
         /*
-        * Dado f{1.0/100, 0.75/60, 0.75/120}f, generar:
-        * ROW(ARRAY[1.0, 0.75, 0.75], ARRAY[100, 60, 120], '0')
-        *
-        * Los valores (100, 60, etc) realmente son expresiones arbitrarias.
-        * Si hay problemas de tipos, Postgres es el que los va a encontrar.
-        * No se visitan esta expresiones, así que no se traducen. Si alguna
-        * llega a ser un literal difuso, no será traducido y luego Postgres
-        * lanzará un error.
-        * Una posible mejora sería visitar estas expresiones y asegurarse
-        * de que no usen valores difusos.
-        */
+         * Dado f{1.0/100, 0.75/60, 0.75/120}f, generar:
+         * ROW(ARRAY[1.0, 0.75, 0.75], ARRAY[100, 60, 120], '0')
+         *
+         * Los valores (100, 60, etc) realmente son expresiones arbitrarias.
+         * Si hay problemas de tipos, Postgres es el que los va a encontrar.
+         * No se visitan esta expresiones, así que no se traducen. Si alguna
+         * llega a ser un literal difuso, no será traducido y luego Postgres
+         * lanzará un error.
+         * Una posible mejora sería visitar estas expresiones y asegurarse
+         * de que no usen valores difusos.
+         */
 
         List<Expression> possibility_arrayexps = new ArrayList<Expression>();
         List<Expression> value_arrayexps = new ArrayList<Expression>();
 
         for (FuzzyByExtension.Element element : fuzzy.getPossibilities()) {
             /*
-            * Cuando hice FuzzyByExtension, puse la posiblidad como un Double.
-            * En aquel momento no sabía que el AST de JSqlParser igual guardaba
-            * los números como strings. Así que tengo que convertirlo a string
-            * de nuevo.
-            */
+             * Cuando hice FuzzyByExtension, puse la posiblidad como un Double.
+             * En aquel momento no sabía que el AST de JSqlParser igual guardaba
+             * los números como strings. Así que tengo que convertirlo a string
+             * de nuevo.
+             */
             String elem_possiblity = element.getPossibility().toString();
             possibility_arrayexps.add(new DoubleValue(elem_possiblity));
             value_arrayexps.add(element.getExpression());
         }
-      
+
         ArrayExpression possibilities = new ArrayExpression(possibility_arrayexps);
         ArrayExpression values = new ArrayExpression(value_arrayexps);
 
@@ -510,18 +542,18 @@ public class FuzzyType2ExpTranslator implements ExpressionVisitor, ItemsListVisi
     }
 
     @Override
-    public void visit(FuzzyTrapezoid fuzzy) throws Exception {     
+    public void visit(FuzzyTrapezoid fuzzy) throws Exception {
         /*
-        * Dado f{x1, x2, x3, x4}f, generar
-        * ROW(ARRAY[0,1,1,0], ARRAY[x1, x2, x3, x4], '1')
-        *
-        * Si las expresiones x1 a x4 tienen errores, serán capturados por
-        * Postgres.
-        * Si llegaran ser a su vez literales difusos, no serán traducidos
-        * y por lo tanto dará error de Postgres.
-        * Una posible mejora sería visitar estas expresiones y asegurarse
-        * de que no usen valores difusos de ningún tipo.
-        */
+         * Dado f{x1, x2, x3, x4}f, generar
+         * ROW(ARRAY[0,1,1,0], ARRAY[x1, x2, x3, x4], '1')
+         *
+         * Si las expresiones x1 a x4 tienen errores, serán capturados por
+         * Postgres.
+         * Si llegaran ser a su vez literales difusos, no serán traducidos
+         * y por lo tanto dará error de Postgres.
+         * Una posible mejora sería visitar estas expresiones y asegurarse
+         * de que no usen valores difusos de ningún tipo.
+         */
         List<Expression> possibility_arrayexps = new ArrayList<Expression>();
         possibility_arrayexps.add(new DoubleValue("0.0"));
         possibility_arrayexps.add(new DoubleValue("1.0"));

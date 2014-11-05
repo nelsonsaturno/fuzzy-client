@@ -6,19 +6,22 @@
 package fuzzy.type2.operations;
 
 import fuzzy.common.operations.Operation;
+import fuzzy.common.translator.FuzzyColumn;
+import fuzzy.common.translator.FuzzyColumnSet;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Printer;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
+import net.sf.jsqlparser.expression.BinaryExpression;
+import net.sf.jsqlparser.expression.CastAsExpression;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.NullValue;
-import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.expression.fuzzy.FuzzyByExtension;
 import net.sf.jsqlparser.expression.fuzzy.FuzzyTrapezoid;
+import net.sf.jsqlparser.statement.table.ColDataType;
 
 /**
  *
@@ -26,9 +29,13 @@ import net.sf.jsqlparser.expression.fuzzy.FuzzyTrapezoid;
  */
 public class ReplaceFuzzyType2ConstantOperation extends Operation {
 
-    private final Table table;
+    private Table table;
     private final List columns;
     private final List expressions;
+    private String domain = null;
+    private BinaryExpression binaryExpression;
+    private Expression expression1;
+    private Expression expression2;
 
     public ReplaceFuzzyType2ConstantOperation(Connector connector, Table table,
             List columns, List expressions) {
@@ -36,6 +43,19 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
         this.table = table;
         this.columns = columns;
         this.expressions = expressions;
+        this.expression1 = null;
+        this.expression2 = null;
+    }
+
+    public ReplaceFuzzyType2ConstantOperation(Connector connector, Table table,
+            BinaryExpression binaryExpression) {
+        super(connector);
+        this.table = table;
+        this.binaryExpression = binaryExpression;
+        this.expression1 = binaryExpression.getLeftExpression();
+        this.expression2 = binaryExpression.getRightExpression();
+        this.expressions = null;
+        this.columns = null;
     }
 
     /**
@@ -51,16 +71,19 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
     public Expression replaceConstantIfExists(String schemaName, String tableName,
             String attributeName, Expression expression) throws SQLException {
         /* First check tha the column s of fuzzy type */
-        String attributeIsFuzzy = "SELECT name, table_name "
-                + "FROM information_schema_fuzzy.columns2 "
-                + "WHERE table_schema = '" + schemaName + "' "
+        String attributeIsFuzzy = "SELECT name, table_name, domain_name "
+                + "FROM information_schema_fuzzy.columns2 as C, information_schema_fuzzy.domains2 as D "
+                + "WHERE C.table_schema = '" + schemaName + "' "
+                + "AND C.table_schema = D.table_schema "
                 + "AND table_name = '" + tableName + "' "
-                + "AND name = '" + attributeName + "';";
+                + "AND name = '" + attributeName + "' "
+                + "AND domain_id = id;";
         Connector.ExecutionResult queryResult = this.connector.executeRaw(attributeIsFuzzy);
         if (queryResult.result.next()) {
+            this.domain = queryResult.result.getString(3);
             /* If the expression is a string then its a type2 constant*/
             if ("string".equals(expression.getExpressionType())) {
-                String getConstantValue = "SELECT name, table_name, constant_name, value, fuzzy_type "
+                String getConstantValue = "SELECT name, table_name, constant_name, value, fuzzy_type, domain_name "
                         + "FROM information_schema_fuzzy.columns2, information_schema_fuzzy.constants2 "
                         + "WHERE table_schema = '" + schemaName + "' "
                         + "AND table_name='" + tableName + "' "
@@ -87,6 +110,9 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
                     /* Raise exception if the constant does no exist */
                     throw new SQLException("Constant " + expression.toString() + " does not exist.", "42000", 3020, null);
                 }
+            } else if ("fuzzytrapezoid".equals(expression.getExpressionType())
+                    || "fuzzyextension".equals(expression.getExpressionType())) {
+                return expression;
             }
         }
         return null;
@@ -103,7 +129,7 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
         Expression[] trapezoidValues = new Expression[4];
         for (int i = 0; i < possibilitiesToParse.length; i++) {
             if ("NULL".equalsIgnoreCase(possibilitiesToParse[i])) {
-                    trapezoidValues[i] = new NullValue();
+                trapezoidValues[i] = new NullValue();
             } else {
                 trapezoidValues[i] = new DoubleValue(possibilitiesToParse[i]);
             }
@@ -169,6 +195,36 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
         }
     }
 
+    public boolean getTable(String columnName, String schemaName) throws SQLException {
+        String getTable = "SELECT table_name "
+                + "FROM information_schema_fuzzy.columns2 AS C, information_schema_fuzzy.domains2 AS D "
+                + "WHERE name = '" + columnName + "' "
+                + "AND C.table_schema = '" + schemaName + "' "
+                + "AND C.table_schema = D.table_schema "
+                + "AND domain_id = id";
+        Connector.ExecutionResult query = this.connector.executeRaw(getTable);
+        if (query.result.next()) {
+            this.table = new Table(schemaName, query.result.getString(1));
+            return true;
+        }
+        return false;
+    }
+
+    public Expression ifFuzzyColumnReplace(Expression column, Expression value, String schemaName) throws SQLException {
+        if (getTable(column.toString(), schemaName)) {
+            Expression expression = replaceConstantIfExists(schemaName, this.table.getName(),
+                    column.toString(), value);
+            if (expression != null) {
+                ColDataType colDataType = new ColDataType();
+                colDataType.setDataType(this.domain);
+                CastAsExpression castAsExpression
+                        = new CastAsExpression(expression, colDataType);
+                return castAsExpression;
+            }
+        }
+        return value;
+    }
+
     @Override
     public void execute() throws SQLException {
         if (this.connector.getSchema().equals("")) {
@@ -177,10 +233,23 @@ public class ReplaceFuzzyType2ConstantOperation extends Operation {
         String schemaName = this.connector.getSchema();
 
         /* If the columns are listed */
-        if (this.columns != null) {
-            iterateSelectedColumns(schemaName);
+        if (this.expression1 == null) {
+            if (this.columns != null) {
+                iterateSelectedColumns(schemaName);
+            } else {
+                iterateColumns(schemaName);
+            }
         } else {
-            iterateColumns(schemaName);
+            if (!("column".equals(this.expression1.getExpressionType())
+                    && "column".equals(this.expression2.getExpressionType()))) {
+                if ("column".equals(this.expression1.getExpressionType())) {
+                    this.expression2 = ifFuzzyColumnReplace(this.expression1, this.expression2, schemaName);
+                    this.binaryExpression.setRightExpression(this.expression2);
+                } else {
+                    this.expression1 = ifFuzzyColumnReplace(this.expression2, this.expression1, schemaName);
+                    this.binaryExpression.setLeftExpression(this.expression1);
+                }
+            }
         }
     }
 }

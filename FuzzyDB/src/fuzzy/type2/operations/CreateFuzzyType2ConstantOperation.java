@@ -5,10 +5,7 @@ import java.sql.SQLException;
 import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Printer;
-import fuzzy.type2.translator.FuzzyType2ExpTranslator;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.ItemsList;
 
 /**
  * Setups a new Type-2 Fuzzy type in the schema. This includes all the queries
@@ -20,6 +17,7 @@ public class CreateFuzzyType2ConstantOperation extends Operation {
     private final String domain;
     private final boolean setSchema;
     private Expression expression = null;
+    private String newExpressionType;
 
     /**
      * Creates a new instance.
@@ -62,7 +60,7 @@ public class CreateFuzzyType2ConstantOperation extends Operation {
             String constantValue = replaceConstantValue(catalog);
             String insertConstantValue = "UPDATE information_schema_fuzzy.constants2 "
                     + "SET constant_schema = '" + catalog + "', "
-                    + "fuzzy_type = '" + expressionType + "',  "
+                    + "fuzzy_type = '" + this.newExpressionType + "',  "
                     + "value = " + constantValue + " "
                     + "WHERE constant_schema = 'NULL';";
             this.connector.executeRaw(insertConstantValue);
@@ -80,23 +78,25 @@ public class CreateFuzzyType2ConstantOperation extends Operation {
                 + "AND domain_name = '" + this.domain + "';";
         Connector.ExecutionResult query = this.connector.executeRaw(getConstantValue);
         if (query.result.next()) {
-        String value = query.result.getString(2);
-        /* Parse the expression */
-        String possibilities = value.substring(value.indexOf("{") + 1, value.indexOf("}"));
-        value = value.substring(value.indexOf("}") + 1, value.length());
-        String values = value.substring(value.indexOf("{") + 1, value.indexOf("}"));
-        String insertValue = "ROW(ARRAY[" + possibilities + "], ARRAY[" + values + "]";
-        if ("fuzzyextension".equals(query.result.getString(3))) {
-            /* Fuzzy by extension */
-            insertValue += ",'1')";
+            String value = query.result.getString(2);
+            /* Parse the expression */
+            String possibilities = value.substring(value.indexOf("{") + 1, value.indexOf("}"));
+            value = value.substring(value.indexOf("}") + 1, value.length());
+            String values = value.substring(value.indexOf("{") + 1, value.indexOf("}"));
+            String insertValue = "ROW(ARRAY[" + possibilities + "], ARRAY[" + values + "]";
+            if ("fuzzyextension".equals(query.result.getString(3))) {
+                /* Fuzzy by extension */
+                insertValue += ",'1')";
+                this.newExpressionType = "fuzzyextension";
+            } else {
+                /* Fuzzy by trapezoid */
+                insertValue += ",'0')";
+                this.newExpressionType = "fuzzytrapezoid";
+            }
+            return insertValue;
         } else {
-            /* Fuzzy by trapezoid */
-            insertValue += ",'0')";
-        }
-        return insertValue;
-        } else {
-            throw new SQLException("Constant " + this.expression.toString() + 
-                    " does not exist.", "42000", 3020, null);
+            throw new SQLException("Constant " + this.expression.toString()
+                    + " does not exist.", "42000", 3020, null);
         }
     }
 
