@@ -144,12 +144,8 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
                     RETURN FALSE;
                 END IF;
 
-                RAISE NOTICE '(1) array_x %, array_y %',trapezoid_array_x_1,trapezoid_array_y_1; 
-                RAISE NOTICE '(2) array_x %, array_y %',trapezoid_array_x_2,trapezoid_array_y_2; 
-
                 FOR j IN 1..array_length(trapezoid_array_x_1,1) LOOP
                     FOR i IN 1..array_length(trapezoid_array_x_2,1) LOOP
-                        RAISE NOTICE '(LOOP) (2 > 1) array_x %, (1) array_y %',trapezoid_array_x_2[i],trapezoid_array_x_1[j]; 
                         IF trapezoid_array_x_2[i] > trapezoid_array_x_1[j] THEN
                             comp1 := comp1 + (trapezoid_array_y_2[i] * trapezoid_array_y_1[j]);
                         END IF;
@@ -158,15 +154,11 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
 
                 FOR j IN 1..array_length(trapezoid_array_x_2,1) LOOP
                     FOR i IN 1..array_length(trapezoid_array_x_1,1) LOOP
-                        RAISE NOTICE '(LOOP) (1 > 2) array_x %, (1) array_y %',trapezoid_array_x_1[i],trapezoid_array_x_2[j]; 
                         IF trapezoid_array_x_1[i] > trapezoid_array_x_2[j] THEN
                             comp2 := comp2 + (trapezoid_array_y_1[i] * trapezoid_array_y_2[j]);
                         END IF;
                     END LOOP;
                 END LOOP;
-
-                RAISE NOTICE 'lower? %',comp1 > comp2;
-                RAISE NOTICE 'comp1 = %, comp2 = %',comp1,comp2;
 
                 return comp1 > comp2;
             END IF;
@@ -174,7 +166,6 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
 
             -- One number is a trapezoid and the other one is by extension
             IF (elem1.type = False) and (elem2.type = True) THEN
-                RAISE NOTICE 'elem1 trapezoid, elem2 extension';
                 -- elem2 is a right shoulder trapezoid type
                 IF (elem1.value[2] IS NULL) THEN
                     RETURN TRUE;
@@ -205,7 +196,6 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
 
             -- One number is a trapezoid and the other one is by extension
             IF (elem1.type = True) and (elem2.type = False) THEN
-                RAISE NOTICE 'elem2 trapezoid, elem1 extension';
                 -- elem2 is a right shoulder trapezoid type
                 IF (elem2.value[2] IS NULL) THEN
                     RETURN FALSE;
@@ -389,6 +379,7 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
 
                         return False;			
                     END IF;
+                    return False;
                 END IF;
 
                 IF (elem1.value[3] is not Null) and (elem2.value[2] is not Null) THEN
@@ -481,7 +472,6 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower_eq(elem1 anyele
         pendiente           float := 0;
         index               int := 1;
     BEGIN
-
         SELECT ordering INTO current_order FROM information_schema_fuzzy.current_orderings2;
 
         IF current_order = 1 THEN
@@ -831,10 +821,11 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower_eq(elem1 anyele
 
                         return True;			
                     END IF;
+                    return True;
                 END IF;
 
                 IF (elem1.value[3] is not Null) and (elem2.value[2] is not Null) THEN
-                    IF elem1.value[3] < elem2.value[2] THEN
+                    IF elem1.value[3] <= elem2.value[2] THEN
                         return True;		
                     END IF;
 
@@ -928,7 +919,6 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
         pendiente           float := 0;
         index               int := 1;
     BEGIN
-
         SELECT ordering INTO current_order FROM information_schema_fuzzy.current_orderings2;
 
         IF current_order = 1 THEN
@@ -1047,12 +1037,8 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
                     RETURN FALSE;
                 END IF;
 
-                RAISE NOTICE '(1) array_x %, array_y %',trapezoid_array_x_1,trapezoid_array_y_1; 
-                RAISE NOTICE '(2) array_x %, array_y %',trapezoid_array_x_2,trapezoid_array_y_2; 
-
                 FOR j IN 1..array_length(trapezoid_array_x_1,1) LOOP
                     FOR i IN 1..array_length(trapezoid_array_x_2,1) LOOP
-                        RAISE NOTICE '(LOOP) (2 > 1) array_x %, (1) array_y %',trapezoid_array_x_2[i],trapezoid_array_x_1[j]; 
                         IF trapezoid_array_x_2[i] > trapezoid_array_x_1[j] THEN
                             comp1 := comp1 + (trapezoid_array_y_2[i] * trapezoid_array_y_1[j]);
                         END IF;
@@ -1061,15 +1047,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
 
                 FOR j IN 1..array_length(trapezoid_array_x_2,1) LOOP
                     FOR i IN 1..array_length(trapezoid_array_x_1,1) LOOP
-                        RAISE NOTICE '(LOOP) (1 > 2) array_x %, (1) array_y %',trapezoid_array_x_1[i],trapezoid_array_x_2[j]; 
                         IF trapezoid_array_x_1[i] > trapezoid_array_x_2[j] THEN
                             comp2 := comp2 + (trapezoid_array_y_1[i] * trapezoid_array_y_2[j]);
                         END IF;
                     END LOOP;
                 END LOOP;
 
-                RAISE NOTICE 'eq? %',comp1 = comp2;
-                RAISE NOTICE 'comp1 = %, comp2 = %',comp1,comp2;
                 return comp1 = comp2;
             END IF;
             END IF;
@@ -1101,7 +1084,6 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
                     END LOOP;
                 END LOOP;
 
-                RAISE NOTICE 'comp1 = %, comp2 = %',comp1,comp2;
                 return comp1 = comp2;
             END IF;
 
@@ -1132,7 +1114,6 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
                     END LOOP;
                 END LOOP;
 
-                RAISE NOTICE 'comp1 = %, comp2 = %',comp1,comp2;
                 return comp1 = comp2;
             END IF;
         END IF;
@@ -1419,7 +1400,6 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater(elem1 anyelem
         pendiente           float := 0;
         index               int := 1;
     BEGIN
-
         SELECT ordering INTO current_order FROM information_schema_fuzzy.current_orderings2;
 
         IF current_order = 1 THEN
@@ -1770,6 +1750,7 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater(elem1 anyelem
 
                         return False;			
                     END IF;
+                    return False;
                 END IF;
 
                 IF (elem1.value[3] is not Null) and (elem2.value[2] is not Null) THEN
@@ -1866,7 +1847,6 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater_eq(elem1 anye
         pendiente           float := 0;
         index               int := 1;
     BEGIN
-
         SELECT ordering INTO current_order FROM information_schema_fuzzy.current_orderings2;
 
         IF current_order = 1 THEN
@@ -2215,8 +2195,9 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater_eq(elem1 anye
                         IF elem1.value[2] > elem2.value[3] THEN
                             return True;
                         END IF;
-                            return True;			
+                        return True;			
                     END IF;
+                return True;
                 END IF;
 
                 IF (elem1.value[3] is not Null) and (elem2.value[2] is not Null) THEN
