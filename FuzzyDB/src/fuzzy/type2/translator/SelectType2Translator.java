@@ -7,6 +7,7 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.*;
 import fuzzy.common.translator.FuzzyColumnSet;
 import fuzzy.common.translator.TableRefList;
+import fuzzy.helpers.Printer;
 import fuzzy.type2.operations.OrderByType2Operation;
 
 public class SelectType2Translator implements SelectVisitor {
@@ -29,9 +30,7 @@ public class SelectType2Translator implements SelectVisitor {
     @Override
     public void visit(PlainSelect plainSelect) throws Exception {
         TableRefList tableRefSet = new TableRefList(connector, plainSelect);
-        Iterator it = tableRefSet.getList().iterator();
         FuzzyColumnSet fuzzyColumnSet = new FuzzyColumnSet(connector, tableRefSet, plainSelect, 2);
-
         FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(this.connector, this.mainselect, fuzzyColumnSet, tableRefSet);
 
         for (SelectItem item : (List<SelectItem>) plainSelect.getSelectItems()) {
@@ -44,17 +43,8 @@ public class SelectType2Translator implements SelectVisitor {
             where.accept(translator);
         }
 
-        /* Save into database the current ordering if ORDER BY CLAUSE IS
-         * SPECIFIED in the SELECT STAMENT */
-        if (plainSelect.getOrderByElements() != null) {
-            List orderBy = plainSelect.getOrderByElements();
-            Iterator iterator = orderBy.iterator();
-            while (iterator.hasNext()) {
-                OrderByElement orderByElement = (OrderByElement) iterator.next();
-                OrderByType2Operation orderBType2Operation = new OrderByType2Operation(this.connector, orderByElement.getOrdering());
-                orderBType2Operation.execute();
-            }
-        }
+        OrderByType2Operation orderBType2Operation = new OrderByType2Operation(this.connector, plainSelect.getOrdering());
+        orderBType2Operation.execute();
     }
 
     @Override

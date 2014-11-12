@@ -31,8 +31,6 @@ public class OrderByType2Operation extends Operation {
         if (this.connector.getSchema().equals("")) {
             throw new SQLException("No database selected");
         }
-        /* Get te current schema name */
-        String catalog = this.connector.getSchema();
 
         if (this.ordering == 2) {
             String orderByCentroid = "UPDATE information_schema_fuzzy.current_orderings2 SET ordering = 2;";

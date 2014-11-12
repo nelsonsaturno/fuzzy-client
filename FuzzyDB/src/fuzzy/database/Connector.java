@@ -187,7 +187,6 @@ public class Connector {
     public ExecutionResult executeRaw(String sql) throws SQLException {
         Logger.logQuery(sql);
         Statement s = this.connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-        Printer.printlnInGreen("[CONNECTOR] " + sql);
         s.execute(sql);
         restoreState();
         return new ExecutionResult(s.getResultSet(), s.getUpdateCount());

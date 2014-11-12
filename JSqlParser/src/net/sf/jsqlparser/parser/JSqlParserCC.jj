@@ -288,7 +288,7 @@ Statement Statement() :
 	(
     stm = Select()
     |
-    stm =  Update()
+    stm = Update()
     |
     stm = Insert()
     |
@@ -616,6 +616,9 @@ PlainSelect PlainSelect():
     [ having=Having() { plainSelect.setHaving(having); }]
     [ orderByElements = OrderByElements() { plainSelect.setOrderByElements(orderByElements); }]
     [ limit = Limit() { plainSelect.setLimit(limit);}]
+    [<K_USING> (<K_CHOQUET> { plainSelect.setOrdering(1); }
+        | <K_SUGENO> { plainSelect.setOrdering(3); }
+        | <K_CENTROID> { plainSelect.setOrdering(2); })]
 
 	{
 		plainSelect.setSelectItems(selectItems);
@@ -904,9 +907,6 @@ List OrderByElements():
 {
     <K_ORDER> <K_BY> orderByElement=OrderByElement() { orderByList.add(orderByElement); }
         ("," orderByElement=OrderByElement() { orderByList.add(orderByElement); } )*
-    [<K_USING> (<K_CHOQUET> { orderByElement.setOrderingType(1); } 
-        | <K_CENTROID> { orderByElement.setOrderingType(2); }
-        | <K_SUGENO> { orderByElement.setOrderingType(3); })]
     {
     	return orderByList;
     }

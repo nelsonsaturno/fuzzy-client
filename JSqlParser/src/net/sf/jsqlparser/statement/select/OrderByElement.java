@@ -28,31 +28,12 @@ import net.sf.jsqlparser.expression.Expression;
  */
 public class OrderByElement {
 
-    /**
-     * 3 Types of ordering: 
-     *  (1) Order according to CHOQUET 
-     *  (2) Order according to CENTROID 
-     *  (3) Order according to SUGENO
-     *
-     * If no USING clause is specified the resulting order will be according to
-     * SUGENO
-     */
-
     private Expression expression;
     private Expression fuzzyStart;
     private boolean asc = true;
-    private int ordering = 0;
 
     public boolean isAsc() {
         return asc;
-    }
-
-    public int getOrdering(){
-        return ordering;
-    }
-    
-    public void setOrderingType(int o) {
-        ordering = o;
     }
 
     public void setAsc(boolean b) {
