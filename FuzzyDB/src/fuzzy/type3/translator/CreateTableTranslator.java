@@ -5,6 +5,7 @@ import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.type3.operations.AddFuzzyColumnOperation;
 import fuzzy.common.operations.Operation;
+import fuzzy.type3.operations.CreateConstraintsForNewColumnOperation;
 import java.sql.SQLException;
 import java.util.Iterator;
 
@@ -56,6 +57,7 @@ public class CreateTableTranslator extends Translator {
 
                     // Queue a query to insert this definition in the metadata
                     operations.add(new AddFuzzyColumnOperation(connector, schemaName, tableName, columnName, domainId));
+                    operations.add(new CreateConstraintsForNewColumnOperation(connector, schemaName, tableName, columnName));
                 }
             }
         }
