@@ -21,6 +21,7 @@ public class Translator {
     public static final SQLException FR_NON_SUPPORTED_FUNCTION = new SQLException("Non-supported aggregation function when grouping by fuzzy column.", "42000", 3001);
     public static final SQLException FR_INVALID_STARTING_VALUE = new SQLException("Starting value must be a String enclosed with ' or \"", "42000", 3002);
     public static final SQLException ER_NO_DB_ERROR = new SQLException("No database selected", "3D000", 1046);
+    
     public static SQLException FR_INVALID_REFLEXIVITY_FOR_DOMAIN(String label) {
         return new SQLException("Resulting similarity relation doesn't hold reflexivity for label '" + label + "'", "42000", 3008);
     }
@@ -35,6 +36,10 @@ public class Translator {
 
     public static SQLException FR_DUPLICATE_LABEL_VALUE(String label) {
         return new SQLException("Duplicate label value '" + label + "'", "42000", 3003);
+    }
+    
+    public static SQLException FR_DUPLICATE_LABEL_ALT2() {
+        return new SQLException("Duplicate label value in the SELECT statement result. Try SELECT DISTINCT.", "42000", 3003);
     }
 
     public static SQLException FR_DUPLICATE_DOMAIN_NAME(String domainName) {

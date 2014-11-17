@@ -78,7 +78,12 @@ public class CreateFuzzyDomainFromSelectOperation extends Operation {
                 + "FROM information_schema_fuzzy.labels "
                 + "WHERE domain_id = " + domainId;
         
-        connector.executeRawUpdate(insertLabels);
+        try {
+            connector.executeRawUpdate(insertLabels);
+        } catch (SQLException ex) {
+            throw Translator.FR_DUPLICATE_LABEL_ALT2();
+        }
+        
         connector.executeRawUpdate(insertSimilarities);
     }
     
