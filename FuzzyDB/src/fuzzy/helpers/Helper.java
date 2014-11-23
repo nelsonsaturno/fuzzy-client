@@ -111,16 +111,15 @@ public class Helper  {
     
     
     /*
-     * Funcion que dado un nombre de dominio (domainName) y la tabla
-     * a la que pertenece (table), retorna el id del dominio tipo3
-     * sobre el cual esta basado el dominio.
+     * Funcion que dado el id de un dominio tipo5 (domainId), retorna el id del
+     * dominio tipo3 sobre el cual esta basado el dominio.
      * 
      * Solo retorna valores validos con dominios de tipo5 ya que estos
      * son los unicos para los cuales el atributo 'type3_domain_id' de
      * la tabla 'domains' es diferente de NULL.
      */
-    public static Integer getType3DomainIdRelated(Connector c,
-                           Table table, Integer domainId) throws SQLException {
+    public static Integer getType3DomainIdRelated(Connector c, Integer domainId)
+            throws SQLException {
         String sql = "SELECT type3_domain_id "
                 + "FROM information_schema_fuzzy.domains AS D "
                 + "WHERE D.domain_id = " + domainId;

@@ -49,7 +49,7 @@ public class CreateTableTranslator extends Translator {
             
             // El dominio es tipo 5
             if ( domainId != null ) {
-                type3domainId = Helper.getType3DomainIdRelated(connector, createTable.getTable(), domainId);
+                type3domainId = Helper.getType3DomainIdRelated(connector, domainId);
                 
                 operations.add(new AddFuzzyColumnOperation(connector, 
                         schemaName, tableName, columnName, domainId, type3domainId));

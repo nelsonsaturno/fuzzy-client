@@ -20,7 +20,6 @@ import java.util.List;
 import net.sf.jsqlparser.expression.ArrayExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.RowExpression;
-import net.sf.jsqlparser.expression.fuzzy.FuzzyByExtension;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.insert.Insert;
@@ -70,7 +69,6 @@ public class InsertTranslator extends Translator {
         l1.clear();
         l2.clear();
         for(int i = 0; i < ve.size(); i++){
-            System.out.println(ve.get(i).e1.toString()+ " " + ve.get(i).e2);
             if(ve.get(i).e1.toString().equals("0.0")){
                 
                 continue;

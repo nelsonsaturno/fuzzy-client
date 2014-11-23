@@ -62,10 +62,6 @@ public class AddFuzzyColumnOperation extends Operation {
                                    + "'" + this.columnName + "' ," // columnName
                                    + " " + this.domainId + ");";   // domain_id
         
-        // Se agregaron las restricciones de integridad via ALTER TABLE porque
-        // no era posible hacerlo modificando el AST de la consulta original.
-        // pues JSqlParser no lo modeló. Y no vale la pena ponerse a implementarlo
-        // en el parser.
 
         /*
         * ALTER TABLE test_schema.test_table 

@@ -2,16 +2,11 @@ package fuzzy.type2.translator;
 
 import fuzzy.database.Connector;
 import fuzzy.common.operations.Operation;
-import fuzzy.common.operations.RawSQLOperation;
 import fuzzy.helpers.Helper;
-import static fuzzy.helpers.Helper.getDomainType;
-import fuzzy.helpers.Logger;
 import fuzzy.helpers.Memory;
 import fuzzy.type2.operations.CreateFuzzyType2DomainOperation;
-import fuzzy.type2.operations.DropFuzzyType2DomainOperation;
 import fuzzy.type2.operations.RemoveFuzzyType2ColumnsOperation;
 import fuzzy.common.translator.Translator;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
 import net.sf.jsqlparser.expression.Expression;
@@ -29,7 +24,6 @@ import net.sf.jsqlparser.statement.table.AlterTable;
 import net.sf.jsqlparser.statement.table.CreateTable;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
-import net.sf.jsqlparser.util.deparser.StatementDeParser;
 
 public class StatementType2Translator extends Translator implements StatementVisitor {
 

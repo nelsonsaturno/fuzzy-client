@@ -38,19 +38,5 @@ public class CreateConstraintsForNewColumnOperation extends ColumnOperation {
         
         connector.executeRawUpdate(addForeignKeyConstraint);
         
-        // You cannot query on check constraints
-        // ALTER FUZZY DOMAIN DROP LABEL, care must be taken with all columns
-        // referencing this fuzzy domain
-        /*
-        String addCheckConstraint = "ALTER TABLE " 
-                + getSchemaTableForSQL() + " "
-                + "ADD CONSTRAINT " + columnName + "_valid_labels "
-                + "CHECK ("+ columnName + " IN ("
-                + "SELECT label_id "
-                + "FROM information_schema_fuzzy.labels "
-                + "WHERE domain_id = " + getDomainIdForSql() + "))";
-        
-        connector.executeRawUpdate(addCheckConstraint);
-        */
     }
 }

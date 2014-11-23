@@ -9,12 +9,10 @@ import fuzzy.helpers.Error;
 import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
-import static fuzzy.helpers.Helper.getDomainType;
 import fuzzy.helpers.Logger;
-import fuzzy.helpers.Memory;
 import fuzzy.common.translator.Translator;
+import fuzzy.helpers.Memory;
 import fuzzy.type5.operations.CreateFuzzyDomainOperation;
-import fuzzy.type5.operations.DropFuzzyType5DomainOperation;
 import fuzzy.type5.operations.RemoveFuzzyColumnsOperation;
 import java.sql.SQLException;
 import java.util.List;
@@ -73,7 +71,7 @@ public class StatementType5Translator extends Translator implements StatementVis
             operations.add(new RemoveFuzzyColumnsOperation(connector, Helper.getSchemaName(connector), table));
         } else if ("FUZZY DOMAIN".equalsIgnoreCase(type)) {
             // LOOK statement translator type 3
-            //this.ignoreAST = true;
+            // already handled
         }
         
     }
@@ -88,7 +86,11 @@ public class StatementType5Translator extends Translator implements StatementVis
     }
 
     @Override
-    public void visit(AlterTable alterTable) throws Exception { }
+    public void visit(AlterTable alterTable) throws Exception {
+        AlterTableTranslator alterTableTranslator = new AlterTableTranslator(connector, operations);
+        alterTableTranslator.translate(alterTable);
+        Memory.wipeMemory();
+    }
 
     @Override
     public void visit(CreateFuzzyDomain fuzzyDomain) throws Exception {
@@ -136,7 +138,7 @@ public class StatementType5Translator extends Translator implements StatementVis
     }
 
     @Override
-    public void visit(AlterFuzzyDomain alterFuzzyDomain) throws Exception {        
+    public void visit(AlterFuzzyDomain alterFuzzyDomain) throws Exception {
         if ( getFuzzyDomainId(connector.getSchema(), alterFuzzyDomain.getName(), "5") != null ){
             throw new SQLException(fuzzy.helpers.Error.getError("operationNotDefinedT5"));
         }

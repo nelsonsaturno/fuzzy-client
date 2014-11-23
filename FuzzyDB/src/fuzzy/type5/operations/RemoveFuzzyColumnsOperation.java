@@ -102,7 +102,7 @@ public class RemoveFuzzyColumnsOperation extends Operation {
         if (tableName != null)
             query += " AND table_name = '" + tableName + "'";
         if (columnName != null)
-            query += " AND name = '" + columnName + "'";
+            query += " AND column_name = '" + columnName + "'";
         return query;
     }
 }
