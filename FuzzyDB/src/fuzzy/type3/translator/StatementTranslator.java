@@ -155,7 +155,10 @@ public class StatementTranslator extends Translator implements StatementVisitor 
         }
         
         if ( getFuzzyDomainId(connector.getSchema(), alterFuzzyDomain.getName(), "3") == null ){
-            // Dominio no es tipo 3
+            // Dominio no es tipo 3 (Solo tipo3 puede alterarse)
+            // Si el dominio no existe se indicara en:
+            // StatementType5Translator.visit(AlterFuzzyDomain alterFuzzyDomain)
+            
             return;
         }
         

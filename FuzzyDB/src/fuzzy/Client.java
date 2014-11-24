@@ -12,6 +12,8 @@ import fuzzy.database.Connector;
 import fuzzy.database.Connector.ExecutionResult;
 import fuzzy.helpers.Printer;
 import fuzzy.helpers.Reader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Entry point for the fuzzy database Client.
@@ -70,7 +72,7 @@ public class Client {
      * @param args command line arguments.
      */
     public static void main(String[] args) {
-
+        
         // Parse command line parameters
         parameters = new Parameters();
         JCommander jc = new JCommander(parameters);
@@ -132,8 +134,7 @@ public class Client {
                 System.exit(0);
             }
 
-            userInput = userInput.replaceAll("[\t]|(--[^\r\n]*)|(/\\*[\\w\\W]*?(?=\\*/)\\*/)", "");
-            String[] sentences = userInput.split(";");
+            ArrayList<String> sentences = mySplit(userInput);
 
             // Process each sentence found in the input
             for (String sentence : sentences ) {
@@ -205,5 +206,51 @@ public class Client {
             System.exit(0);
         }
         return false;
+    }
+    
+    private static ArrayList<String> mySplit(String input){        
+        /* Regex: Text Blocks|Line Breaks and Tabs|Single Line Comments|Multiple Line Comments */
+        String pattern = "('(''|[^'])*')|[\t\r\n]|(--[^\r\n]*)|(/\\*[\\w\\W]*?(?=\\*/)\\*/)";
+        
+        ArrayList<String> sentence_list = new ArrayList<String>();
+        String match;
+        StringBuilder builder = new StringBuilder();
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(input);
+        int last_end = 0;
+        
+        // Replace comments
+        while ( m.find() ) {
+            match = m.group();
+            
+            if ( match.startsWith("'") && match.endsWith("'") ) {
+                builder.append(input, last_end, m.end());
+            } else {
+                builder.append(input, last_end, m.start());
+            }
+            
+            last_end = m.end();
+        }
+        
+        builder.append(input, last_end, input.length());
+        
+        // Split sentences by ;
+        int start = 0;
+        boolean isText = false;
+        for ( int i = 0; i < builder.length(); i++) {
+            
+            if ( builder.charAt(i) == 39 ) { // 39: '
+                isText = !isText;
+            }
+            
+            if ( !isText && builder.charAt(i) == 59 ) { // 59: ;
+                sentence_list.add( builder.substring(start, i) );
+                start = i + 1;
+            }
+        }
+        
+        sentence_list.add( builder.substring(start, builder.length()) );
+        System.out.println(sentence_list.toString());
+        return sentence_list;
     }
 }
