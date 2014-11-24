@@ -139,7 +139,6 @@ public class InsertTranslator extends Translator {
                 // RowExpression beacause it was translated by Type2ExpTranslator
                 // The only change needed is to delete the last boolean in the row
                 if ( values.get(i) instanceof RowExpression ) {
-                    Logger.debug("InstanceOF RowExpression");
                     fuzzyExt = (RowExpression) values.get(i);
                     List<Expression> le = 
                         fuzzyExt.getExpressions().getExpressions();

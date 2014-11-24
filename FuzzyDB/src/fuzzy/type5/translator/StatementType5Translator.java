@@ -16,6 +16,9 @@ import fuzzy.type5.operations.CreateFuzzyDomainOperation;
 import fuzzy.type5.operations.RemoveFuzzyColumnsOperation;
 import java.sql.SQLException;
 import java.util.List;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.RowExpression;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
@@ -52,7 +55,29 @@ public class StatementType5Translator extends Translator implements StatementVis
     public void visit(Delete delete) throws Exception { }
 
     @Override
-    public void visit(Update update) throws Exception { }
+    public void visit(Update update) throws Exception {
+        String schemaName = Helper.getSchemaName(connector);
+        String tableName = update.getTable().getName();
+        Expression expression;
+        RowExpression fuzzyExt;
+        
+        for (int i = 0; i < update.getColumns().size(); i++) {
+            Column column = (Column) update.getColumns().get(i);
+            
+            if (Memory.isFuzzyType5Column(connector, schemaName, tableName, column.getColumnName())) {
+                expression = (Expression) update.getExpressions().get(i);
+                
+                if ( expression instanceof RowExpression ) {
+                    fuzzyExt = (RowExpression) expression;
+                    List<Expression> le = 
+                        fuzzyExt.getExpressions().getExpressions();
+                    
+                    le.remove(le.size()-1); // Remove the last boolean
+                }
+            }
+
+        }
+    }
 
     @Override
     public void visit(Insert insert) throws Exception {

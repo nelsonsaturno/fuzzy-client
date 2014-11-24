@@ -800,20 +800,24 @@ DECLARE
 final varchar := '{';
 size int;
 BEGIN
-size := array_length(elem.odd,1);
-FOR j in 1..size LOOP
-    IF (j = 1) THEN
-        final := final || elem.odd[j];
-        final := final || '/';
-        final := final || elem.value[j];
-    ELSE
-        final := final || ', ';
-        final := final || elem.odd[j];
-        final := final || '/';
-        final := final || elem.value[j];
-    END IF;
-END LOOP;
-final = final || '}';
+IF elem is Null THEN
+    final := 'NULL';
+ELSE
+    size := array_length(elem.odd,1);
+    FOR j in 1..size LOOP
+        IF (j = 1) THEN
+            final := final || elem.odd[j];
+            final := final || '/';
+            final := final || elem.value[j];
+        ELSE
+            final := final || ', ';
+            final := final || elem.odd[j];
+            final := final || '/';
+            final := final || elem.value[j];
+        END IF;
+    END LOOP;
+    final = final || '}';
+END IF;
 return final;
 END;
 $$ LANGUAGE plpgsql;
