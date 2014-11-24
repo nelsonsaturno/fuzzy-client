@@ -8,6 +8,7 @@ import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
 import fuzzy.type3.operations.AddFuzzyColumnOperation;
 import fuzzy.type3.operations.CreateConstraintsForNewColumnOperation;
+import fuzzy.type3.operations.RemoveFuzzyColumnsOperation;
 import java.sql.SQLException;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import net.sf.jsqlparser.statement.table.AlterOperation;
 import net.sf.jsqlparser.statement.table.AlterTable;
 import net.sf.jsqlparser.statement.table.ChangeColumn;
 import net.sf.jsqlparser.statement.table.ColumnDefinition;
+import net.sf.jsqlparser.statement.table.DropColumn;
 
 /**
  * A class to de-parse (that is, tranform from JSqlParser hierarchy into a string)
@@ -52,6 +54,7 @@ public class AlterTableTranslator extends Translator {
                     operations.add(cco);
                     break;
                 case ADD:
+                {
                     AddColumn addColumn = (AddColumn)alterOperation;
                     String schemaName = Helper.getSchemaName(this.connector, table);
                     String dataType = addColumn.getColumnDefinition().getColDataType().getDataType();
@@ -74,9 +77,15 @@ public class AlterTableTranslator extends Translator {
                         addColumn.getColumnDefinition().getColDataType().setDataType("INTEGER");
                     }
                     break;
+                }
                 case DROP:
-                    Logger.notice("Notice: if the type involved is Fuzzy Type 3, this will have unexpected results.");
+                {
+                    DropColumn dropColumn = (DropColumn)alterOperation;
+                    String schemaName = Helper.getSchemaName(this.connector, table);
+                    String columnName = dropColumn.getColumnOld();
+                    operations.add(new RemoveFuzzyColumnsOperation(connector, schemaName, table.getName(), columnName));
                     break;
+                }
             }
         }
     }

@@ -58,20 +58,6 @@ public class StatementTranslator extends Translator implements StatementVisitor 
         SelectBody selectBody = select.getSelectBody();
         // This handles both: PlainSelect and Union
         selectBody.accept(selectTranslator);
-//		selectTranslator.setBuffer(buffer);
-//		ExpressionTranslator expressionTranslator = new ExpressionTranslator(selectTranslator);
-//		selectTranslator.setExpressionVisitor(expressionTranslator);
-//		if (select.getWithItemsList() != null && !select.getWithItemsList().isEmpty()) {
-//			buffer.append("WITH ");
-//			for (Iterator iter = select.getWithItemsList().iterator(); iter.hasNext();) {
-//				WithItem withItem = (WithItem)iter.next();
-//				buffer.append(withItem);
-//				if (iter.hasNext())
-//					buffer.append(",");
-//				buffer.append(" ");
-//			}
-//		}
-//		select.getSelectBody().accept(selectTranslator);
     }
 
     @Override
