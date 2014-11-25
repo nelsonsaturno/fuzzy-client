@@ -4,7 +4,7 @@ import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.type2.operations.AddFuzzyType2ColumnOperation;
 import fuzzy.common.operations.Operation;
-import fuzzy.type3.translator.Translator;
+import fuzzy.common.translator.Translator;
 import java.sql.SQLException;
 import java.util.Iterator;
 
@@ -33,7 +33,7 @@ public class CreateTableType2Translator extends Translator {
                 ColumnDefinition columnDefinition = (ColumnDefinition) iter.next();
                 String columnName = columnDefinition.getColumnName();
                 String dataType = columnDefinition.getColDataType().getDataType();
-                Integer domainId = null;
+                Integer domainId;
                 if ((domainId = getFuzzyType2DomainId(schemaName, dataType)) != null) {
                     // Agregar la columna al catálogo, y encolar consultas para agregar
                     // restricciones de integridad al tipo difuso.

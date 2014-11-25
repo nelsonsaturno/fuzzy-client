@@ -16,25 +16,27 @@ public class CreateConstraintsForNewColumnOperation extends ColumnOperation {
     public CreateConstraintsForNewColumnOperation(Connector connector) {
         super(connector);
     }
+    
+    public CreateConstraintsForNewColumnOperation(Connector connector,
+                                   String schemaName, 
+                                   String tableName, 
+                                   String columnName) {
+        super(connector);
+        this.schemaName = schemaName;
+        this.tableName = tableName;
+        this.columnName = columnName;
+    }
 
     @Override
     public void execute() throws SQLException {
-        // TODO what happens if these queries fail?
         String addForeignKeyConstraint = "ALTER TABLE "
             + getSchemaTableForSQL() + " "
-            + "ADD CONSTRAINT FOREIGN KEY (" + columnName + ") "
+            + "ADD CONSTRAINT " + columnName + "_foreign_key "
+            + "FOREIGN KEY (" + columnName + ") "
             + "REFERENCES information_schema_fuzzy.labels (label_id) "
             + "ON UPDATE CASCADE ON DELETE RESTRICT";
         
         connector.executeRawUpdate(addForeignKeyConstraint);
-    
-        String addCheckConstraint = "ALTER TABLE " 
-                + getSchemaTableForSQL() + " "
-                + "ADD CONSTRAINT CHECK ("+ columnName + " IN ("
-                + "SELECT label_id "
-                + "FROM information_schema_fuzzy.labels "
-                + "WHERE domain_id = " + getDomainIdForSql() + "))";
         
-        connector.executeRawUpdate(addCheckConstraint);
     }
 }

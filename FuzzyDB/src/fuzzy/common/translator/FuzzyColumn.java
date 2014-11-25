@@ -4,6 +4,8 @@
  */
 package fuzzy.common.translator;
 
+/*prueba */
+
 import fuzzy.helpers.Logger;
 import java.io.StringReader;
 import java.sql.SQLException;
@@ -77,12 +79,19 @@ public class FuzzyColumn {
         String similarityAlias = aliasGenerator.getNewSimilarityAlias();
         
         String sql = "SELECT ignore FROM ignore"
+                + " JOIN information_schema_fuzzy.similarities AS " + similarityAlias
+                + " ON (" + similarityAlias + ".label2_id = " + this.getPublicName()
+                + " AND " + similarityAlias + ".value <> 0)"
+                + " JOIN information_schema_fuzzy.labels AS " + labelsAlias
+                + " ON (" + similarityAlias + ".label1_id = " + labelsAlias + ".label_id )";
+        
+        /*String sql = "SELECT ignore FROM ignore"
                 + " JOIN information_schema_fuzzy.labels AS " + labelsAlias
                 + " JOIN information_schema_fuzzy.similarities AS " + similarityAlias
                 + " ON ((" + similarityAlias + ".label1_id = " + labelsAlias + ".label_id"
                 + " AND " + similarityAlias + ".label2_id = " + this.getPublicName()
                 + ") AND " + similarityAlias + ".value <> 0)";
-        
+        */
         Logger.debug("Parsing:\n" + sql);
         // It's easier to parse what I want to replace than building it
         

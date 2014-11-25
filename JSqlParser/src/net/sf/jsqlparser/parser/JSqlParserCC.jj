@@ -947,7 +947,7 @@ OrderByElement OrderByElement():
             return orderByElement;
         }
     |
-        <K_STARTING> fuzzyStart = PrimaryExpression()
+        <K_STARTING> <K_FROM> fuzzyStart = PrimaryExpression()
         {
             orderByElement.setExpression(column);
             orderByElement.setFuzzyStart(fuzzyStart);
@@ -1898,10 +1898,11 @@ CreateFuzzyDomain CreateFuzzyDomain():
     ArrayList<Similarity> similarityList = new ArrayList<Similarity>();
 
     Column column;
+    Select select;
 }
 {
     <K_CREATE> <K_FUZZY> <K_DOMAIN> domain=<S_IDENTIFIER> <K_AS>
-
+        (
         <K_VALUES>
             (
                 "("
@@ -1919,7 +1920,10 @@ CreateFuzzyDomain CreateFuzzyDomain():
                 <K_FROM> column=Column()
                 { return new CreateFuzzyDomain(domain.image, column); }
             )
-
+        |
+         select=Select()
+         {return new CreateFuzzyDomain(domain.image, select); }
+        )
 }
 Similarity Similarity():
 {

@@ -9,7 +9,6 @@ import fuzzy.helpers.Helper;
 import fuzzy.helpers.Logger;
 import fuzzy.helpers.Memory;
 import fuzzy.type3.translator.ExpressionColumnVisitor;
-import fuzzy.type3.translator.Translator;
 import java.sql.SQLException;
 import java.util.AbstractSet;
 import java.util.HashMap;
@@ -271,6 +270,9 @@ public class FuzzyColumnSet implements Iterable<FuzzyColumn> {
             return;
         }
         if (this.fuzzyType == 2 && !Memory.isFuzzyType2Column(connector, schemaName, tableName, column.getColumnName())) {
+            return;
+        }
+        if (this.fuzzyType == 5 && !Memory.isFuzzyType5Column(connector, schemaName, tableName, column.getColumnName())) {
             return;
         }
         String qualifiedName = FuzzyColumn.getQualifiedName(column);

@@ -38,7 +38,9 @@ public class Column implements Expression {
 
     public Column(Table table, String columnName) {
         this.table = table;
-        this.columnName = columnName;
+        if (columnName != null) {
+            this.columnName = columnName.toLowerCase();
+        }
     }
 
     public String getColumnName() {
@@ -50,7 +52,9 @@ public class Column implements Expression {
     }
 
     public void setColumnName(String string) {
-        columnName = string;
+        if (string != null) {
+            columnName = string.toLowerCase();
+        }
     }
 
     public void setTable(Table table) {
@@ -61,7 +65,6 @@ public class Column implements Expression {
      * @return the name of the column, prefixed with 'tableName' and '.'
      */
     public String getWholeColumnName() {
-
         String columnWholeName = null;
         String tableWholeName = table.getWholeTableName();
 

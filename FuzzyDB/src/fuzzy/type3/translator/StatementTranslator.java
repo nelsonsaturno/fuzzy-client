@@ -1,14 +1,16 @@
 package fuzzy.type3.translator;
 
+import fuzzy.common.translator.Translator;
 import fuzzy.database.Connector;
-import fuzzy.type3.operations.DropFuzzyDomainOperation;
 import fuzzy.helpers.Helper;
 import fuzzy.type3.operations.AlterFuzzyDomainOperation;
 import fuzzy.type3.operations.CreateFuzzyDomainFromColumnOperation;
 import fuzzy.type3.operations.CreateFuzzyDomainOperation;
 import fuzzy.common.operations.Operation;
-import fuzzy.helpers.Memory;
+import fuzzy.common.translator.DropFuzzyDomainTranslator;
+import fuzzy.type3.operations.CreateFuzzyDomainFromSelectOperation;
 import fuzzy.type3.operations.RemoveFuzzyColumnsOperation;
+import java.sql.SQLException;
 import java.util.List;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
@@ -36,7 +38,6 @@ public class StatementTranslator extends Translator implements StatementVisitor 
     public StatementTranslator(Connector connector, List<Operation> operations) {
         super(connector, operations);
     }
-    
 
     //Este el visit de create table, se debe hacer algo parecido con el de select 
     @Override
@@ -44,9 +45,7 @@ public class StatementTranslator extends Translator implements StatementVisitor 
         CreateTableTranslator createTableTranslator = new CreateTableTranslator(connector, operations);
         createTableTranslator.translate(createTable);
     }
-    
 
-    //Este el visit de create table, se debe hacer algo parecido con el de select 
     @Override
     public void visit(AlterTable alterTable) throws Exception {
         AlterTableTranslator alterTableTranslator = new AlterTableTranslator(connector, operations);
@@ -60,41 +59,59 @@ public class StatementTranslator extends Translator implements StatementVisitor 
         SelectBody selectBody = select.getSelectBody();
         // This handles both: PlainSelect and Union
         selectBody.accept(selectTranslator);
-//		selectTranslator.setBuffer(buffer);
-//		ExpressionTranslator expressionTranslator = new ExpressionTranslator(selectTranslator);
-//		selectTranslator.setExpressionVisitor(expressionTranslator);
-//		if (select.getWithItemsList() != null && !select.getWithItemsList().isEmpty()) {
-//			buffer.append("WITH ");
-//			for (Iterator iter = select.getWithItemsList().iterator(); iter.hasNext();) {
-//				WithItem withItem = (WithItem)iter.next();
-//				buffer.append(withItem);
-//				if (iter.hasNext())
-//					buffer.append(",");
-//				buffer.append(" ");
-//			}
-//		}
-//		select.getSelectBody().accept(selectTranslator);
     }
 
     @Override
     public void visit(CreateFuzzyDomain createFuzzyDomain) throws Exception {
+
+        // Sintaxis alterna 1:
         if (createFuzzyDomain.isFromColumn()) {
-            CreateFuzzyDomainFromColumnOperation o = new CreateFuzzyDomainFromColumnOperation(connector);
-            o.setDomainName(createFuzzyDomain.getName());
-            o.setSchemaName(createFuzzyDomain.getFromColumn().getTable().getSchemaName());
-            o.setTableName(createFuzzyDomain.getFromColumn().getTable().getName());
-            o.setColumnName(createFuzzyDomain.getFromColumn().getColumnName());
+
+            String domainName = createFuzzyDomain.getName();
+            String schemaName = createFuzzyDomain.getFromColumn().getTable().getSchemaName();
+            String tableName = createFuzzyDomain.getFromColumn().getTable().getName();
+            String columnName = createFuzzyDomain.getFromColumn().getColumnName();
+
+            if (schemaName == null) {
+                schemaName = connector.getSchema();
+            }
+
+            CreateFuzzyDomainFromColumnOperation o;
+            o = new CreateFuzzyDomainFromColumnOperation(connector,
+                    domainName,
+                    schemaName,
+                    tableName,
+                    columnName);
             operations.add(o);
+
+            this.ignoreAST = true;
+
             return;
         }
+
+        // Sintaxis alterna 2:
+        if (createFuzzyDomain.isFromSelect()) {
+            String domainName = createFuzzyDomain.getName();
+            Select selectStatement = createFuzzyDomain.getSelect();
+
+            CreateFuzzyDomainFromSelectOperation o;
+            o = new CreateFuzzyDomainFromSelectOperation(connector,
+                    domainName,
+                    selectStatement);
+            operations.add(o);
+
+            this.ignoreAST = true;
+            return;
+        }
+
         String name = createFuzzyDomain.getName();
         CreateFuzzyDomainOperation cfdo = new CreateFuzzyDomainOperation(connector, name);
-        
+
         // get labels
         List<Expression> labels = createFuzzyDomain.getValues().getExpressions();
         for (Expression label : labels) {
             if (label instanceof StringValue) {
-                cfdo.addLabel(((StringValue)label).getValue());
+                cfdo.addLabel(((StringValue) label).getValue());
             } else {
                 // TODO it should rise an SQLException defined in Translator.SOMETHING and present in tests and Github wiki
                 throw new UnsupportedOperationException("Only string labels for now: " + label.toString());
@@ -115,9 +132,9 @@ public class StatementTranslator extends Translator implements StatementVisitor 
                         + " for now: " + similarity.getLabel2().toString());
             }
             cfdo.addSimilarity(
-                            ((StringValue)similarity.getLabel1()).getValue(),
-                            ((StringValue)similarity.getLabel2()).getValue(),
-                            ((DoubleValue)similarity.getValue()).getValue());
+                    ((StringValue) similarity.getLabel1()).getValue(),
+                    ((StringValue) similarity.getLabel2()).getValue(),
+                    ((DoubleValue) similarity.getValue()).getValue());
         }
 
         // calculate changed needed to be made on database
@@ -132,16 +149,33 @@ public class StatementTranslator extends Translator implements StatementVisitor 
 
     @Override
     public void visit(AlterFuzzyDomain alterFuzzyDomain) throws Exception {
-        String name = alterFuzzyDomain.getName();
-        AlterFuzzyDomainOperation afdo = new AlterFuzzyDomainOperation(connector, name);
-        
+        String domainName = alterFuzzyDomain.getName();
+
+        if (Connector.isNativeDataType(domainName)) {
+            throw new SQLException(fuzzy.helpers.Error.getError("notFuzzyDomain"));
+        }
+
+        if (getFuzzyDomainId(connector.getSchema(), alterFuzzyDomain.getName(), "3") == null) {
+            // Dominio no es tipo 3 (Solo tipo3 puede alterarse)
+            // Si el dominio no existe se indicara en:
+            // StatementType5Translator.visit(AlterFuzzyDomain alterFuzzyDomain)
+
+            return;
+        }
+
+        if (Helper.isDomainLinked(connector, connector.getSchema(), domainName)) {
+            throw new SQLException(fuzzy.helpers.Error.getError("alterFuzzyDomainLinked"));
+        }
+
+        AlterFuzzyDomainOperation afdo = new AlterFuzzyDomainOperation(connector, domainName);
+
         // add labels
         if (alterFuzzyDomain.getAddValues() != null) {
             List<Expression> addLabels = alterFuzzyDomain.getAddValues()
-                                                         .getExpressions();
+                    .getExpressions();
             for (Expression label : addLabels) {
                 if (label instanceof StringValue) {
-                    afdo.addLabel(((StringValue)label).getValue());
+                    afdo.addLabel(((StringValue) label).getValue());
                 } else {
                     throw new UnsupportedOperationException("Only string labels for now: " + label.toString());
                 }
@@ -151,7 +185,7 @@ public class StatementTranslator extends Translator implements StatementVisitor 
         // add similarities
         if (alterFuzzyDomain.getAddSimilarity() != null) {
             List<Similarity> addSimilarities = alterFuzzyDomain.getAddSimilarity()
-                                                               .getExpressions();
+                    .getExpressions();
             for (Similarity similarity : addSimilarities) {
                 if (!(similarity.getLabel1() instanceof StringValue)) {
                     throw new UnsupportedOperationException("Only string labels"
@@ -162,19 +196,19 @@ public class StatementTranslator extends Translator implements StatementVisitor 
                             + " for now: " + similarity.getLabel2().toString());
                 }
                 afdo.addSimilarity(
-                                ((StringValue)similarity.getLabel1()).getValue(),
-                                ((StringValue)similarity.getLabel2()).getValue(),
-                                ((DoubleValue)similarity.getValue()).getValue());
+                        ((StringValue) similarity.getLabel1()).getValue(),
+                        ((StringValue) similarity.getLabel2()).getValue(),
+                        ((DoubleValue) similarity.getValue()).getValue());
             }
         }
-        
+
         // drop labels
         if (alterFuzzyDomain.getDropValues() != null) {
             List<Expression> dropLabels = alterFuzzyDomain.getDropValues()
-                                                          .getExpressions();
+                    .getExpressions();
             for (Expression label : dropLabels) {
                 if (label instanceof StringValue) {
-                    afdo.dropLabel(((StringValue)label).getValue());
+                    afdo.dropLabel(((StringValue) label).getValue());
                 } else {
                     throw new UnsupportedOperationException("Only string labels for now: " + label.toString());
                 }
@@ -184,7 +218,7 @@ public class StatementTranslator extends Translator implements StatementVisitor 
         // drop similarities
         if (alterFuzzyDomain.getDropSimilarity() != null) {
             List<Similarity> dropSimilarities = alterFuzzyDomain.getDropSimilarity()
-                                                                .getExpressions();
+                    .getExpressions();
             for (Relation similarity : dropSimilarities) {
                 if (!(similarity.getLabel1() instanceof StringValue)) {
                     throw new UnsupportedOperationException("Only string labels"
@@ -195,8 +229,8 @@ public class StatementTranslator extends Translator implements StatementVisitor 
                             + " for now: " + similarity.getLabel2().toString());
                 }
                 afdo.dropSimilarity(
-                                ((StringValue)similarity.getLabel1()).getValue(),
-                                ((StringValue)similarity.getLabel2()).getValue());
+                        ((StringValue) similarity.getLabel1()).getValue(),
+                        ((StringValue) similarity.getLabel2()).getValue());
             }
         }
 
@@ -207,7 +241,7 @@ public class StatementTranslator extends Translator implements StatementVisitor 
         // Mark this statement to be ignored by the translation execution.
         // This means this statement, when deparsed, won't make sense for the
         // RDBMS.
-        this.ignoreAST = true;        
+        this.ignoreAST = true;
     }
 
     @Override
@@ -228,24 +262,29 @@ public class StatementTranslator extends Translator implements StatementVisitor 
             String table = drop.getName();
             operations.add(new RemoveFuzzyColumnsOperation(connector, Helper.getSchemaName(connector), table));
         } else if ("FUZZY DOMAIN".equalsIgnoreCase(type)) {
-            // TODO remove fuzzy
-            operations.add(new DropFuzzyDomainOperation(connector, drop.getName()));
-            // Mark this statement to be ignored by the translation execution.
-            // This means this statement, when deparsed, won't make sense for the
-            // RDBMS.
+            DropFuzzyDomainTranslator t = new DropFuzzyDomainTranslator(connector, operations);
+            t.translate(drop);
             this.ignoreAST = true;
+            /*String domain = drop.getName();
+             Integer domainType = getDomainType(connector, domain);
+             if(domainType != null && domainType.equals(3)){
+             // TODO remove fuzzy
+             Logger.debug("Starting DROP Fuzzy 3");
+             //operations.add(new DropFuzzyDomainOperation(connector, drop.getName()));
+             // Mark this statement to be ignored by the translation execution.
+             // This means this statement, when deparsed, won't make sense for the
+             // RDBMS.
+
+             //this.ignoreAST = true;
+             }*/
+
         }
     }
 
     @Override
     public void visit(Insert insert) throws Exception {
-        SelectTranslator selectTranslator = new SelectTranslator(connector);
-//		selectTranslator.setBuffer(buffer);
-//        ExpressionTranslator expressionTranslator = new ExpressionTranslator(selectTranslator);
-//        selectTranslator.setExpressionVisitor(expressionTranslator);
-//        InsertTranslator insertTranslator = new InsertTranslator(expressionTranslator, selectTranslator);
-//        insertTranslator.translate(insert);
-
+        InsertTranslator insertTranslator = new InsertTranslator(connector);
+        insertTranslator.translate(insert);
     }
 
     @Override
@@ -277,7 +316,7 @@ public class StatementTranslator extends Translator implements StatementVisitor 
     @Override
     public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception {
     }
-    
+
     @Override
     public void visit(CreateFuzzyConstant createFuzzyConstant) throws Exception {
     }

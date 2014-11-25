@@ -1,9 +1,9 @@
 package fuzzy.type2.operations;
 
 import java.sql.SQLException;
-/* fuzzy imports*/
 import fuzzy.common.operations.Operation;
 import fuzzy.database.Connector;
+import java.sql.Savepoint;
 
 /**
  * Drops a Type-2 Fuzzy type. This includes all the queries and operations
@@ -98,9 +98,17 @@ public class DropFuzzyType2DomainOperation extends Operation {
                 + "WHERE table_schema = (select current_schema())"
                 + "AND domain_name = '" + domain + "'";
 
+        String dropType = "DROP TYPE IF EXISTS " + domain + ";";
+        
+        Savepoint sp = this.beginTransaction();
+        try {
         connector.executeRawUpdate(updateCatalog);
 
         deleteConstants(schemaName);
         dropOperatorCatalog(schemaName, fullTypeName);
+        } catch (SQLException e) {
+            this.rollback(sp);
+            throw e;
+        }
     }
 }

@@ -58,4 +58,8 @@ public class ExpressionList implements ItemsList {
 	public String toString(boolean useBrackets) {
 		return PlainSelect.getStringList(expressions, true, useBrackets);
 	}
+        
+        public int size(){
+            return expressions.size();
+        }
 }

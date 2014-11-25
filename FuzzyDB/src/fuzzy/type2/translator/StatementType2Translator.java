@@ -3,24 +3,20 @@ package fuzzy.type2.translator;
 import fuzzy.database.Connector;
 import fuzzy.common.operations.Operation;
 import fuzzy.common.operations.RawSQLOperation;
+import fuzzy.common.translator.Translator;
 import fuzzy.helpers.Helper;
 import fuzzy.helpers.Memory;
-import fuzzy.helpers.Printer;
 import fuzzy.type2.operations.CreateFuzzyType2DomainOperation;
 import fuzzy.type2.operations.DropFuzzyType2DomainOperation;
 import fuzzy.type2.operations.RemoveFuzzyType2ColumnsOperation;
 import fuzzy.type2.operations.CreateFuzzyType2ConstantOperation;
 import fuzzy.type2.operations.DropFuzzyType2ConstantOperation;
 import fuzzy.type2.operations.ReplaceFuzzyType2ConstantOperation;
-import fuzzy.type3.translator.Translator;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Iterator;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.ItemsList;
-import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
@@ -81,6 +77,12 @@ public class StatementType2Translator extends Translator implements StatementVis
     public void visit(CreateFuzzyType2Domain fuzzyDomain) throws Exception {
         String name = fuzzyDomain.getName();
         String type = fuzzyDomain.getType();
+
+        // Instruccion corresponde a una de tipo 5
+        if (!Connector.isNativeDataType(type)) {
+            return;
+        }
+
         CreateFuzzyType2DomainOperation op = new CreateFuzzyType2DomainOperation(connector, name, type);
         String lower_bound = fuzzyDomain.getLowerBound();
         String upper_bound = fuzzyDomain.getUpperBound();
@@ -142,8 +144,8 @@ public class StatementType2Translator extends Translator implements StatementVis
     @Override
     public void visit(Insert insert) throws Exception {
         FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(connector);
-        ReplaceFuzzyType2ConstantOperation replaceFuzzyType2ConstantOperation = 
-                new ReplaceFuzzyType2ConstantOperation(
+        ReplaceFuzzyType2ConstantOperation replaceFuzzyType2ConstantOperation
+                = new ReplaceFuzzyType2ConstantOperation(
                         connector, insert.getTable(), insert.getColumns(),
                         ((ExpressionList) insert.getItemsList()).getExpressions());
         replaceFuzzyType2ConstantOperation.execute();
@@ -161,8 +163,8 @@ public class StatementType2Translator extends Translator implements StatementVis
     @Override
     public void visit(Update update) throws Exception {
         FuzzyType2ExpTranslator translator = new FuzzyType2ExpTranslator(connector);
-        ReplaceFuzzyType2ConstantOperation replaceFuzzyType2ConstantOperation =
-                new ReplaceFuzzyType2ConstantOperation(connector, update.getTable(),
+        ReplaceFuzzyType2ConstantOperation replaceFuzzyType2ConstantOperation
+                = new ReplaceFuzzyType2ConstantOperation(connector, update.getTable(),
                         update.getColumns(), update.getExpressions());
         replaceFuzzyType2ConstantOperation.execute();
         List<Expression> new_exps = new ArrayList<Expression>();

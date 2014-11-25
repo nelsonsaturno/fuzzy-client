@@ -1,5 +1,6 @@
 package fuzzy.type3.translator;
 
+import fuzzy.common.translator.Translator;
 import fuzzy.common.translator.FuzzyColumnSet;
 import fuzzy.common.translator.FuzzyColumn;
 import fuzzy.common.translator.TableRefList;
@@ -14,6 +15,7 @@ import static fuzzy.common.translator.TableRef.ParentType.PLAIN_SELECT;
 import static fuzzy.common.translator.TableRef.ParentType.SUB_JOIN;
 import static fuzzy.common.translator.TableRef.TableType.SUB_SELECT;
 import java.io.StringReader;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -76,6 +78,9 @@ public class SelectTranslator implements SelectVisitor, OrderByVisitor, SelectIt
         Logger.debug("Explorando tablas y columnas difusas");
         //tableRefSet.debugDump();
         // used variables
+        
+        
+        
         this.selectItems = (List<SelectItem>) plainSelect.getSelectItems();
         Expression where = plainSelect.getWhere();
         List<Expression> groupByColumnReferences = (List<Expression>) plainSelect.getGroupByColumnReferences();
@@ -217,7 +222,7 @@ public class SelectTranslator implements SelectVisitor, OrderByVisitor, SelectIt
             FuzzyColumn fuzzyColumn = this.fuzzyColumnSet.get(column);
 
             if (fuzzyColumn == null) {
-                throw Translator.FR_NO_FUZZY_COLUMN;
+                return;// exception in type 5
             }
 
             Expression orderByExpression = joinWithFuzzySimilarities(fuzzyColumn, fuzzyStart);
@@ -366,26 +371,40 @@ public class SelectTranslator implements SelectVisitor, OrderByVisitor, SelectIt
     }
 
     protected Expression joinWithFuzzySimilarities(FuzzyColumn fuzzyColumn, Expression fuzzyExpression) throws Exception {
-        String domainAlias = this.aliasGenerator.getNewDomainAlias();
-        String labelAlias = this.aliasGenerator.getNewLabelAlias();
+        String domainAlias     = this.aliasGenerator.getNewDomainAlias();
+        String labelAlias      = this.aliasGenerator.getNewLabelAlias();
         String similarityAlias = this.aliasGenerator.getNewSimilarityAlias();
-        String domainName = Helper.getDomainNameForColumn(connector, fuzzyColumn.getTableRef().getTable(), fuzzyColumn.getPublicName());
-        String sql = "SELECT nothing "
-                + "FROM nothing "
-                + "LEFT JOIN "
-                + "information_schema_fuzzy.similarities AS " + similarityAlias + " "
-                + "ON (" + similarityAlias + ".label1_id = " 
-                + "(SELECT label_id FROM information_schema_fuzzy.labels AS " + labelAlias + " "
+        
+        String domainName      = Helper.getDomainNameForColumn(connector,
+                                                              fuzzyColumn.getTableRef().getTable(),
+                                                              fuzzyColumn.getPublicName());
+        
+        String queryLabelId =
+                "(SELECT label_id FROM information_schema_fuzzy.labels AS " + labelAlias + " "
                 + "WHERE " + labelAlias + ".label_name = " + fuzzyExpression.toString() + " "
                 + "AND " + labelAlias + ".domain_id = ("
                 + "SELECT " + domainAlias + ".domain_id FROM "
                 + "information_schema_fuzzy.domains AS " + domainAlias + " "
                 + "WHERE " + domainAlias + ".domain_name = '" + domainName + "'"
-                + ")) "
+                + ")) ";
+
+        ResultSet result = connector.executeRawQuery(queryLabelId);
+        
+        if ( !result.next() ) {
+            throw Translator.FR_LABEL_DO_NOT_EXISTS(fuzzyExpression.toString());
+        }
+        
+        int labelId = result.getInt(1);
+        
+        String sql = "SELECT nothing "
+                + "FROM nothing "
+                + "LEFT JOIN "
+                + "information_schema_fuzzy.similarities AS " + similarityAlias + " "
+                + "ON (" + similarityAlias + ".label1_id = " + labelId
                 + "AND " + similarityAlias + ".label2_id = " 
                 + fuzzyColumn.getJoinForOrderBy()
                 + ") "
-                + "ORDER BY IFNULL(" + similarityAlias + ".value, 0)";
+                + "ORDER BY COALESCE(" + similarityAlias + ".value, 0)";
         Logger.debug("Parsing:\n" + sql);
         // It's easier to parse what I want to replace than building it
 

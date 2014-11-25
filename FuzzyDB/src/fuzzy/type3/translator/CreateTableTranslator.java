@@ -1,9 +1,11 @@
 package fuzzy.type3.translator;
 
+import fuzzy.common.translator.Translator;
 import fuzzy.database.Connector;
 import fuzzy.helpers.Helper;
 import fuzzy.type3.operations.AddFuzzyColumnOperation;
 import fuzzy.common.operations.Operation;
+import fuzzy.type3.operations.CreateConstraintsForNewColumnOperation;
 import java.sql.SQLException;
 import java.util.Iterator;
 
@@ -31,7 +33,7 @@ public class CreateTableTranslator extends Translator {
                 String columnName = columnDefinition.getColumnName();
                 String dataType = columnDefinition.getColDataType().getDataType();
                 Integer domainId = null;
-                if ((domainId = getFuzzyDomainId(schemaName, dataType)) != null) {
+                if ((domainId = getFuzzyDomainId(schemaName, dataType, "3")) != null) {
                     columnDefinition.getColDataType().setDataType("INTEGER");
                     // I got to translate the default value too, because it must references
                     // the label id and not the label
@@ -55,6 +57,7 @@ public class CreateTableTranslator extends Translator {
 
                     // Queue a query to insert this definition in the metadata
                     operations.add(new AddFuzzyColumnOperation(connector, schemaName, tableName, columnName, domainId));
+                    operations.add(new CreateConstraintsForNewColumnOperation(connector, schemaName, tableName, columnName));
                 }
             }
         }

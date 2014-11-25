@@ -25,6 +25,8 @@ import fuzzy.helpers.Printer;
 import fuzzy.common.operations.Operation;
 import fuzzy.type3.translator.StatementTranslator;
 import fuzzy.type2.translator.StatementType2Translator;
+import fuzzy.type5.translator.StatementType5Translator;
+import java.util.logging.Level;
 
 public class Connector {
 
@@ -36,12 +38,12 @@ public class Connector {
      * updated with Postgres' types, or better yet, query the database and
      * populate this list at setup time.
      */
-    private static final String[] DATA_TYPES = {"TINYINT​", "BOOLEAN​", "SMALLINT​",
-        "MEDIUMINT​", "INT​", "INTEGER​", "BIGINT​", "DECIMAL​", "DEC, NUMERIC, FIXED​",
-        "FLOAT​", "DOUBLE​", "DOUBLE PRECISION​", "BIT​", "CHAR​", "VARCHAR​", "BINARY​",
-        "CHAR BYTE​", "VARBINARY​", "TINYBLOB​", "BLOB​", "BLOB DATA TYPE​", "MEDIUMBLOB​",
-        "LONGBLOB​", "TINYTEXT​", "TEXT​", "MEDIUMTEXT​", "LONGTEXT​", "ENUM​", "SET", "DATE​",
-        "TIME​", "DATETIME​", "TIMESTAMP​", "YEAR​", "POINT", "LINESTRING", "POLYGON",
+    private static final String[] DATA_TYPES = {"TINYINT", "BOOLEAN", "SMALLINT",
+        "MEDIUMINT", "INT​", "BIGINT", "INTEGER", "DECIMAL", "DEC, NUMERIC, FIXED​",
+        "FLOAT", "DOUBLE", "DOUBLE PRECISION", "BIT", "CHAR", "VARCHAR", "BINARY",
+        "CHAR BYTE", "VARBINARY", "TINYBLOB", "BLOB", "BLOB DATA TYPE", "MEDIUMBLOB",
+        "LONGBLOB", "TINYTEXT", "TEXT", "MEDIUMTEXT", "LONGTEXT", "ENUM", "SET", "DATE",
+        "TIME", "DATETIME", "TIMESTAMP", "YEAR", "POINT", "LINESTRING", "POLYGON",
         "MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON", "GEOMETRYCOLLECTION", "GEOMETRY"};
 
     /**
@@ -51,7 +53,7 @@ public class Connector {
      * @return true if it's a native data type of the RDBMS.
      */
     public static boolean isNativeDataType(String dataType) {
-        return Arrays.asList(DATA_TYPES).contains(dataType.toLowerCase());
+        return Arrays.asList(DATA_TYPES).contains(dataType.toUpperCase());
     }
 
     // Driver module used by java.sql
@@ -194,7 +196,8 @@ public class Connector {
 
     /**
      * Executes database restore given a type2 ordering execution
-     * @throws SQLException 
+     *
+     * @throws SQLException
      */
     public void restoreState() throws SQLException {
         if (this.restoreState) {
@@ -375,6 +378,14 @@ public class Connector {
             throw new SQLException("Type 2 Translator exception: " + e.getMessage(), "42000", 3119, e);
         }
 
+        // Fuzzy Type 5 extensions translator
+        StatementType5Translator st5 = new StatementType5Translator(this, operations);
+        try {
+            s.accept(st5);
+        } catch (Exception e) {
+            throw new SQLException("Type 5 Translator exception: " + e.getMessage(), "42000", 3119, e);
+        }
+
         // The statement translators turn a flag whenever they encounter a
         // statement whose translation consists entirely of Operations, and
         // that the statement itself must be disregarded because the RDBMS
@@ -383,7 +394,7 @@ public class Connector {
         // pretty terrible. But previously this was a huge ig statement with
         // many instanceof expressions, so this is better at least.
         String res = null;
-        if (!st.getIgnoreAST() && !st2.getIgnoreAST()) {
+        if (!st.getIgnoreAST() && !st2.getIgnoreAST() && !st5.getIgnoreAST()) {
             StringBuffer sb = new StringBuffer();
             StatementDeParser sdp = new StatementDeParser(sb);
             try {

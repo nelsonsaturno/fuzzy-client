@@ -522,7 +522,7 @@ public class ExpressionDeParser implements ExpressionVisitor, ItemsListVisitor {
         }
         buffer.append("}f");
     }
-
+    
     public void visit(ArrayExpression arrayExpression) {
         buffer.append("ARRAY[");
         try {

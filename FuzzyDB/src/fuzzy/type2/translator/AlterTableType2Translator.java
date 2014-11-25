@@ -1,5 +1,6 @@
 package fuzzy.type2.translator;
 
+import fuzzy.common.translator.Translator;
 import fuzzy.type3.translator.*;
 import fuzzy.database.Connector;
 import fuzzy.common.operations.Operation;

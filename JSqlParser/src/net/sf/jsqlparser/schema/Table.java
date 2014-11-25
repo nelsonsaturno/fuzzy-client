@@ -25,7 +25,6 @@ package net.sf.jsqlparser.schema;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.FromItemVisitor;
 import net.sf.jsqlparser.statement.select.IntoTableVisitor;
-import net.sf.jsqlparser.statement.select.SelectItemVisitor;
 
 /**
  * A table. It can have an alias and the schema name it belongs to. 
@@ -40,7 +39,8 @@ public class Table implements FromItem {
 
 	public Table(String schemaName, String name) {
 		this.schemaName = schemaName;
-		this.name = name;
+                if (name != null)
+                    this.name = name.toLowerCase();
 	}
 	
 	public String getName() {
@@ -52,7 +52,8 @@ public class Table implements FromItem {
 	}
 
 	public void setName(String string) {
-		name = string;
+            if (string != null)
+		name = string.toLowerCase();
 	}
 
 	public void setSchemaName(String string) {
@@ -64,7 +65,8 @@ public class Table implements FromItem {
 	}
 
 	public void setAlias(String string) {
-		alias = string;
+            if (string != null)
+		alias = string.toLowerCase();
 	}
 	
 	public String getWholeTableName() {

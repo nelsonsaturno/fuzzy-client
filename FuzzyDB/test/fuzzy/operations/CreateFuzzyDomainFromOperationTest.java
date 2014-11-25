@@ -7,7 +7,6 @@ package fuzzy.operations;
 import fuzzy.type3.operations.CreateFuzzyDomainFromColumnOperation;
 import fuzzy.Helper;
 import fuzzy.database.Connector;
-import java.sql.Connection;
 import java.sql.SQLException;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -72,10 +71,12 @@ public class CreateFuzzyDomainFromOperationTest {
     
     @Test
     public void insertFromVarcharMetadata() throws Exception{
-        CreateFuzzyDomainFromColumnOperation o = new CreateFuzzyDomainFromColumnOperation(connector);
-        o.setDomainName("nombres");
-        o.setTableName("people");
-        o.setColumnName("name");
+        CreateFuzzyDomainFromColumnOperation o;
+        o = new CreateFuzzyDomainFromColumnOperation(connector,
+                                                     "nombres",
+                                                     "public",
+                                                     "people",
+                                                     "name");
         o.execute();
         
         String schemaName = "fuzzy_ddl_test";
@@ -93,10 +94,12 @@ public class CreateFuzzyDomainFromOperationTest {
     
     @Test
     public void insertFromDateMetadata() throws Exception{
-        CreateFuzzyDomainFromColumnOperation o = new CreateFuzzyDomainFromColumnOperation(connector);
-        o.setDomainName("dates");
-        o.setTableName("people");
-        o.setColumnName("birthdate");
+        CreateFuzzyDomainFromColumnOperation o;
+        o = new CreateFuzzyDomainFromColumnOperation(connector,
+                                                     "dates",
+                                                     "public",
+                                                     "people",
+                                                     "birthdate");
         o.execute();
         
         String schemaName = "fuzzy_ddl_test";
@@ -116,10 +119,12 @@ public class CreateFuzzyDomainFromOperationTest {
     public void duplicatedDomain() throws Exception {
         exception.expect(SQLException.class);
         exception.expectMessage("Can't create domain 'nombres'; domain exists");
-        CreateFuzzyDomainFromColumnOperation o = new CreateFuzzyDomainFromColumnOperation(connector);
-        o.setDomainName("nombres");
-        o.setTableName("people");
-        o.setColumnName("name");
+        CreateFuzzyDomainFromColumnOperation o;
+        o = new CreateFuzzyDomainFromColumnOperation(connector, 
+                                                     "nombres", 
+                                                     "public", 
+                                                     "people", 
+                                                     "name");
         o.execute();
         o.execute();
     }
@@ -128,10 +133,12 @@ public class CreateFuzzyDomainFromOperationTest {
     public void emptyValuesList() throws Exception {
         exception.expect(SQLException.class);
         exception.expectMessage("Can't create domain without labels; non-null values in 'fuzzy_ddl_test.people.comments' not found");
-        CreateFuzzyDomainFromColumnOperation o = new CreateFuzzyDomainFromColumnOperation(connector);
-        o.setDomainName("comments");
-        o.setTableName("people");
-        o.setColumnName("comments");
+        CreateFuzzyDomainFromColumnOperation o;
+        o = new CreateFuzzyDomainFromColumnOperation(connector, 
+                                                     "comments",
+                                                     "public",
+                                                     "people",
+                                                     "comments");
         o.execute();
     }
     
@@ -140,10 +147,12 @@ public class CreateFuzzyDomainFromOperationTest {
         exception.expect(SQLException.class);
         exception.expectMessage("No database selected");
         Connector c2 = new Connector();
-        CreateFuzzyDomainFromColumnOperation o = new CreateFuzzyDomainFromColumnOperation(c2);
-        o.setDomainName("names");
-        o.setTableName("people");
-        o.setColumnName("name");
+        CreateFuzzyDomainFromColumnOperation o;
+        o = new CreateFuzzyDomainFromColumnOperation(c2, 
+                                                     "names",
+                                                     "public",
+                                                     "people",
+                                                     "name");
         o.execute();
     }
     
@@ -152,11 +161,12 @@ public class CreateFuzzyDomainFromOperationTest {
     public void insertFromAnotherSchemaMetadata() throws Exception{
         // FIXME: Debido a la migración a Postgres, esto seguro no sirve ni de vaina. Hay que refactorizar todo el peo del USE database.
         connector.setSchema("fuzzy_ddl_test1");
-        CreateFuzzyDomainFromColumnOperation o = new CreateFuzzyDomainFromColumnOperation(connector);
-        o.setDomainName("nombres");
-        o.setSchemaName("fuzzy_ddl_test");
-        o.setTableName("people");
-        o.setColumnName("name");
+        CreateFuzzyDomainFromColumnOperation o;
+        o = new CreateFuzzyDomainFromColumnOperation(connector, 
+                                                     "nombres",
+                                                     "fuzzy_ddl_test1",
+                                                     "people",
+                                                     "name");
         o.execute();
         
         String schemaName = "fuzzy_ddl_test1";

@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fuzzy.type3.translator;
+package fuzzy.common.translator;
 
 import fuzzy.database.Connector;
 import fuzzy.common.operations.Operation;
@@ -21,6 +21,7 @@ public class Translator {
     public static final SQLException FR_NON_SUPPORTED_FUNCTION = new SQLException("Non-supported aggregation function when grouping by fuzzy column.", "42000", 3001);
     public static final SQLException FR_INVALID_STARTING_VALUE = new SQLException("Starting value must be a String enclosed with ' or \"", "42000", 3002);
     public static final SQLException ER_NO_DB_ERROR = new SQLException("No database selected", "3D000", 1046);
+    
     public static SQLException FR_INVALID_REFLEXIVITY_FOR_DOMAIN(String label) {
         return new SQLException("Resulting similarity relation doesn't hold reflexivity for label '" + label + "'", "42000", 3008);
     }
@@ -36,9 +37,13 @@ public class Translator {
     public static SQLException FR_DUPLICATE_LABEL_VALUE(String label) {
         return new SQLException("Duplicate label value '" + label + "'", "42000", 3003);
     }
+    
+    public static SQLException FR_DUPLICATE_LABEL_ALT2() {
+        return new SQLException("Duplicate label value in the SELECT statement result. Try SELECT DISTINCT.", "42000", 3003);
+    }
 
     public static SQLException FR_DUPLICATE_DOMAIN_NAME(String domainName) {
-        return new SQLException("Can't create domain '" + domainName + "'; domain exists", "HY000", 3004);
+        return new SQLException("Can't create domain '" + domainName + "'; domain already exists", "HY000", 3004);
     }
     
     public static SQLException FR_LABEL_DO_NOT_EXISTS(String label) {
@@ -58,7 +63,11 @@ public class Translator {
     }
 
     public static SQLException FR_EMPTY_VALUES_LIST(String schemaName, String tableName, String columnName) {
-        return new SQLException("Can't create domain without labels; non-null values in '" + (schemaName != null ? schemaName + "." : "") + tableName + "." + columnName + "' not found", "42000", 3011);
+        return new SQLException("Can't create domain without labels; not found non-null values in '" + (schemaName != null ? schemaName + "." : "") + tableName + "." + columnName + "'", "42000", 3011);
+    }
+    
+    public static SQLException FR_EMPTY_SELECT_RESULT(String select) {
+        return new SQLException("Can't create domain; not found a valid result in: " + select , "42000", 3011);
     }
 
 
@@ -83,8 +92,9 @@ public class Translator {
         return this.ignoreAST;
     }
 
-
-    public Integer getFuzzyDomainId(String schemaName, String domainName)
+    
+    
+    public Integer getFuzzyDomainId(String schemaName, String domainName, String domain_type)
         throws SQLException {
         if (Connector.isNativeDataType(domainName)) {
             return null;
@@ -92,7 +102,7 @@ public class Translator {
         String sql = "SELECT domain_id "
                 + "FROM information_schema_fuzzy.domains "
                 + "WHERE table_schema = '" + schemaName + "' AND domain_name = '"
-                + domainName + "' "
+                + domainName + "' AND domain_type = '" + domain_type + "' "
                 + "LIMIT 1";
         ResultSet resultSet = connector.executeRawQuery(sql);
         if (resultSet != null && resultSet.next()) {
@@ -134,4 +144,5 @@ public class Translator {
         }
         return null;
     }
+    
 }
