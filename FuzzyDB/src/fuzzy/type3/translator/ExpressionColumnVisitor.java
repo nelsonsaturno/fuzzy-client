@@ -326,7 +326,6 @@ public abstract class ExpressionColumnVisitor implements ExpressionVisitor, Item
 
     @Override
     public void visit(RowExpression row) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

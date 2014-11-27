@@ -250,7 +250,6 @@ public class Client {
         }
         
         sentence_list.add( builder.substring(start, builder.length()) );
-        System.out.println(sentence_list.toString());
         return sentence_list;
     }
 }

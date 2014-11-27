@@ -456,7 +456,7 @@ public class FuzzyExpTranslator implements ExpressionVisitor, ItemsListVisitor, 
 
     @Override
     public void visit(RowExpression row) throws Exception {
-        throw new UnsupportedOperationException(Error.getError("notImplemented"));
+        
     }
 
     @Override
