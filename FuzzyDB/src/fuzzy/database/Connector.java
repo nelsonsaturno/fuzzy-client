@@ -368,10 +368,12 @@ public class Connector {
                     "42000", 3018, e);
         }
 
+        boolean acceptedByType2 = false;
         // Fuzzy Type 2 extensions translator
         StatementType2Translator st2 = new StatementType2Translator(this, operations);
         try {
             s.accept(st2);
+            acceptedByType2 = true;
         } catch (SQLException e) {
             throw e;
         } catch (Exception e) {
@@ -380,10 +382,12 @@ public class Connector {
 
         // Fuzzy Type 5 extensions translator
         StatementType5Translator st5 = new StatementType5Translator(this, operations);
-        try {
-            s.accept(st5);
-        } catch (Exception e) {
-            throw new SQLException("Type 5 Translator exception: " + e.getMessage(), "42000", 3119, e);
+        if (!acceptedByType2) {
+            try {
+                s.accept(st5);
+            } catch (Exception e) {
+                throw new SQLException("Type 5 Translator exception: " + e.getMessage(), "42000", 3119, e);
+            }
         }
 
         // The statement translators turn a flag whenever they encounter a

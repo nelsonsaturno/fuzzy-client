@@ -1,3 +1,5 @@
+-- Ejemplo de creacion en insercion de elementos en un dominio
+-- de tipo 2
 CREATE FUZZY DOMAIN fuzzyint50 AS POSSIBILITY DISTRIBUTION ON INTEGER;
 CREATE TABLE test(id integer, value fuzzyint50);
 INSERT INTO test VALUES(1,{f (Null, Null, 10, 20)} ); 
@@ -8,7 +10,40 @@ INSERT INTO test VALUES(5,{f 0.75/13, 1.0/14, 0.25/15} );
 INSERT INTO test VALUES(6,{f (14, 15, 19, 30)} ); 
 INSERT INTO test VALUES(7,{f (1, 2, 5, 6)} );
 INSERT INTO test VALUES(8,{f (3, 4, 7, 8)} );
+-- Ejemplo de creacion en insercion de constantes y elementos en un dominio
+-- de tipo 2
+CREATE FUZZY DOMAIN fuzzyint AS POSSIBILITY DISTRIBUTION ON INTEGER;
+CREATE TABLE persona(cedula int,nombre varchar,altura fuzzyint,peso fuzzyint);
+-- Crear constantes para el atributo 'altura'
+CREATE FUZZY CONSTANT bajo fuzzyint := {f (50, 55, 60, 65)};
+CREATE FUZZY CONSTANT mediano fuzzyint := {f (60, 65, 70, 75)};
+CREATE FUZZY CONSTANT alto fuzzyint := {f (70, 75, NULL, NULL)};
+-- Crear constantes para el atributo 'peso'
+CREATE FUZZY CONSTANT flaco fuzzyint := {f (NULL, NULL, 30, 55)};
+CREATE FUZZY CONSTANT normal fuzzyint := {f (50, 55, 60, 75)};
+CREATE FUZZY CONSTANT gordo fuzzyint := {f (70, 75, NULL, NULL)};
+-- Aliasing de constantes
+CREATE FUZZY CONSTANT muy_flaco fuzzyint := 'flaco';
+-- ERROR: Constante no existe
+CREATE FUZZY CONSTANT otra_constante fuzzyint := 'noexiste';
+-- ERROR: Constante no es de tipo difuso
+CREATE FUZZY CONSTANT otra_constante fuzzyint := 1;
+-- Inserciones
+INSERT INTO persona VALUES (1, 'persona1', 'bajo', 'gordo');
+INSERT INTO persona VALUES (2, 'persona2', 'alto', 'flaco');
+INSERT INTO persona VALUES (3, 'persona3', 'mediano', 'normal');
+-- Actualizaciones
+UPDATE persona SET peso = 'normal' WHERE cedula = 1;
 
+-- Queries con constantes
+select * from persona where altura = {f (50, 55, 60, 65)};
+select * from persona where altura = 'bajo' and cedula = 1;
+select * from persona where altura > 'bajo';
+select * from persona where peso <= 'gordo';
+select * from persona where peso > 'flaco';
+
+-- Ejemplo de creacion en insercion de elementos en un dominio
+-- de tipo 3 y de tipo 5
 create fuzzy domain dominio_tipo3 as values('A', 'B', 'C', 'D') similarity{('A', 'B')/1.0, ('C', 'A')/0.5, ('C', 'D')/0.3}
 CREATE FUZZY DOMAIN dominio_tipo5 AS POSSIBILITY DISTRIBUTION ON dominio_tipo3;
 create table tabla_tipo5(a1 integer, a2 dominio_tipo5)
@@ -16,7 +51,7 @@ create table tabla_tipo3(att1 integer, att2 dominio_tipo3)
 insert into tabla_tipo5 values (45322, {f 0.5/'A', 1.0/'B'})
 insert into tabla_tipo3 values (12345, 'A')
 
--- Ejemplo de Pokemon del otro grupo
+-- Ejemplo de Pokemon con ambos dominios, tipo 2, 3 y 5.
 CREATE FUZZY DOMAIN tipos_pokemon AS VALUES ('Planta','Fuego','Agua','Electrico') SIMILARITY {('Planta','Fuego')/0.4,('Planta','Agua')/0.7,('Fuego','Electrico')/0.8,('Agua','Electrico')/0.6};
 CREATE FUZZY DOMAIN alturas_pokemon AS POSSIBILITY DISTRIBUTION ON INTEGER;
 CREATE TABLE pokemon (Nombre VARCHAR NOT NULL PRIMARY KEY, Altura alturas_pokemon, tipo tipos_pokemon);
@@ -36,18 +71,19 @@ SELECT altura, count(*) FROM pokemon GROUP BY altura ORDER BY altura;
 -- ORDER BY tipo3
 SELECT nombre, tipo FROM pokemon ORDER BY tipo STARTING FROM 'Electrico';
 SELECT nombre, tipo FROM pokemon ORDER BY tipo STARTING FROM 'Electrico', nombre;
-SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo STARTING FROM 'Electrico'; -- SIN FROM, informe dice que es con FROM
+SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo STARTING FROM 'Electrico';
 SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo STARTING 'Electrico', nombre;
 SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo START 'Electrico';
 SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo START 'Electrico', nombre;
+
 -- GROUP BY tipo3
 SELECT nombre, count(*) FROM pokemon GROUP BY nombre;
 SELECT tipo, count(*) FROM pokemon GROUP BY SIMILAR tipo;
 SELECT tipo, count(*) FROM pokemon GROUP BY tipo;
 SELECT tipo, nombre, count(*) FROM pokemon GROUP BY nombre, tipo;
-SELECT tipo, nombre, count(*) FROM pokemon GROUP BY SIMILAR tipo, nombre; -- ??????? =S
+SELECT tipo, nombre, count(*) FROM pokemon GROUP BY SIMILAR tipo, nombre;
 
-SELECT tipo, count(*) FROM pokemon GROUP BY SIMILAR tipo ORDER BY tipo STARTING FROM 'Electrico'; -- ???????
+SELECT tipo, count(*) FROM pokemon GROUP BY SIMILAR tipo ORDER BY tipo STARTING FROM 'Electrico';
 
 create fuzzy domain Color as values('Rojo', 'Rosado', 'Amarillo') similarity{('Rojo', 'Rosado')/0.8, ('Rosado', 'Rojo')/0.8}
 create table flores(Flor TEXT, Color Color);

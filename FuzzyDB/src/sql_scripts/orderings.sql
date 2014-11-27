@@ -25,6 +25,7 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
         b                   float := 0;
         pendiente           float := 0;
         index               int := 1;
+        zero                int := 0;
     BEGIN
         SELECT ordering INTO current_order FROM information_schema_fuzzy.current_orderings2;
 
@@ -32,7 +33,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
             -- Both numbers are expressed by extension
             IF ((elem1.type = FALSE) AND (elem1.value[2] IS NOT NULL) AND (elem1.value[3] IS NOT NULL)) THEN
                 distance := elem1.value[2] - elem1.value[1] -1;
-                pendiente := 1::float / (elem1.value[2] - elem1.value[1]);
+                zero := elem1.value[2] - elem1.value[1];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem1.value[1]);
 
                 for i in (elem1.value[1] + 1)..(elem1.value[1] + distance) loop
@@ -57,7 +63,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
                 index := index + 1;
 
                 distance := elem1.value[4] - elem1.value[3] -1;
-                pendiente := (-1)::float / (elem1.value[4] - elem1.value[3]);
+                zero := elem1.value[4] - elem1.value[3];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem1.value[4]);
                 for i in (elem1.value[3] + 1)..(elem1.value[3] + distance) loop
                     trapezoid_array_x_1[index] = i;
@@ -69,7 +80,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
             IF ((elem2.type = FALSE) AND (elem2.value[2] IS NOT NULL) AND (elem2.value[3] IS NOT NULL)) THEN
                 index := 1;
                 distance := elem2.value[2] - elem2.value[1] -1;
-                pendiente := 1::float / (elem2.value[2] - elem2.value[1]);
+                zero := elem2.value[2] - elem2.value[1];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem2.value[1]);
 
                 for i in (elem2.value[1] + 1)..(elem2.value[1] + distance) loop
@@ -94,7 +110,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
                 index := index + 1;
 
                 distance := elem2.value[4] - elem2.value[3] -1;
-                pendiente := (-1)::float / (elem2.value[4] - elem2.value[3]);
+                zero := elem2.value[4] - elem2.value[3];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem2.value[4]);
                 for i in (elem2.value[3] + 1)..(elem2.value[3] + distance) loop
                     trapezoid_array_x_2[index] = i;
@@ -263,12 +284,22 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
                 END IF;   
                 -- Calculte both the abscissas
                 abscissa_1 := (elem1.value[1] * elem1.value[2]) + (elem1.value[3] * elem1.value[4]);
-                abscissa_1 := abscissa_1::float / (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
-                abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                zero := (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
+                IF (zero = 0) THEN
+                    RETURN FALSE;
+                ELSE 
+                    abscissa_1 := abscissa_1::float / zero;
+                    abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                END IF;
 
                 abscissa_2 := (elem2.value[1] * elem2.value[2]) + (elem2.value[3] * elem2.value[4]);
-                abscissa_2 := abscissa_2::float / (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
-                abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                zero := (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
+                IF (zero = 0) THEN
+                    RETURN TRUE;
+                ELSE
+                    abscissa_2 := abscissa_2::float / zero;
+                    abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                END IF;
 
                 RETURN abscissa_2 > abscissa_1;
             END IF;
@@ -288,9 +319,14 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
                     -- Calculte both the abscissas
                     abscissa_2 := mass_moment_2::float / mass_2;
 
-                    abscissa_1 := (elem1.value[1] * elem1.value[2]) + (elem1.value[3] * elem1.value[4]);
-                    abscissa_1 := abscissa_1::float / (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
+                abscissa_1 := (elem1.value[1] * elem1.value[2]) + (elem1.value[3] * elem1.value[4]);
+                zero := (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
+                IF (zero = 0) THEN
+                    RETURN FALSE;
+                ELSE 
+                    abscissa_1 := abscissa_1::float / zero;
                     abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                END IF;
 
                     RETURN abscissa_2 > abscissa_1;
             END IF;
@@ -310,8 +346,13 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower(elem1 anyelemen
                 abscissa_1 := mass_moment_1::float / mass_1;
 
                 abscissa_2 := (elem2.value[1] * elem2.value[2]) + (elem2.value[3] * elem2.value[4]);
-                abscissa_2 := abscissa_2::float / (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
-                abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_1);
+                zero := (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
+                IF (zero = 0) THEN
+                    RETURN TRUE;
+                ELSE
+                    abscissa_2 := abscissa_2::float / zero;
+                    abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                END IF;
 
                 RETURN abscissa_2 > abscissa_1;
             END IF;
@@ -471,14 +512,20 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower_eq(elem1 anyele
         b                   float := 0;
         pendiente           float := 0;
         index               int := 1;
+        zero                int := 0;
     BEGIN
         SELECT ordering INTO current_order FROM information_schema_fuzzy.current_orderings2;
 
         IF current_order = 1 THEN
 
-            IF ((elem1.type = FALSE) AND (elem1.value[2] IS NOT NULL) AND (elem1.value[3] IS NOT NULL)) THEN
+IF ((elem1.type = FALSE) AND (elem1.value[2] IS NOT NULL) AND (elem1.value[3] IS NOT NULL)) THEN
                 distance := elem1.value[2] - elem1.value[1] -1;
-                pendiente := 1::float / (elem1.value[2] - elem1.value[1]);
+                zero := elem1.value[2] - elem1.value[1];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem1.value[1]);
 
                 for i in (elem1.value[1] + 1)..(elem1.value[1] + distance) loop
@@ -503,7 +550,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower_eq(elem1 anyele
                 index := index + 1;
 
                 distance := elem1.value[4] - elem1.value[3] -1;
-                pendiente := (-1)::float / (elem1.value[4] - elem1.value[3]);
+                zero := elem1.value[4] - elem1.value[3];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem1.value[4]);
                 for i in (elem1.value[3] + 1)..(elem1.value[3] + distance) loop
                     trapezoid_array_x_1[index] = i;
@@ -515,7 +567,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower_eq(elem1 anyele
             IF ((elem2.type = FALSE) AND (elem2.value[2] IS NOT NULL) AND (elem2.value[3] IS NOT NULL)) THEN
                 index := 1;
                 distance := elem2.value[2] - elem2.value[1] -1;
-                pendiente := 1::float / (elem2.value[2] - elem2.value[1]);
+                zero := elem2.value[2] - elem2.value[1];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem2.value[1]);
 
                 for i in (elem2.value[1] + 1)..(elem2.value[1] + distance) loop
@@ -540,7 +597,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower_eq(elem1 anyele
                 index := index + 1;
 
                 distance := elem2.value[4] - elem2.value[3] -1;
-                pendiente := (-1)::float / (elem2.value[4] - elem2.value[3]);
+                zero := elem2.value[4] - elem2.value[3];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem2.value[4]);
                 for i in (elem2.value[3] + 1)..(elem2.value[3] + distance) loop
                     trapezoid_array_x_2[index] = i;
@@ -707,12 +769,22 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower_eq(elem1 anyele
                 END IF;
                 -- Calculte both the abscissas
                 abscissa_1 := (elem1.value[1] * elem1.value[2]) + (elem1.value[3] * elem1.value[4]);
-                abscissa_1 := abscissa_1::float / (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
-                abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                zero := (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
+                IF (zero = 0) THEN
+                    RETURN FALSE;
+                ELSE 
+                    abscissa_1 := abscissa_1::float / zero;
+                    abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                END IF;
 
                 abscissa_2 := (elem2.value[1] * elem2.value[2]) + (elem2.value[3] * elem2.value[4]);
-                abscissa_2 := abscissa_2::float / (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
-                abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                zero := (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
+                IF (zero = 0) THEN
+                    RETURN FALSE;
+                ELSE
+                    abscissa_2 := abscissa_2::float / zero;
+                    abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                END IF;
 
                 RETURN abscissa_2 >= abscissa_1;
             END IF;
@@ -754,8 +826,13 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_lower_eq(elem1 anyele
                 abscissa_1 := mass_moment_1::float / mass_1;
 
                 abscissa_2 := (elem2.value[1] * elem2.value[2]) + (elem2.value[3] * elem2.value[4]);
-                abscissa_2 := abscissa_2::float / (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
-                abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_1);
+                zero := (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
+                IF (zero = 0) THEN
+                    RETURN TRUE;
+                ELSE
+                    abscissa_2 := abscissa_2::float / zero;
+                    abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                END IF;
 
                 RETURN abscissa_2 >= abscissa_1;
             END IF;
@@ -918,6 +995,7 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
         b                   float := 0;
         pendiente           float := 0;
         index               int := 1;
+        zero                int := 0;
     BEGIN
         SELECT ordering INTO current_order FROM information_schema_fuzzy.current_orderings2;
 
@@ -925,7 +1003,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
 
             IF ((elem1.type = FALSE) AND (elem1.value[2] IS NOT NULL) AND (elem1.value[3] IS NOT NULL)) THEN
                 distance := elem1.value[2] - elem1.value[1] -1;
-                pendiente := 1::float / (elem1.value[2] - elem1.value[1]);
+                zero := elem1.value[2] - elem1.value[1];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem1.value[1]);
 
                 for i in (elem1.value[1] + 1)..(elem1.value[1] + distance) loop
@@ -948,9 +1031,13 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
                 trapezoid_array_x_1[index] = elem1.value[3];
                 trapezoid_array_y_1[index] = 1;
                 index := index + 1;
-
                 distance := elem1.value[4] - elem1.value[3] -1;
-                pendiente := (-1)::float / (elem1.value[4] - elem1.value[3]);
+                zero := elem1.value[4] - elem1.value[3];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem1.value[4]);
                 for i in (elem1.value[3] + 1)..(elem1.value[3] + distance) loop
                     trapezoid_array_x_1[index] = i;
@@ -962,7 +1049,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
             IF ((elem2.type = FALSE) AND (elem2.value[2] IS NOT NULL) AND (elem2.value[3] IS NOT NULL)) THEN
                 index := 1;
                 distance := elem2.value[2] - elem2.value[1] -1;
-                pendiente := 1::float / (elem2.value[2] - elem2.value[1]);
+                zero := elem2.value[2] - elem2.value[1];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem2.value[1]);
 
                 for i in (elem2.value[1] + 1)..(elem2.value[1] + distance) loop
@@ -987,7 +1079,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
                 index := index + 1;
 
                 distance := elem2.value[4] - elem2.value[3] -1;
-                pendiente := (-1)::float / (elem2.value[4] - elem2.value[3]);
+                zero := elem2.value[4] - elem2.value[3];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem2.value[4]);
                 for i in (elem2.value[3] + 1)..(elem2.value[3] + distance) loop
                     trapezoid_array_x_2[index] = i;
@@ -1132,6 +1229,7 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
                     mass_2          := mass_2 + elem2.odd[i];
                 END LOOP;
                 -- Calculate both the abscissas
+                
                 abscissa_1 := mass_moment_1::float / mass_1;
                 abscissa_2 := mass_moment_2::float / mass_2;
                 RETURN abscissa_1 = abscissa_2;
@@ -1156,12 +1254,22 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
                 END IF;
                 -- Calculte both the abscissas
                 abscissa_1 := (elem1.value[1] * elem1.value[2]) + (elem1.value[3] * elem1.value[4]);
-                abscissa_1 := abscissa_1::float / (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
-                abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                zero := (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
+                IF (zero = 0) THEN
+                    RETURN FALSE;
+                ELSE 
+                    abscissa_1 := abscissa_1::float / zero;
+                    abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                END IF;
 
                 abscissa_2 := (elem2.value[1] * elem2.value[2]) + (elem2.value[3] * elem2.value[4]);
-                abscissa_2 := abscissa_2::float / (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
-                abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                zero := (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
+                IF (zero = 0) THEN
+                    RETURN FALSE;
+                ELSE
+                    abscissa_2 := abscissa_2::float / zero;
+                    abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                END IF;
 
                 RETURN abscissa_1 = abscissa_2;
             END IF;
@@ -1182,8 +1290,13 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
                 abscissa_2 := mass_moment_2::float / mass_2;
 
                 abscissa_1 := (elem1.value[1] * elem1.value[2]) + (elem1.value[3] * elem1.value[4]);
-                abscissa_1 := abscissa_1::float / (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
-                abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                zero := (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
+                IF (zero = 0) THEN
+                    RETURN FALSE;
+                ELSE 
+                    abscissa_1 := abscissa_1::float / zero;
+                    abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                END IF;
 
                 RETURN abscissa_1::float = abscissa_2;
             END IF;
@@ -1203,8 +1316,13 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_eq(elem1 anyelement, 
                 abscissa_1 := mass_moment_1::float / mass_1;
 
                 abscissa_2 := (elem2.value[1] * elem2.value[2]) + (elem2.value[3] * elem2.value[4]);
-                abscissa_2 := abscissa_2::float / (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
-                abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_1);
+                zero := (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
+                IF (zero = 0) THEN
+                    RETURN FALSE;
+                ELSE
+                    abscissa_2 := abscissa_2::float / zero;
+                    abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                END IF;
 
                 RETURN abscissa_1 = abscissa_2;
             END IF;
@@ -1399,13 +1517,20 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater(elem1 anyelem
         b                   float := 0;
         pendiente           float := 0;
         index               int := 1;
+        zero                int := 0;
     BEGIN
         SELECT ordering INTO current_order FROM information_schema_fuzzy.current_orderings2;
 
         IF current_order = 1 THEN
-            IF ((elem1.type = FALSE) AND (elem1.value[2] IS NOT NULL) AND (elem1.value[3] IS NOT NULL)) THEN
+
+IF ((elem1.type = FALSE) AND (elem1.value[2] IS NOT NULL) AND (elem1.value[3] IS NOT NULL)) THEN
                 distance := elem1.value[2] - elem1.value[1] -1;
-                pendiente := 1::float / (elem1.value[2] - elem1.value[1]);
+                zero := elem1.value[2] - elem1.value[1];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem1.value[1]);
 
                 for i in (elem1.value[1] + 1)..(elem1.value[1] + distance) loop
@@ -1430,7 +1555,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater(elem1 anyelem
                 index := index + 1;
 
                 distance := elem1.value[4] - elem1.value[3] -1;
-                pendiente := (-1)::float / (elem1.value[4] - elem1.value[3]);
+                zero := elem1.value[4] - elem1.value[3];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem1.value[4]);
                 for i in (elem1.value[3] + 1)..(elem1.value[3] + distance) loop
                     trapezoid_array_x_1[index] = i;
@@ -1442,7 +1572,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater(elem1 anyelem
             IF ((elem2.type = FALSE) AND (elem2.value[2] IS NOT NULL) AND (elem2.value[3] IS NOT NULL)) THEN
                 index := 1;
                 distance := elem2.value[2] - elem2.value[1] -1;
-                pendiente := 1::float / (elem2.value[2] - elem2.value[1]);
+                zero := elem2.value[2] - elem2.value[1];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem2.value[1]);
 
                 for i in (elem2.value[1] + 1)..(elem2.value[1] + distance) loop
@@ -1467,7 +1602,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater(elem1 anyelem
                 index := index + 1;
 
                 distance := elem2.value[4] - elem2.value[3] -1;
-                pendiente := (-1)::float / (elem2.value[4] - elem2.value[3]);
+                zero := elem2.value[4] - elem2.value[3];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem2.value[4]);
                 for i in (elem2.value[3] + 1)..(elem2.value[3] + distance) loop
                     trapezoid_array_x_2[index] = i;
@@ -1636,12 +1776,22 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater(elem1 anyelem
                 END IF;
                 -- Calculte both the abscissas
                 abscissa_1 := (elem1.value[1] * elem1.value[2]) + (elem1.value[3] * elem1.value[4]);
-                abscissa_1 := abscissa_1::float / (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
-                abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                zero := (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
+                IF (zero = 0) THEN
+                    RETURN TRUE;
+                ELSE 
+                    abscissa_1 := abscissa_1::float / zero;
+                    abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                END IF;
 
                 abscissa_2 := (elem2.value[1] * elem2.value[2]) + (elem2.value[3] * elem2.value[4]);
-                abscissa_2 := abscissa_2::float / (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
-                abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                zero := (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
+                IF (zero = 0) THEN
+                    RETURN FALSE;
+                ELSE
+                    abscissa_2 := abscissa_2::float / zero;
+                    abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                END IF;
 
                 RETURN abscissa_1 > abscissa_2;
             END IF;
@@ -1662,8 +1812,13 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater(elem1 anyelem
                 abscissa_2 := mass_moment_2::float / mass_2;
 
                 abscissa_1 := (elem1.value[1] * elem1.value[2]) + (elem1.value[3] * elem1.value[4]);
-                abscissa_1 := abscissa_1::float / (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
-                abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                zero := (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
+                IF (zero = 0) THEN
+                    RETURN TRUE;
+                ELSE 
+                    abscissa_1 := abscissa_1::float / zero;
+                    abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                END IF;
 
                 RETURN abscissa_1 > abscissa_2;
             END IF;
@@ -1683,8 +1838,13 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater(elem1 anyelem
                 abscissa_1 := mass_moment_1::float / mass_1;
 
                 abscissa_2 := (elem2.value[1] * elem2.value[2]) + (elem2.value[3] * elem2.value[4]);
-                abscissa_2 := abscissa_2::float / (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
-                abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_1);
+                zero := (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
+                IF (zero = 0) THEN
+                    RETURN FALSE;
+                ELSE
+                    abscissa_2 := abscissa_2::float / zero;
+                    abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                END IF;
 
                 RETURN abscissa_1 > abscissa_2;
             END IF;
@@ -1846,14 +2006,20 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater_eq(elem1 anye
         b                   float := 0;
         pendiente           float := 0;
         index               int := 1;
+        zero                int := 0;
     BEGIN
         SELECT ordering INTO current_order FROM information_schema_fuzzy.current_orderings2;
 
         IF current_order = 1 THEN
 
-            IF ((elem1.type = FALSE) AND (elem1.value[2] IS NOT NULL) AND (elem1.value[3] IS NOT NULL)) THEN
+IF ((elem1.type = FALSE) AND (elem1.value[2] IS NOT NULL) AND (elem1.value[3] IS NOT NULL)) THEN
                 distance := elem1.value[2] - elem1.value[1] -1;
-                pendiente := 1::float / (elem1.value[2] - elem1.value[1]);
+                zero := elem1.value[2] - elem1.value[1];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem1.value[1]);
 
                 for i in (elem1.value[1] + 1)..(elem1.value[1] + distance) loop
@@ -1878,7 +2044,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater_eq(elem1 anye
                 index := index + 1;
 
                 distance := elem1.value[4] - elem1.value[3] -1;
-                pendiente := (-1)::float / (elem1.value[4] - elem1.value[3]);
+                zero := elem1.value[4] - elem1.value[3];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem1.value[4]);
                 for i in (elem1.value[3] + 1)..(elem1.value[3] + distance) loop
                     trapezoid_array_x_1[index] = i;
@@ -1890,7 +2061,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater_eq(elem1 anye
             IF ((elem2.type = FALSE) AND (elem2.value[2] IS NOT NULL) AND (elem2.value[3] IS NOT NULL)) THEN
                 index := 1;
                 distance := elem2.value[2] - elem2.value[1] -1;
-                pendiente := 1::float / (elem2.value[2] - elem2.value[1]);
+                zero := elem2.value[2] - elem2.value[1];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem2.value[1]);
 
                 for i in (elem2.value[1] + 1)..(elem2.value[1] + distance) loop
@@ -1915,7 +2091,12 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater_eq(elem1 anye
                 index := index + 1;
 
                 distance := elem2.value[4] - elem2.value[3] -1;
-                pendiente := (-1)::float / (elem2.value[4] - elem2.value[3]);
+                zero := elem2.value[4] - elem2.value[3];
+                IF (zero = 0) THEN
+                    pendiente := 0;
+                ELSE
+                    pendiente := (-1)::float / zero;
+                END IF;
                 b := -(pendiente*elem2.value[4]);
                 for i in (elem2.value[3] + 1)..(elem2.value[3] + distance) loop
                     trapezoid_array_x_2[index] = i;
@@ -2084,12 +2265,22 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater_eq(elem1 anye
                 END IF;
                 -- Calculte both the abscissas
                 abscissa_1 := (elem1.value[1] * elem1.value[2]) + (elem1.value[3] * elem1.value[4]);
-                abscissa_1 := abscissa_1::float / (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
-                abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                zero := (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
+                IF (zero = 0) THEN
+                    RETURN TRUE;
+                ELSE 
+                    abscissa_1 := abscissa_1::float / zero;
+                    abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                END IF;
 
                 abscissa_2 := (elem2.value[1] * elem2.value[2]) + (elem2.value[3] * elem2.value[4]);
-                abscissa_2 := abscissa_2::float / (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
-                abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                zero := (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
+                IF (zero = 0) THEN
+                    RETURN FALSE;
+                ELSE
+                    abscissa_2 := abscissa_2::float / zero;
+                    abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                END IF;
 
                 RETURN abscissa_1 >= abscissa_2;
             END IF;
@@ -2110,8 +2301,13 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater_eq(elem1 anye
                 abscissa_2 := mass_moment_2::float / mass_2;
 
                 abscissa_1 := (elem1.value[1] * elem1.value[2]) + (elem1.value[3] * elem1.value[4]);
-                abscissa_1 := abscissa_1::float / (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
-                abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                zero := (elem1.value[4] - elem1.value[1] + elem1.value[3] - elem1.value[2]);
+                IF (zero = 0) THEN
+                    RETURN TRUE;
+                ELSE 
+                    abscissa_1 := abscissa_1::float / zero;
+                    abscissa_1 := (1::float/3) * (elem1.value[1] + elem1.value[2] + elem1.value[3] + elem1.value[4] + abscissa_1);
+                END IF;
 
                 RETURN abscissa_1 >= abscissa_2;
             END IF;
@@ -2131,8 +2327,13 @@ CREATE OR REPLACE FUNCTION information_schema_fuzzy.fuzzy2_greater_eq(elem1 anye
                 abscissa_1 := mass_moment_1::float / mass_1;
 
                 abscissa_2 := (elem2.value[1] * elem2.value[2]) + (elem2.value[3] * elem2.value[4]);
-                abscissa_2 := abscissa_2::float / (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
-                abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_1);
+                zero := (elem2.value[4] - elem2.value[1] + elem2.value[3] - elem2.value[2]);
+                IF (zero = 0) THEN
+                    RETURN FALSE;
+                ELSE
+                    abscissa_2 := abscissa_2::float / zero;
+                    abscissa_2 := (1::float/3) * (elem2.value[1] + elem2.value[2] + elem2.value[3] + elem2.value[4] + abscissa_2);
+                END IF;
 
                 RETURN abscissa_1 >= abscissa_2;
             END IF;
