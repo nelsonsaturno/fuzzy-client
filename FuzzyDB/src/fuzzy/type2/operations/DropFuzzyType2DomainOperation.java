@@ -55,12 +55,12 @@ public class DropFuzzyType2DomainOperation extends Operation {
          *  DROP FUNCTION IF EXISTS public.__<function>(public.<domain>, public.<domain>)
          */
         String dropFuncFormat = "DROP FUNCTION IF EXISTS " + funcNameFormat + "(" + typeName + ", " + typeName + ")";
-        String dropLowerFunc = String.format(dropFuncFormat, "_lower");
-        String dropLowerEqFunc = String.format(dropFuncFormat, "_lower_eq");
-        String dropEqFunc = String.format(dropFuncFormat, "_eq");
-        String dropGreaterEqFunc = String.format(dropFuncFormat, "_greater_eq");
-        String dropGreaterFunc = String.format(dropFuncFormat, "_greater");
-        String dropCmpFunc = String.format(dropFuncFormat, "_cmp");
+        String dropLowerFunc = String.format(dropFuncFormat, "lower");
+        String dropLowerEqFunc = String.format(dropFuncFormat, "lower_eq");
+        String dropEqFunc = String.format(dropFuncFormat, "eq");
+        String dropGreaterEqFunc = String.format(dropFuncFormat, "greater_eq");
+        String dropGreaterFunc = String.format(dropFuncFormat, "greater");
+        String dropCmpFunc = String.format(dropFuncFormat, "cmp");
 
         /* Drop operator class */
         connector.executeRaw(dropOpClass);
@@ -102,10 +102,11 @@ public class DropFuzzyType2DomainOperation extends Operation {
         
         Savepoint sp = this.beginTransaction();
         try {
-        connector.executeRawUpdate(updateCatalog);
-
-        deleteConstants(schemaName);
-        dropOperatorCatalog(schemaName, fullTypeName);
+            connector.executeRawUpdate(updateCatalog);
+            deleteConstants(schemaName);
+            dropOperatorCatalog(schemaName, fullTypeName);
+            
+            connector.executeRawUpdate(dropType);
         } catch (SQLException e) {
             this.rollback(sp);
             throw e;

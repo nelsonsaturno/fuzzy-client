@@ -265,18 +265,6 @@ public class StatementTranslator extends Translator implements StatementVisitor 
             DropFuzzyDomainTranslator t = new DropFuzzyDomainTranslator(connector, operations);
             t.translate(drop);
             this.ignoreAST = true;
-            /*String domain = drop.getName();
-             Integer domainType = getDomainType(connector, domain);
-             if(domainType != null && domainType.equals(3)){
-             // TODO remove fuzzy
-             Logger.debug("Starting DROP Fuzzy 3");
-             //operations.add(new DropFuzzyDomainOperation(connector, drop.getName()));
-             // Mark this statement to be ignored by the translation execution.
-             // This means this statement, when deparsed, won't make sense for the
-             // RDBMS.
-
-             //this.ignoreAST = true;
-             }*/
 
         }
     }

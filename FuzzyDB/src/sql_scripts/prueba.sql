@@ -44,12 +44,12 @@ select * from persona where peso > 'flaco';
 
 -- Ejemplo de creacion en insercion de elementos en un dominio
 -- de tipo 3 y de tipo 5
-create fuzzy domain dominio_tipo3 as values('A', 'B', 'C', 'D') similarity{('A', 'B')/1.0, ('C', 'A')/0.5, ('C', 'D')/0.3}
+create fuzzy domain dominio_tipo3 as values('A', 'B', 'C', 'D') similarity{('A', 'B')/1.0, ('C', 'A')/0.5, ('C', 'D')/0.3};
 CREATE FUZZY DOMAIN dominio_tipo5 AS POSSIBILITY DISTRIBUTION ON dominio_tipo3;
-create table tabla_tipo5(a1 integer, a2 dominio_tipo5)
-create table tabla_tipo3(att1 integer, att2 dominio_tipo3)
-insert into tabla_tipo5 values (45322, {f 0.5/'A', 1.0/'B'})
-insert into tabla_tipo3 values (12345, 'A')
+create table tabla_tipo5(a1 integer, a2 dominio_tipo5);
+create table tabla_tipo3(att1 integer, att2 dominio_tipo3);
+insert into tabla_tipo5 values (45322, {f 0.5/'A', 1.0/'B'});
+insert into tabla_tipo3 values (12345, 'A');
 
 -- Ejemplo de Pokemon con ambos dominios, tipo 2, 3 y 5.
 CREATE FUZZY DOMAIN tipos_pokemon AS VALUES ('Planta','Fuego','Agua','Electrico') SIMILARITY {('Planta','Fuego')/0.4,('Planta','Agua')/0.7,('Fuego','Electrico')/0.8,('Agua','Electrico')/0.6};
@@ -72,7 +72,7 @@ SELECT altura, count(*) FROM pokemon GROUP BY altura ORDER BY altura;
 SELECT nombre, tipo FROM pokemon ORDER BY tipo STARTING FROM 'Electrico';
 SELECT nombre, tipo FROM pokemon ORDER BY tipo STARTING FROM 'Electrico', nombre;
 SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo STARTING FROM 'Electrico';
-SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo STARTING 'Electrico', nombre;
+SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo STARTING 'Electrico', nombre; -- No funciona por la gramatica
 SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo START 'Electrico';
 SELECT nombre, tipo FROM pokemon ORDER BY SIMILARITY ON tipo START 'Electrico', nombre;
 
@@ -102,8 +102,8 @@ create fuzzy domain dominio_prueba_tipo3_1 as values from tabla_prueba_tipo3_1.e
 
 ---- Sintaxis alterna 2:
 create table tabla_prueba_tipo3_2(id integer, etiquetas TEXT);
-insert into tabla_prueba_tipo3_2 values (1, 'A'); insert into tabla_prueba_tipo3_1 values (2, 'B'); insert into tabla_prueba_tipo3_1 values (3, 'C');
-create fuzzy domain dominio_prueba_tipo3_2 as select etiquetas from tabla_prueba_tipo3_2; -- no implementado. Implementarlo?
+insert into tabla_prueba_tipo3_2 values (1, 'A'); insert into tabla_prueba_tipo3_2 values (2, 'B'); insert into tabla_prueba_tipo3_2 values (3, 'C');
+create fuzzy domain dominio_prueba_tipo3_2 as select etiquetas from tabla_prueba_tipo3_2; -- implementado.
 
 -- Alter Fuzzy Domain tipo 3:
 create fuzzy domain dominio_prueba_alter_tipo3 as values('A', 'B', 'C', 'D');
